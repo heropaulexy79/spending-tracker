@@ -152,7 +152,17 @@ body { background: var(--black); color: var(--white); font-family: var(--font-bo
 .log-item-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; background: #161616; border-radius: 10px; padding: 10px 12px; border: 1px solid var(--border); transition: border-color 0.2s; }
 .log-item-row.impulse-row { border-left: 2px solid rgba(192,57,43,0.4); }
 .log-item-row:hover { border-color: #3a3a3a; }
-.log-item-name { flex: 2; background: transparent; border: none; color: var(--white); font-family: var(--font-body); font-size: 12px; outline: none; min-width: 0; }
+.log-item-name {
+  flex: 1;
+  min-width: 80px;
+  max-width: 160px;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 12px;
+  outline: none;
+}
 .log-item-name::placeholder { color: #3a3a3a; }
 .log-item-amt { width: 90px; background: rgba(201,169,110,0.06); border: 1px solid rgba(201,169,110,0.15); border-radius: 6px; padding: 5px 8px; color: var(--white); font-family: var(--font-body); font-size: 12px; text-align: right; outline: none; }
 .log-item-amt:focus { border-color: var(--gold); }
@@ -350,7 +360,7 @@ html, body {
   .user-dropdown { right: 8px; min-width: 170px; }
 
   /* Tabs */
-  .tab { font-size: 9px; padding: 11px 3px; min-width: 52px; }
+  .tab { font-size: 8px; padding: 11px 3px; min-width: 44px; }
 
   /* Week bar */
   .week-bar { padding: 10px 12px; }
@@ -376,7 +386,7 @@ html, body {
   /* Log tab */
   .log-day-label { font-size: 13px; }
   .log-item-row { flex-wrap: wrap; gap: 6px; padding: 8px 10px; }
-  .log-item-name { width: 100%; font-size: 12px; }
+  .log-item-name { width: auto; flex: 1; min-width: 70px; max-width: 120px; font-size: 11px; }
   .log-item-amt { width: 80px; font-size: 12px; }
   .log-item-select { font-size: 11px; }
   .log-item-mood { width: 52px; font-size: 10px; }

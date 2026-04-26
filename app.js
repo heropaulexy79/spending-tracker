@@ -514,7 +514,7 @@ function addLogItemToSection(container, item, day) {
       <option value="nobuy"${item.type==='nobuy'?' selected':''}>No Buy</option>
     </select>
     <input class="log-item-mood before" type="text" placeholder="Mood before" value="${esc(item.before||'')}">
-    <input class="log-item-mood after"  type="text" placeholder="Moodafter"  value="${esc(item.after||'')}">
+    <input class="log-item-mood after"  type="text" placeholder="Mood after"  value="${esc(item.after||'')}">
     <button class="log-item-del" onclick="this.closest('.log-item-row').remove();autoSave();updateLogTotal();updatePlan()">&times;</button>
   `;
 
