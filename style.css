@@ -386,7 +386,7 @@ html, body {
   /* Log tab */
   .log-day-label { font-size: 13px; }
   .log-item-row { flex-wrap: wrap; gap: 6px; padding: 8px 10px; }
-  .log-item-name { width: auto; flex: 1; min-width: 70px; max-width: 120px; font-size: 11px; }
+  .log-item-name { width: auto; flex: 1; min-width: 70px; max-width: 100px; font-size: 9px; }
   .log-item-amt { width: 80px; font-size: 12px; }
   .log-item-select { font-size: 11px; }
   .log-item-mood { width: 52px; font-size: 10px; }

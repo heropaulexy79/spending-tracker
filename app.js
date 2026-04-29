@@ -716,6 +716,7 @@ function revealStat(card) { card.classList.add('revealed'); }
 function revealChart(wrap) { wrap.classList.add('revealed'); }
 
 function updateStats() {
+  collect();
   const w = wData();
   const spent = parseLogTotal(), total = gv('total-budget'), saved = Math.max(0,total-spent);
   let imp=0, ned=0, dayA=DAYS.map(()=>0);
