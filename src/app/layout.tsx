@@ -4,6 +4,7 @@ import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import { AuthProvider } from "@/context/AuthContext";
 import NotificationManager from "@/components/NotificationManager";
+import InstallPrompt from "@/components/InstallPrompt";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body className={`${inter.className} pb-24 min-h-screen bg-background text-foreground`}>
         <AuthProvider>
           <NotificationManager />
+          <InstallPrompt />
           <main className="max-w-lg mx-auto px-4 py-8">
             {children}
           </main>

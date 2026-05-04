@@ -6,7 +6,7 @@ import AuthForm from "@/components/AuthForm";
 import { useAuth } from "@/context/AuthContext";
 import { useTracking } from "@/hooks/useTracking";
 import { motion } from "framer-motion";
-import { Wallet, Target, TrendingUp, Zap, Calendar, User as UserIcon, Loader2 } from "lucide-react";
+import { Wallet, Target, TrendingUp, Zap, Calendar, User as UserIcon, Loader2, ArrowRight } from "lucide-react";
 
 import Link from "next/link";
 import { auth } from "@/lib/firebase";
@@ -67,37 +67,54 @@ export default function Home() {
 
   return (
     <div className="space-y-8 animate-in">
-      <header className="flex justify-between items-start">
+      <header className="flex justify-between items-start pt-2">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-4xl font-bold tracking-tight text-gradient">
             Hello, {user.displayName?.split(" ")[0] || "Friend"}
           </h1>
-          <p className="text-muted-foreground text-sm">Observe your patterns today.</p>
+          <p className="text-muted-foreground text-sm font-medium">Observe your patterns today.</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
-            {["₦", "$", "€"].map((c) => (
-              <button key={c} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-xs font-bold text-white transition-all">
-                {c}
-              </button>
-            ))}
-          </div>
           <button 
             onClick={() => signOut(auth)}
-            className="p-2 rounded-xl bg-white/5 border border-white/10 text-muted-foreground hover:text-white"
+            className="p-3 rounded-2xl glass hover:bg-white/10 transition-colors"
           >
-            <UserIcon className="w-5 h-5" />
+            <UserIcon className="w-5 h-5 text-white" />
           </button>
         </div>
       </header>
 
+      {/* Main Mindset Card */}
+      <section className="glass-card p-8 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+          <Target className="w-32 h-32 text-indigo-400" />
+        </div>
+        <div className="relative z-10 space-y-4">
+          <h2 className="text-sm font-bold text-indigo-400 uppercase tracking-[0.2em]">Current Mindset</h2>
+          <div className="flex items-baseline gap-2">
+            <span className="text-5xl font-bold text-white tracking-tighter">{plan?.spenderType || "Balanced"}</span>
+          </div>
+          <p className="text-muted-foreground max-w-[280px] leading-relaxed">
+            {plan?.spenderType === "Strict" 
+              ? "High-discipline mode active. Focus on core needs." 
+              : "Maintaining intentional balance between needs and joys."}
+          </p>
+          <Link 
+            href="/plan" 
+            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 px-5 py-2.5 rounded-full transition-all"
+          >
+            Refine Intent <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
+
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-2 gap-4">
         <StatCard 
-          label="Weekly Budget" 
+          label="Weekly Plan" 
           value={`₦${budgetValue.toLocaleString()}`} 
           icon={<Wallet className="w-4 h-4" />} 
-          color="text-blue-400"
+          color="text-indigo-400"
           href="/plan"
         />
         <StatCard 
@@ -115,10 +132,10 @@ export default function Home() {
           href="/urge"
         />
         <StatCard 
-          label="No-Spend Days" 
+          label="Days Aware" 
           value={noSpendDays.toString()} 
           icon={<Calendar className="w-4 h-4" />} 
-          color="text-purple-400"
+          color="text-coral-400"
           href="/mirror"
         />
       </div>
@@ -196,14 +213,14 @@ function StatCard({ label, value, icon, color, href }: { label: string, value: s
       <motion.div 
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className="p-5 glass rounded-3xl space-y-3 cursor-pointer"
+        className="p-6 glass-card space-y-4 cursor-pointer group"
       >
-        <div className={cn("w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center", color)}>
+        <div className={cn("w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center transition-colors group-hover:bg-white/10", color)}>
           {icon}
         </div>
         <div>
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{label}</p>
-          <p className="text-xl font-bold text-white">{value}</p>
+          <p className="text-2xl font-bold text-white tracking-tight leading-none">{value}</p>
+          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em] mt-2">{label}</p>
         </div>
       </motion.div>
     </Link>
