@@ -7,7 +7,7 @@ import {
   createUserWithEmailAndPassword, 
   updateProfile,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithRedirect
 } from "firebase/auth";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
@@ -42,10 +42,9 @@ export default function AuthForm() {
     setError("");
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      await signInWithRedirect(auth, provider);
     } catch (err: any) {
       setError(getFriendlyErrorMessage(err.code));
-    } finally {
       setLoading(false);
     }
   };
