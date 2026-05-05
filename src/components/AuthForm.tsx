@@ -7,8 +7,7 @@ import {
   createUserWithEmailAndPassword, 
   updateProfile,
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult
+  signInWithPopup
 } from "firebase/auth";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
@@ -39,33 +38,37 @@ export default function AuthForm() {
     return map[code] || "Something went wrong. Please try again.";
   };
 
-  useEffect(() => {
-    const checkRedirect = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          console.log("Google Sign-in Success");
-        }
-      } catch (err: any) {
-        console.error("Google Redirect Error:", err);
-        if (err.code === "auth/unauthorized-domain") {
-          setError("Your Vercel domain isn't authorized in the Firebase Console yet.");
-        } else {
-          setError(getFriendlyErrorMessage(err.code));
-        }
-      }
-    };
-    checkRedirect();
-  }, []);
-
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError("");
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithRedirect(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      
+      // If new user, trigger welcome email
+      const isNewUser = (result.user.metadata as any).createdAt === (result.user.metadata as any).lastLoginAt;
+      if (isNewUser) {
+        try {
+          const idToken = await result.user.getIdToken();
+          await fetch("/api/welcome", {
+            method: "POST",
+            body: JSON.stringify({ email: result.user.email, name: result.user.displayName }),
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${idToken}`
+            },
+          });
+        } catch (e) {
+          console.error("Failed to send welcome email for Google user:", e);
+        }
+      }
     } catch (err: any) {
-      setError(getFriendlyErrorMessage(err.code));
+      console.error("Google Auth Error:", err);
+      if (err.code === "auth/unauthorized-domain") {
+        setError("Your Vercel domain isn't authorized in the Firebase Console yet.");
+      } else {
+        setError(getFriendlyErrorMessage(err.code));
+      }
       setLoading(false);
     }
   };
