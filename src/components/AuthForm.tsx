@@ -7,8 +7,10 @@ import {
   createUserWithEmailAndPassword, 
   updateProfile,
   GoogleAuthProvider,
-  signInWithRedirect
+  signInWithRedirect,
+  getRedirectResult
 } from "firebase/auth";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,6 +38,22 @@ export default function AuthForm() {
     };
     return map[code] || "Something went wrong. Please try again.";
   };
+
+  useEffect(() => {
+    const checkRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          // Successfully signed in with Google
+          console.log("Google Sign-in Success:", result.user);
+        }
+      } catch (err: any) {
+        console.error("Google Redirect Error:", err);
+        setError(getFriendlyErrorMessage(err.code));
+      }
+    };
+    checkRedirect();
+  }, []);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);

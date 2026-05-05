@@ -5,6 +5,7 @@ import BottomNav from "@/components/layout/BottomNav";
 import { AuthProvider } from "@/context/AuthContext";
 import NotificationManager from "@/components/NotificationManager";
 import InstallPrompt from "@/components/InstallPrompt";
+import AppShell from "@/components/layout/AppShell";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,13 +39,11 @@ export default function RootLayout({
         <AuthProvider>
           <NotificationManager />
           <InstallPrompt />
-          <main className="max-w-lg mx-auto px-4 py-8">
+          <AppShell>
             {children}
-          </main>
-          <BottomNav />
+          </AppShell>
         </AuthProvider>
       </body>
     </html>
   );
 }
-

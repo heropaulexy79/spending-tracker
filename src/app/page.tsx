@@ -14,47 +14,9 @@ import { signOut } from "firebase/auth";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
-  const { user, loading: authLoading } = useAuth();
-  const { plan, logs, loading: trackingLoading } = useTracking();
-  const [hasSeenGuide, setHasSeenGuide] = useState<boolean | null>(null);
+  const { user } = useAuth();
+  const { plan, logs } = useTracking();
 
-  useEffect(() => {
-    const globalSeen = localStorage.getItem(`hasSeenGuide_global`);
-    if (globalSeen) {
-      setHasSeenGuide(true);
-    } else if (user) {
-      const userSeen = localStorage.getItem(`hasSeenGuide_${user.uid}`);
-      setHasSeenGuide(!!userSeen);
-    } else {
-      setHasSeenGuide(false);
-    }
-  }, [user]);
-
-  const completeOnboarding = () => {
-    localStorage.setItem(`hasSeenGuide_global`, "true");
-    if (user) {
-      localStorage.setItem(`hasSeenGuide_${user.uid}`, "true");
-    }
-    setHasSeenGuide(true);
-  };
-
-  const loading = authLoading || (user && trackingLoading);
-
-  if (loading) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  // 1. First, show onboarding if not seen
-  if (hasSeenGuide === null) return null;
-  if (!hasSeenGuide) {
-    return <Onboarding onComplete={completeOnboarding} />;
-  }
-
-  // 2. Then, show Auth if not logged in
   if (!user) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
