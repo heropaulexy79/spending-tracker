@@ -44,12 +44,15 @@ export default function AuthForm() {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
-          // Successfully signed in with Google
-          console.log("Google Sign-in Success:", result.user);
+          console.log("Google Sign-in Success");
         }
       } catch (err: any) {
         console.error("Google Redirect Error:", err);
-        setError(getFriendlyErrorMessage(err.code));
+        if (err.code === "auth/unauthorized-domain") {
+          setError("Your Vercel domain isn't authorized in the Firebase Console yet.");
+        } else {
+          setError(getFriendlyErrorMessage(err.code));
+        }
       }
     };
     checkRedirect();
