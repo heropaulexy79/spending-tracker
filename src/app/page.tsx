@@ -19,20 +19,26 @@ export default function Home() {
   const [hasSeenGuide, setHasSeenGuide] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (user) {
-      const seen = localStorage.getItem(`hasSeenGuide_${user.uid}`);
-      setHasSeenGuide(!!seen);
+    const globalSeen = localStorage.getItem(`hasSeenGuide_global`);
+    if (globalSeen) {
+      setHasSeenGuide(true);
+    } else if (user) {
+      const userSeen = localStorage.getItem(`hasSeenGuide_${user.uid}`);
+      setHasSeenGuide(!!userSeen);
+    } else {
+      setHasSeenGuide(false);
     }
   }, [user]);
 
   const completeOnboarding = () => {
+    localStorage.setItem(`hasSeenGuide_global`, "true");
     if (user) {
       localStorage.setItem(`hasSeenGuide_${user.uid}`, "true");
-      setHasSeenGuide(true);
     }
+    setHasSeenGuide(true);
   };
 
-  const loading = authLoading || trackingLoading;
+  const loading = authLoading || (user && trackingLoading);
 
   if (loading) {
     return (
@@ -42,18 +48,19 @@ export default function Home() {
     );
   }
 
+  // 1. First, show onboarding if not seen
+  if (hasSeenGuide === null) return null;
+  if (!hasSeenGuide) {
+    return <Onboarding onComplete={completeOnboarding} />;
+  }
+
+  // 2. Then, show Auth if not logged in
   if (!user) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
         <AuthForm />
       </div>
     );
-  }
-
-  if (hasSeenGuide === null) return null;
-
-  if (!hasSeenGuide) {
-    return <Onboarding onComplete={completeOnboarding} />;
   }
 
   const totalSpent = logs.reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
@@ -87,10 +94,10 @@ export default function Home() {
       {/* Main Mindset Card */}
       <section className="glass-card p-8 relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Target className="w-32 h-32 text-indigo-400" />
+          <Target className="w-32 h-32 text-primary" />
         </div>
         <div className="relative z-10 space-y-4">
-          <h2 className="text-sm font-bold text-indigo-400 uppercase tracking-[0.2em]">Current Mindset</h2>
+          <h2 className="text-sm font-bold text-primary uppercase tracking-[0.2em]">Current Mindset</h2>
           <div className="flex items-baseline gap-2">
             <span className="text-5xl font-bold text-white tracking-tighter">{plan?.spenderType || "Balanced"}</span>
           </div>
@@ -101,7 +108,7 @@ export default function Home() {
           </p>
           <Link 
             href="/plan" 
-            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 px-5 py-2.5 rounded-full transition-all"
+            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white bg-primary/20 hover:bg-primary/30 border border-primary/30 px-5 py-2.5 rounded-full transition-all"
           >
             Refine Intent <ArrowRight className="w-4 h-4" />
           </Link>
@@ -114,7 +121,7 @@ export default function Home() {
           label="Weekly Plan" 
           value={`₦${budgetValue.toLocaleString()}`} 
           icon={<Wallet className="w-4 h-4" />} 
-          color="text-indigo-400"
+          color="text-primary"
           href="/plan"
         />
         <StatCard 

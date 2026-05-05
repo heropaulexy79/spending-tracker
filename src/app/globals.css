@@ -6,7 +6,7 @@
     --foreground: 0 0% 98%;
     --card: 240 10% 4%;
     --card-foreground: 0 0% 98%;
-    --primary: 217 91% 60%;
+    --primary: 35 43% 48%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 4% 10%;
     --secondary-foreground: 0 0% 98%;
@@ -21,7 +21,7 @@
     --emerald: 160 84% 39%;
     --coral: 12 92% 65%;
     --amber: 38 92% 50%;
-    --indigo: 239 84% 67%;
+    --indigo: 35 43% 48%;
   }
 }
 
@@ -54,7 +54,7 @@
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/30;
     background-image: 
-      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, rgba(176, 132, 71, 0.08) 0px, transparent 50%),
       radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
   }
 }
