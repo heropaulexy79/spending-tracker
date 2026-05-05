@@ -1,6 +1,12 @@
 import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
 import { adminAuth } from '@/lib/firebase-admin';
+import { z } from 'zod';
+
+const welcomeSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(2).max(50),
+});
 
 export async function POST(request: Request) {
   try {
@@ -12,15 +18,23 @@ export async function POST(request: Request) {
 
     const idToken = authHeader.split('Bearer ')[1];
 
-    // 2. Verify the Token
+    // 2. Validate Input with Zod
+    const body = await request.json();
+    const result = welcomeSchema.safeParse(body);
+    
+    if (!result.success) {
+      return NextResponse.json({ error: 'Invalid input data', details: result.error.format() }, { status: 400 });
+    }
+
+    const { email, name } = result.data;
+
+    // 3. Verify the Token
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(idToken);
     } catch (error) {
       return NextResponse.json({ error: 'Unauthorized: Invalid token' }, { status: 401 });
     }
-
-    const { email, name } = await request.json();
 
     // 3. Security Check: Ensure the email in the request matches the authenticated user
     if (decodedToken.email !== email) {
