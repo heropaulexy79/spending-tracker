@@ -61,12 +61,16 @@ export default function AuthForm() {
         const cred = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
         await updateProfile(cred.user, { displayName: formData.name });
         
-        // Trigger Welcome Email
+        // Trigger Welcome Email (Now Secure)
         try {
+          const idToken = await cred.user.getIdToken();
           await fetch("/api/welcome", {
             method: "POST",
             body: JSON.stringify({ email: formData.email, name: formData.name }),
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${idToken}`
+            },
           });
         } catch (e) {
           console.error("Failed to send welcome email:", e);
