@@ -33,7 +33,11 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
   }, [isPausing, countdown]);
 
   const handleSubmit = () => {
-    onSubmit(formData);
+    const dataToSubmit = formData.noSpendDay 
+      ? { ...formData, item: "No-Spend Day", amount: "0" }
+      : formData;
+      
+    onSubmit(dataToSubmit);
     setIsPausing(false);
     setCountdown(10);
     // Reset form
