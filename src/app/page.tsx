@@ -38,6 +38,7 @@ export default function Home() {
     <div className="space-y-8 animate-in">
       <header className="flex justify-between items-start pt-2">
         <div className="space-y-1">
+          <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-1">Home</p>
           <h1 className="text-4xl font-bold tracking-tight text-gradient">
             Hello, {user.displayName?.split(" ")[0] || "Friend"}
           </h1>

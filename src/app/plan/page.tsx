@@ -48,6 +48,7 @@ export default function PlanPage() {
   return (
     <div className="space-y-8 animate-in">
       <header className="space-y-2">
+        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Plan</p>
         <h1 className="text-3xl font-bold tracking-tight text-white">Intent & Direction</h1>
         <p className="text-muted-foreground">Set your intention for the week. Where is your money going?</p>
       </header>

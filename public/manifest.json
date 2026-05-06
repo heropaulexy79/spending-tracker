@@ -1,6 +1,6 @@
 {
-  "name": "Crafting the Mind - Spending Tracker",
-  "short_name": "CTM Tracker",
+  "name": "Spending & Behavior Tracker",
+  "short_name": "S&B Tracker",
   "description": "A behavioral awareness system designed to help you understand why you spend.",
   "start_url": "/",
   "display": "standalone",

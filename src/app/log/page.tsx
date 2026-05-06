@@ -19,6 +19,7 @@ export default function LogPage() {
   return (
     <div className="space-y-8 animate-in">
       <header className="space-y-2">
+        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Log</p>
         <h1 className="text-3xl font-bold tracking-tight text-white">Reality Log</h1>
         <p className="text-muted-foreground">Log your daily spending. Slow down and reflect.</p>
       </header>

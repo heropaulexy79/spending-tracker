@@ -20,6 +20,7 @@ export default function ReflectPage() {
   return (
     <div className="space-y-8 animate-in">
       <header className="space-y-2">
+        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Reflect</p>
         <h1 className="text-3xl font-bold tracking-tight text-white">Awareness Journal</h1>
         <p className="text-muted-foreground">Study your behavior. No judgment, just observation.</p>
       </header>

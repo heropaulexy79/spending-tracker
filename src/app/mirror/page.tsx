@@ -7,6 +7,7 @@ export default function MirrorPage() {
   return (
     <div className="space-y-8 animate-in pb-12">
       <header className="space-y-2">
+        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Mirror</p>
         <h1 className="text-3xl font-bold tracking-tight text-white">Monthly Mirror</h1>
         <p className="text-muted-foreground">A summary of your behavior this month.</p>
       </header>

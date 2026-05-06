@@ -22,7 +22,7 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-black/40 backdrop-blur-3xl border-t border-white/5 pb-safe">
-      <div className="flex justify-between items-center h-20 max-w-lg mx-auto px-6">
+      <div className="flex justify-between items-center h-20 max-w-lg mx-auto px-4">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -32,19 +32,19 @@ export default function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex flex-col items-center justify-center gap-1.5 transition-all duration-300",
-                isActive ? "text-primary scale-110" : "text-muted-foreground hover:text-white"
+                "relative flex flex-col items-center justify-center gap-1 transition-all duration-300",
+                isActive ? "scale-105" : "hover:text-white"
               )}
             >
               <div className={cn(
                 "p-2 rounded-xl transition-all duration-300",
-                isActive ? "bg-primary/10" : "bg-transparent"
+                isActive ? "bg-primary/10 text-primary" : "bg-transparent text-muted-foreground"
               )}>
-                <Icon className={cn("w-5 h-5", isActive && "stroke-[2.5px]")} />
+                <Icon className={cn("w-4.5 h-4.5", isActive && "stroke-[2.5px]")} />
               </div>
               <span className={cn(
-                "text-[9px] font-bold uppercase tracking-[0.2em] transition-all",
-                isActive ? "opacity-100" : "opacity-0"
+                "text-[7px] xs:text-[8px] font-bold uppercase tracking-[0.1em] transition-all duration-300",
+                isActive ? "opacity-100 text-primary" : "opacity-40 text-muted-foreground"
               )}>
                 {item.label}
               </span>
