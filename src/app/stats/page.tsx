@@ -113,16 +113,16 @@ export default function StatsPage() {
         
         <div className="flex items-end gap-3 h-48 pt-8">
           {dayData.map((amount, i) => {
-            const h = (amount / maxDay) * 100;
+            const h = amount > 0 ? Math.max((amount / maxDay) * 100, 3) : 0;
             return (
-              <div key={i} className="flex-1 bg-white/5 rounded-t-xl relative group">
+              <div key={i} className="flex-1 bg-white/5 rounded-t-xl relative group h-full flex items-end">
                 <motion.div 
                   initial={{ height: 0 }}
                   animate={{ height: `${h}%` }}
                   transition={{ duration: 1, ease: "easeOut" }}
                   className={cn(
-                    "absolute bottom-0 w-full rounded-t-xl transition-all duration-300 group-hover:brightness-125",
-                    h > 80 ? "bg-coral-400" : "bg-primary"
+                    "w-full rounded-t-xl transition-all duration-300 group-hover:brightness-125",
+                    h > 80 ? "bg-coral" : "bg-primary"
                   )}
                 />
                 
