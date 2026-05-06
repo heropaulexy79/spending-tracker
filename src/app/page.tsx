@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Onboarding from "@/components/Onboarding";
 import AuthForm from "@/components/AuthForm";
 import { useAuth } from "@/context/AuthContext";
 import { useTracking } from "@/hooks/useTracking";
-import { motion } from "framer-motion";
-import { Wallet, Target, TrendingUp, Zap, Calendar, User as UserIcon, Loader2, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Wallet, Target, TrendingUp, Zap, Calendar, User as UserIcon, Loader2, ArrowRight, LogOut, Key, Settings } from "lucide-react";
 
 import Link from "next/link";
 import { auth } from "@/lib/firebase";
@@ -16,6 +16,18 @@ import { cn } from "@/lib/utils";
 export default function Home() {
   const { user } = useAuth();
   const { plan, logs, urges, loading } = useTracking();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   if (!user) {
     return (
@@ -36,19 +48,17 @@ export default function Home() {
   const totalSpent = logs.reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budgetValue = Number(plan?.budget) || 0;
   
-  // Resisted count comes from both logs (if any marked as resisted) and urges
   const logsResisted = logs.filter(l => l.decisionType === "Resisted").length;
   const urgesResisted = urges.filter(u => u.action === "Resisted").length;
   const totalDecisions = logs.length + urges.length;
   const totalResisted = logsResisted + urgesResisted;
   const resistedRate = totalDecisions > 0 ? Math.round((totalResisted / totalDecisions) * 100) : 0;
   
-  // No-spend calculation: Count days where no-spend was confirmed
   const noSpendDays = logs.filter(l => l.noSpendDay).length;
 
   return (
     <div className="space-y-8 animate-in pb-12">
-      <header className="flex justify-between items-start pt-2">
+      <header className="flex justify-between items-start pt-2 relative">
         <div className="space-y-1">
           <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-1">Home</p>
           <h1 className="text-4xl font-bold tracking-tight text-gradient">
@@ -56,13 +66,53 @@ export default function Home() {
           </h1>
           <p className="text-muted-foreground text-sm font-medium">Observe your patterns today.</p>
         </div>
-        <div className="flex items-center gap-3">
+        
+        <div className="relative" ref={menuRef}>
           <button 
-            onClick={() => signOut(auth)}
-            className="p-3 rounded-2xl glass hover:bg-white/10 transition-colors"
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="p-3 rounded-2xl glass hover:bg-white/10 transition-all active:scale-95"
           >
             <UserIcon className="w-5 h-5 text-white" />
           </button>
+
+          <AnimatePresence>
+            {showUserMenu && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute right-0 mt-2 w-56 glass-dark rounded-[1.5rem] p-2 shadow-2xl z-50 border border-white/10"
+              >
+                <div className="p-3 border-b border-white/5 mb-1">
+                  <p className="text-xs font-bold text-primary uppercase tracking-widest">Account</p>
+                  <p className="text-sm font-medium text-white truncate">{user.email}</p>
+                </div>
+                
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-white/80 transition-colors text-sm font-medium">
+                  <UserIcon className="w-4 h-4" />
+                  View Profile
+                </button>
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-white/80 transition-colors text-sm font-medium">
+                  <Key className="w-4 h-4" />
+                  Change Password
+                </button>
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-white/80 transition-colors text-sm font-medium">
+                  <Settings className="w-4 h-4" />
+                  Preferences
+                </button>
+                
+                <div className="h-px bg-white/5 my-1" />
+                
+                <button 
+                  onClick={() => signOut(auth)}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-coral/10 text-coral transition-colors text-sm font-bold"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </header>
 
