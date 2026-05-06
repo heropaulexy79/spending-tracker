@@ -165,17 +165,17 @@ export default function UrgePage() {
         <h2 className="text-xl font-semibold text-white">Impulse Frequency</h2>
         <div className="flex items-end gap-2 h-32">
           {dayData.map((count, i) => {
-            const h = (count / maxDay) * 100;
+            const h = count > 0 ? Math.max((count / maxDay) * 100, 5) : 0;
             return (
-              <div key={i} className="flex-1 bg-white/5 rounded-t-lg relative group">
+              <div key={i} className="flex-1 bg-white/5 rounded-t-xl relative group h-full flex items-end">
                 <motion.div 
                   initial={{ height: 0 }}
                   animate={{ height: `${h}%` }}
                   transition={{ duration: 1, ease: "easeOut" }}
-                  className="absolute bottom-0 w-full bg-primary rounded-t-lg transition-all duration-500 group-hover:brightness-110" 
+                  className="w-full bg-primary rounded-t-xl transition-all duration-500 group-hover:brightness-110" 
                 />
                 {count > 0 && (
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-2 py-1 rounded-md text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-2 py-1 rounded-md text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
                     {count} urges
                   </div>
                 )}
