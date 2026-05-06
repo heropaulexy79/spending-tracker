@@ -51,13 +51,23 @@ export async function POST(request: Request) {
     }
 
     // 5. Rate Limiting Check (Database-backed)
-    // Only send the welcome email once per user lifetime
     const userRef = adminDb.collection('users').doc(decodedToken.uid);
     const userDoc = await userRef.get();
+    const userData = userDoc.data();
     
-    if (userDoc.exists && userDoc.data()?.sentWelcome) {
+    // Only send the welcome email once per user lifetime
+    if (userDoc.exists && userData?.sentWelcome) {
       return NextResponse.json({ success: true, message: 'Welcome email already sent' });
     }
+
+    // Secondary Rate Limit: Check if an email was attempted in the last 24h (anti-spam)
+    const lastAttempt = userData?.lastWelcomeAttempt?.toDate();
+    if (lastAttempt && (Date.now() - lastAttempt.getTime() < 24 * 60 * 60 * 1000)) {
+      return NextResponse.json({ error: 'Rate limit exceeded. Try again tomorrow.' }, { status: 429 });
+    }
+
+    // Update attempt timestamp before sending (Fail-closed approach)
+    await userRef.set({ lastWelcomeAttempt: new Date() }, { merge: true });
 
     // Gmail SMTP Configuration
     const transporter = nodemailer.createTransport({

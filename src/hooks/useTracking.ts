@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, setDoc, collection, query, where, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, query, where, onSnapshot, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
 import { getWeekKey } from "@/lib/dateUtils";
 
@@ -35,7 +35,11 @@ export function useTracking() {
     const qLogs = query(logsRef, where("weekKey", "==", weekKey));
     const unsubLogs = onSnapshot(qLogs, (snap) => {
       const l = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      l.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      l.sort((a: any, b: any) => {
+        const timeA = a.createdAt?.seconds || new Date(a.date).getTime() / 1000;
+        const timeB = b.createdAt?.seconds || new Date(b.date).getTime() / 1000;
+        return timeB - timeA;
+      });
       setLogs(l);
     }, (err) => console.error("Logs Listener Error:", err));
 
@@ -44,7 +48,11 @@ export function useTracking() {
     const qUrges = query(urgesRef, where("weekKey", "==", weekKey));
     const unsubUrges = onSnapshot(qUrges, (snap) => {
       const u = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      u.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      u.sort((a: any, b: any) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
       setUrges(u);
     }, (err) => console.error("Urges Listener Error:", err));
 
@@ -57,44 +65,62 @@ export function useTracking() {
 
   const savePlan = async (newPlan: any) => {
     if (!user) return;
+    const { budget, categoryLimits, currency } = newPlan;
     const budgetRef = doc(db, "users", user.uid);
-    await setDoc(budgetRef, { plan: newPlan, lastUpdated: new Date().toISOString() }, { merge: true });
+    await setDoc(budgetRef, { 
+      plan: { budget, categoryLimits, currency }, 
+      lastUpdated: serverTimestamp() 
+    }, { merge: true });
   };
 
   const addLog = async (log: any) => {
     if (!user) return;
+    const { item, amount, decisionType, spendingType, trigger, noSpendDay, date } = log;
     const weekKey = getWeekKey();
     const logRef = doc(collection(db, "users", user.uid, "logs"));
     await setDoc(logRef, { 
-      ...log, 
+      item: String(item).substring(0, 100),
+      amount: Number(amount) || 0,
+      decisionType,
+      spendingType,
+      trigger,
+      noSpendDay: !!noSpendDay,
+      date,
       uid: user.uid,
-      amount: Number(log.amount) || 0,
       weekKey, 
-      createdAt: new Date().toISOString() 
+      createdAt: serverTimestamp() 
     });
   };
 
   const addUrge = async (urge: any) => {
     if (!user) return;
+    const { type, action, resisted24h } = urge;
     const weekKey = getWeekKey();
     const urgeRef = doc(collection(db, "users", user.uid, "urges"));
     await setDoc(urgeRef, { 
-      ...urge, 
+      type,
+      action,
+      resisted24h: !!resisted24h,
       uid: user.uid,
       weekKey, 
-      createdAt: new Date().toISOString() 
+      createdAt: serverTimestamp() 
     });
   };
 
   const addReflection = async (reflection: any) => {
     if (!user) return;
+    const { why, beforeFeel, afterFeel, aligned, nextTime } = reflection;
     const weekKey = getWeekKey();
     const reflectionRef = doc(collection(db, "users", user.uid, "reflections"));
     await setDoc(reflectionRef, { 
-      ...reflection, 
+      why: String(why).substring(0, 1000),
+      beforeFeel,
+      afterFeel,
+      aligned,
+      nextTime: String(nextTime).substring(0, 1000),
       uid: user.uid,
       weekKey, 
-      createdAt: new Date().toISOString() 
+      createdAt: serverTimestamp() 
     });
   };
 

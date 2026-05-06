@@ -46,6 +46,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - manifest.json (metadata)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|manifest.json).*)',
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json).*)',
   ],
 };
