@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 export default function Home() {
   const { user } = useAuth();
-  const { plan, logs } = useTracking();
+  const { plan, logs, urges, loading } = useTracking();
 
   if (!user) {
     return (
@@ -25,17 +25,29 @@ export default function Home() {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
+  }
+
   const totalSpent = logs.reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budgetValue = Number(plan?.budget) || 0;
-  const resistedCount = logs.filter(l => l.decisionType === "Resisted").length;
-  const totalDecisions = logs.length;
-  const resistedRate = totalDecisions > 0 ? Math.round((resistedCount / totalDecisions) * 100) : 0;
   
-  // Mock no-spend calculation for now based on unique dates in logs
-  const noSpendDays = 0; // Logic for this would require checking missing days in logs
+  // Resisted count comes from both logs (if any marked as resisted) and urges
+  const logsResisted = logs.filter(l => l.decisionType === "Resisted").length;
+  const urgesResisted = urges.filter(u => u.action === "Resisted").length;
+  const totalDecisions = logs.length + urges.length;
+  const totalResisted = logsResisted + urgesResisted;
+  const resistedRate = totalDecisions > 0 ? Math.round((totalResisted / totalDecisions) * 100) : 0;
+  
+  // No-spend calculation: Count days where no-spend was confirmed
+  const noSpendDays = logs.filter(l => l.noSpendDay).length;
 
   return (
-    <div className="space-y-8 animate-in">
+    <div className="space-y-8 animate-in pb-12">
       <header className="flex justify-between items-start pt-2">
         <div className="space-y-1">
           <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-1">Home</p>
@@ -95,7 +107,7 @@ export default function Home() {
           href="/log"
         />
         <StatCard 
-          label="Urges Resisted" 
+          label="Impulse Slayer" 
           value={`${resistedRate}%`} 
           icon={<Zap className="w-4 h-4" />} 
           color="text-amber-400"
@@ -123,29 +135,6 @@ export default function Home() {
           "Pause for 10 seconds before any unplanned purchase. Ask yourself: Is this a need or a reaction?"
         </p>
       </div>
-
-      {/* Rewards Section */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-white">Rewards & Growth</h2>
-        <div className="grid grid-cols-1 gap-3">
-          <div className="p-4 glass rounded-2xl flex items-center gap-4">
-            <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center border border-amber-500/30">
-              <span className="text-xl font-bold text-amber-500">24</span>
-            </div>
-            <div>
-              <p className="font-bold text-white">Behavior Coins</p>
-              <p className="text-xs text-muted-foreground">Keep logging consistently to unlock insights.</p>
-            </div>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {["Consistency King", "Impulse Slayer", "Daily Reflector"].map((badge) => (
-              <div key={badge} className="flex-shrink-0 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs font-medium text-white/70">
-                🏆 {badge}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Recent Activity Mini-List */}
       <section className="space-y-4">

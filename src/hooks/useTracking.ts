@@ -90,6 +90,18 @@ export function useTracking() {
     });
   };
 
+  const addReflection = async (reflection: any) => {
+    if (!user) return;
+    const weekKey = getWeekKey();
+    const reflectionRef = doc(collection(db, "users", user.uid, "reflections"));
+    await setDoc(reflectionRef, { 
+      ...reflection, 
+      uid: user.uid,
+      weekKey, 
+      createdAt: new Date().toISOString() 
+    });
+  };
 
-  return { plan, logs, urges, savePlan, addLog, addUrge, loading };
+
+  return { plan, logs, urges, savePlan, addLog, addUrge, addReflection, loading };
 }
