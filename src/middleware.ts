@@ -3,15 +3,15 @@ import { NextResponse, type NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   
-  // Strict CSP with Nonce
+  // Refined CSP for Next.js & Firebase compatibility
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: http: 'unsafe-inline' 'unsafe-eval';
+    script-src 'self' 'nonce-${nonce}' 'unsafe-inline' 'unsafe-eval' https://*.firebaseapp.com https://apis.google.com https://*.googleapis.com;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' data: https://*.googleusercontent.com https://*.firebaseapp.com;
+    img-src 'self' data: blob: https://*.googleusercontent.com https://*.firebaseapp.com https://*.firebaseio.com;
     font-src 'self' https://fonts.gstatic.com;
-    connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com;
-    frame-src 'self' https://*.firebaseapp.com;
+    connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com;
+    frame-src 'self' https://*.firebaseapp.com https://*.google.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
