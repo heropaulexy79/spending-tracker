@@ -220,14 +220,24 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
             )}
           >
             {isPausing ? (
-              <>
-                <Timer className="w-5 h-5 animate-pulse" />
-                Pausing for awareness... {countdown}s
+              <div className="flex flex-col items-center gap-4 w-full">
+                <div className="flex items-center gap-2">
+                  <Timer className="w-5 h-5 animate-pulse" />
+                  <span>Pausing for awareness... {countdown}s</span>
+                </div>
+                <motion.p 
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  key={currentQuote}
+                  className="text-[11px] italic text-amber-200/70 max-w-[80%] mx-auto font-serif"
+                >
+                  &ldquo;{currentQuote}&rdquo;
+                </motion.p>
                 <div 
                   className="absolute bottom-0 left-0 h-1 bg-amber-500 transition-all duration-1000 ease-linear shadow-[0_0_10px_rgba(245,158,11,0.5)]"
                   style={{ width: `${(countdown / 10) * 100}%` }}
                 />
-              </>
+              </div>
             ) : (
               "Log Purchase"
             )}

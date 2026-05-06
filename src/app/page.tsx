@@ -141,6 +141,47 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Spending Velocity Meter */}
+      {budgetValue > 0 && (
+        <section className="glass-card p-8 space-y-6">
+          <div className="flex justify-between items-end">
+            <div className="space-y-1">
+              <h2 className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Spending Velocity</h2>
+              <p className="text-xl font-serif text-white">
+                {totalSpent > budgetValue ? "Tank Empty" : totalSpent / budgetValue > (new Date().getDay() || 7) / 7 ? "Overspeeding" : "Cruising"}
+              </p>
+            </div>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+              Week Progress: {Math.round(((new Date().getDay() || 7) / 7) * 100)}%
+            </p>
+          </div>
+          
+          <div className="relative h-4 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min(100, (totalSpent / budgetValue) * 100)}%` }}
+              className={cn(
+                "h-full transition-all duration-1000 shadow-[0_0_20px_rgba(0,0,0,0.5)]",
+                (totalSpent / budgetValue) > (new Date().getDay() || 7) / 7 
+                  ? "bg-coral shadow-coral/20" 
+                  : (totalSpent / budgetValue) > 0.8 
+                    ? "bg-amber-500 shadow-amber-500/20"
+                    : "bg-emerald-500 shadow-emerald-500/20"
+              )}
+            />
+            {/* Week Progress Marker */}
+            <div 
+              className="absolute top-0 bottom-0 w-[2px] bg-white/20 z-10"
+              style={{ left: `${((new Date().getDay() || 7) / 7) * 100}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
+            <span>Fuel Tank (Budget)</span>
+            <span>₦{totalSpent.toLocaleString()} / ₦{budgetValue.toLocaleString()}</span>
+          </div>
+        </section>
+      )}
+
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-2 gap-4">
         <StatCard 

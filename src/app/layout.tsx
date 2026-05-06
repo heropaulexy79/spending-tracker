@@ -6,6 +6,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import NotificationManager from "@/components/NotificationManager";
 import InstallPrompt from "@/components/InstallPrompt";
 import AppShell from "@/components/layout/AppShell";
+import DynamicBackground from "@/components/layout/DynamicBackground";
 
 const dmSans = DM_Sans({ 
   subsets: ["latin"],
@@ -45,6 +46,7 @@ export default function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${dmSans.variable} ${playfair.variable} ${dmSans.className} pb-24 min-h-screen bg-background text-foreground`}>
         <AuthProvider>
+          <DynamicBackground />
           <NotificationManager />
           <InstallPrompt />
           <AppShell>
