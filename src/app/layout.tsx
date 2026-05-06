@@ -18,7 +18,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Crafting a Mind – Spending & Behavioral Tracker",
+  title: "Crafting the Mind – Spending & Behavioral Tracker",
   description: "Master your intentions with guided behavioral tracking.",
   manifest: "/manifest.json",
   appleWebApp: {

@@ -144,7 +144,7 @@ export default function AuthForm() {
         <p className="text-muted-foreground text-sm leading-relaxed">
           {isResetMode 
             ? "Enter your email to receive a secure reset link." 
-            : isLogin ? "Continue your practice of behavioral awareness." : "Join Crafting a Mind to start your guided behavioral tracking."}
+            : isLogin ? "Continue your practice of behavioral awareness." : "Join Crafting the Mind to start your guided behavioral tracking."}
         </p>
       </div>
 
