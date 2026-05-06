@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Zap, ShieldCheck, ShieldAlert, History } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -10,7 +10,7 @@ const urgeTypes = ["Emotional", "Impulsive", "Social pressure", "Boredom", "Imme
 const actions = ["Bought", "Resisted", "Delayed"];
 
 export default function UrgePage() {
-  const { urges, addUrge, loading } = useTracking();
+  const { urges, addUrge, loading, noSpendDayLogged } = useTracking();
   const [hasUrge, setHasUrge] = useState<boolean | null>(null);
   const [step, setStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -36,7 +36,8 @@ export default function UrgePage() {
   const dayData = [0, 0, 0, 0, 0, 0, 0];
   urges.forEach(u => {
     if (u.type !== "Calm") {
-      const day = new Date(u.createdAt).getDay();
+      const date = u.createdAt ? new Date(u.createdAt) : new Date();
+      const day = date.getDay();
       const index = day === 0 ? 6 : day - 1; // Map Sun to 6, Mon to 0
       dayData[index] += 1;
     }
@@ -46,41 +47,65 @@ export default function UrgePage() {
   if (loading) return null;
 
   return (
-    <div className="space-y-8 animate-in">
-      <header className="space-y-2">
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Urge</p>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Impulse Moments</h1>
-        <p className="text-muted-foreground">Track the moments you felt an urge to spend.</p>
+    <div className="space-y-8 animate-in pb-12">
+      <header className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="h-[1px] w-8 bg-primary/40" />
+          <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Momentary Impulse</p>
+        </div>
+        <div className="space-y-1">
+          <h1 className="text-4xl font-serif tracking-tight text-white">Impulse Moments</h1>
+          <p className="text-muted-foreground text-sm">Track the moments you felt an urge to spend.</p>
+        </div>
       </header>
 
-      {showSuccess ? (
+      {noSpendDayLogged ? (
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="p-12 glass rounded-3xl text-center space-y-4"
+          className="p-12 glass-card text-center space-y-6 border-emerald-500/20"
         >
-          <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-2 border border-emerald-500/20">
             <ShieldCheck className="w-10 h-10 text-emerald-500" />
           </div>
-          <h2 className="text-2xl font-bold text-white">Awareness Logged</h2>
-          <p className="text-muted-foreground">Every moment of awareness is a step towards freedom.</p>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-serif text-white">🟢 No-Buy Day Recorded</h2>
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto">
+              Your day is defined by quiet discipline. No further impulse tracking is required today.
+            </p>
+          </div>
+        </motion.div>
+      ) : showSuccess ? (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-12 glass-card text-center space-y-5"
+        >
+          <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
+            <ShieldCheck className="w-10 h-10 text-emerald-500" />
+          </div>
+          <h2 className="text-3xl font-serif text-white">Impulse Recorded</h2>
+          <p className="text-muted-foreground max-w-xs mx-auto leading-relaxed">Every moment of awareness is a step towards behavioral freedom.</p>
         </motion.div>
       ) : hasUrge === null ? (
-        <div className="p-8 glass rounded-3xl text-center space-y-6">
-          <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto">
-            <Zap className="w-8 h-8 text-amber-500 fill-amber-500/20" />
+        <div className="p-10 glass-card text-center space-y-8">
+          <div className="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto border border-amber-500/20">
+            <Zap className="w-10 h-10 text-amber-500 fill-amber-500/20" />
           </div>
-          <h2 className="text-2xl font-bold text-white">Did you feel an urge today?</h2>
+          <div className="space-y-2">
+            <h2 className="text-3xl font-serif text-white">Did you feel an urge today?</h2>
+            <p className="text-muted-foreground text-sm">Honesty with yourself is the foundation of growth.</p>
+          </div>
           <div className="flex gap-4">
             <button 
               onClick={() => setHasUrge(true)}
-              className="flex-1 py-4 bg-primary text-white rounded-2xl font-semibold hover:opacity-90 transition-all"
+              className="flex-1 py-5 bg-primary text-primary-foreground rounded-2xl font-bold hover:shadow-[0_0_20px_rgba(176,132,71,0.2)] transition-all"
             >
               Yes, I did
             </button>
             <button 
               onClick={() => handleComplete({ type: "Calm", action: "N/A", resisted24h: true })}
-              className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-semibold hover:bg-white/10 transition-all"
+              className="flex-1 py-5 bg-white/5 border border-white/10 text-white rounded-2xl font-bold hover:bg-white/10 transition-all"
             >
               No, I was calm
             </button>
@@ -88,10 +113,10 @@ export default function UrgePage() {
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="glass rounded-3xl p-6 space-y-6">
+          <div className="glass-card p-8 space-y-8">
             {step === 1 && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">What type of urge was it?</h3>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
+                <h3 className="text-xl font-serif text-white">What type of urge was it?</h3>
                 <div className="grid grid-cols-1 gap-3">
                   {urgeTypes.map((t) => (
                     <button
@@ -100,7 +125,7 @@ export default function UrgePage() {
                         setUrgeData({ ...urgeData, type: t });
                         setStep(2);
                       }}
-                      className="w-full py-4 px-6 bg-white/5 border border-white/10 rounded-2xl text-left text-white hover:border-primary/50 transition-all"
+                      className="w-full py-5 px-6 bg-white/5 border border-white/10 rounded-2xl text-left text-white hover:border-primary/50 hover:bg-white/10 transition-all font-bold uppercase tracking-widest text-[10px]"
                     >
                       {t}
                     </button>
@@ -110,8 +135,8 @@ export default function UrgePage() {
             )}
 
             {step === 2 && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">What action did you take?</h3>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
+                <h3 className="text-xl font-serif text-white">What action did you take?</h3>
                 <div className="grid grid-cols-1 gap-3">
                   {actions.map((a) => (
                     <button
@@ -125,11 +150,11 @@ export default function UrgePage() {
                           handleComplete(newData);
                         }
                       }}
-                      className="w-full py-4 px-6 bg-white/5 border border-white/10 rounded-2xl text-left text-white hover:border-primary/50 transition-all flex items-center justify-between"
+                      className="w-full py-5 px-6 bg-white/5 border border-white/10 rounded-2xl text-left text-white hover:border-primary/50 hover:bg-white/10 transition-all flex items-center justify-between font-bold uppercase tracking-widest text-[10px]"
                     >
                       {a}
                       {a === "Resisted" && <ShieldCheck className="w-5 h-5 text-emerald-400" />}
-                      {a === "Bought" && <ShieldAlert className="w-5 h-5 text-coral-400" />}
+                      {a === "Bought" && <ShieldAlert className="w-5 h-5 text-coral" />}
                       {a === "Delayed" && <History className="w-5 h-5 text-amber-400" />}
                     </button>
                   ))}
@@ -138,20 +163,20 @@ export default function UrgePage() {
             )}
 
             {step === 3 && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 text-center">
-                <h3 className="text-lg font-semibold text-white">Did the urge pass after 24 hours?</h3>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 text-center py-4">
+                <h3 className="text-2xl font-serif text-white">Did the urge pass after 24 hours?</h3>
                 <div className="flex gap-4">
                   <button 
                     onClick={() => handleComplete({ ...urgeData, resisted24h: true })}
-                    className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-semibold hover:opacity-90"
+                    className="flex-1 py-5 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)] transition-all"
                   >
                     Yes, it passed
                   </button>
                   <button 
                     onClick={() => handleComplete({ ...urgeData, resisted24h: false })}
-                    className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-semibold hover:bg-white/10"
+                    className="flex-1 py-5 bg-white/5 border border-white/10 text-white rounded-2xl font-bold hover:bg-white/10 transition-all"
                   >
-                    No, I'm still thinking about it
+                    No, I still feel it
                   </button>
                 </div>
               </motion.div>
@@ -161,9 +186,9 @@ export default function UrgePage() {
       )}
 
       {/* Impulse Frequency Display */}
-      <section className="p-6 glass rounded-3xl space-y-4">
-        <h2 className="text-xl font-semibold text-white">Impulse Frequency</h2>
-        <div className="flex items-end gap-2 h-32">
+      <section className="p-8 glass-card space-y-8">
+        <h2 className="text-2xl font-serif text-white">Impulse Frequency</h2>
+        <div className="flex items-end gap-3 h-32 pt-4">
           {dayData.map((count, i) => {
             const h = count > 0 ? Math.max((count / maxDay) * 100, 5) : 0;
             return (
@@ -172,25 +197,22 @@ export default function UrgePage() {
                   initial={{ height: 0 }}
                   animate={{ height: `${h}%` }}
                   transition={{ duration: 1, ease: "easeOut" }}
-                  className="w-full bg-primary rounded-t-xl transition-all duration-500 group-hover:brightness-110" 
+                  className="w-full bg-primary/80 rounded-t-xl transition-all duration-500 group-hover:bg-primary" 
                 />
                 {count > 0 && (
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-2 py-1 rounded-md text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                    {count} urges
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-2 py-1 rounded-md text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 border border-white/10">
+                    {count} {count === 1 ? 'urge' : 'urges'}
                   </div>
                 )}
+                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]}
+                </span>
               </div>
             );
           })}
         </div>
-        <div className="flex justify-between text-xs text-muted-foreground pt-2">
-          <span>Mon</span>
-          <span>Tue</span>
-          <span>Wed</span>
-          <span>Thu</span>
-          <span>Fri</span>
-          <span>Sat</span>
-          <span>Sun</span>
+        <div className="pt-4">
+          <p className="text-xs text-muted-foreground text-center italic">Visualizing your pulse of desire across the week.</p>
         </div>
       </section>
     </div>

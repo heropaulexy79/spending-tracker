@@ -136,15 +136,15 @@ export default function AuthForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-8 glass rounded-[2.5rem] animate-in relative overflow-hidden">
+    <div className="w-full max-w-md mx-auto p-8 glass-card animate-in relative overflow-hidden">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">
-          {isResetMode ? "Reset Password" : isLogin ? "Welcome Back" : "Join the Movement"}
+        <h2 className="text-4xl font-serif text-white mb-3 tracking-tight">
+          {isResetMode ? "Restoring Access" : isLogin ? "Welcome Back" : "Begin the Journey"}
         </h2>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-sm leading-relaxed">
           {isResetMode 
-            ? "Enter your email to receive a reset link." 
-            : isLogin ? "Track your behavior with intention." : "Start your journey to financial awareness."}
+            ? "Enter your email to receive a secure reset link." 
+            : isLogin ? "Continue your practice of behavioral awareness." : "Join Crafting a Mind to start your guided behavioral tracking."}
         </p>
       </div>
 
@@ -172,13 +172,13 @@ export default function AuthForm() {
         </AnimatePresence>
 
         <div className="relative">
-          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50" />
           <input
             type="email"
             placeholder="Email Address"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white outline-none focus:border-primary transition-all"
+            className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
             required
           />
         </div>
@@ -186,13 +186,13 @@ export default function AuthForm() {
         {!isResetMode && (
           <div className="space-y-2">
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50" />
               <input
                 type="password"
                 placeholder="Password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white outline-none focus:border-primary transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
                 required={!isResetMode}
               />
             </div>
@@ -201,7 +201,7 @@ export default function AuthForm() {
                 <button
                   type="button"
                   onClick={() => setIsResetMode(true)}
-                  className="text-xs text-primary hover:underline font-medium"
+                  className="text-xs text-primary/80 hover:text-primary hover:underline font-bold tracking-tight"
                 >
                   Forgot Password?
                 </button>
@@ -214,7 +214,7 @@ export default function AuthForm() {
           <motion.p 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-xs text-coral-400 bg-coral-400/10 p-3 rounded-xl border border-coral-400/20 font-medium"
+            className="text-[11px] text-coral-400 bg-coral-400/5 p-4 rounded-xl border border-coral-400/10 font-bold uppercase tracking-wider"
           >
             {error}
           </motion.p>
@@ -224,7 +224,7 @@ export default function AuthForm() {
           <motion.p 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-xs text-emerald-400 bg-emerald-400/10 p-3 rounded-xl border border-emerald-400/20 font-medium"
+            className="text-[11px] text-emerald-400 bg-emerald-400/5 p-4 rounded-xl border border-emerald-400/10 font-bold uppercase tracking-wider"
           >
             {message}
           </motion.p>
@@ -233,7 +233,7 @@ export default function AuthForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all"
+          className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-bold flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(176,132,71,0.2)] active:scale-[0.98] transition-all mt-4"
         >
           {loading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -250,10 +250,10 @@ export default function AuthForm() {
         <>
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10"></div>
+              <div className="w-full border-t border-white/5"></div>
             </div>
-            <div className="relative flex justify-center text-[10px] uppercase tracking-widest">
-              <span className="bg-[#0A0A0B] px-3 text-muted-foreground font-bold">Or continue with</span>
+            <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em]">
+              <span className="bg-[#0A0A0B] px-4 text-muted-foreground/60 font-bold">Secure Access</span>
             </div>
           </div>
 
@@ -261,7 +261,7 @@ export default function AuthForm() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-semibold flex items-center justify-center gap-3 hover:bg-white/10 active:scale-[0.98] transition-all"
+            className="w-full py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-white/10 active:scale-[0.98] transition-all"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path

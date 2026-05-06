@@ -46,77 +46,82 @@ export default function PlanPage() {
   if (loading) return null;
 
   return (
-    <div className="space-y-8 animate-in">
-      <header className="space-y-2">
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Plan</p>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Intent & Direction</h1>
-        <p className="text-muted-foreground">Set your intention for the week. Where is your money going?</p>
+    <div className="space-y-8 animate-in pb-12">
+      <header className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="h-[1px] w-8 bg-primary/40" />
+          <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Weekly Plan</p>
+        </div>
+        <div className="space-y-1">
+          <h1 className="text-4xl font-serif tracking-tight text-white">Intent & Direction</h1>
+          <p className="text-muted-foreground text-sm">Set your intention for the week. Where is your money going?</p>
+        </div>
       </header>
 
-      <div className="glass rounded-3xl p-6 space-y-8">
+      <div className="glass-card p-8 space-y-8">
         <div className="space-y-6">
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+          <div className="space-y-5">
+            <h3 className="text-xl font-serif text-white flex items-center gap-2">
               <Compass className="w-5 h-5 text-primary" />
               Weekly Goals
             </h3>
             
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-5">
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-1.5">Weekly Budget</label>
+                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Weekly Budget</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">₦</span>
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">₦</span>
                   <input
                     type="number"
                     value={formData.budget}
                     onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-8 pr-4 py-3 text-white outline-none focus:border-primary"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-5 py-4 text-white placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
                     placeholder="0.00"
                   />
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-1.5">Savings Target</label>
+                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Savings Target</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">₦</span>
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">₦</span>
                   <input
                     type="number"
                     value={formData.savings}
                     onChange={(e) => setFormData({ ...formData, savings: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-8 pr-4 py-3 text-white outline-none focus:border-primary"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-5 py-4 text-white placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
                     placeholder="0.00"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-1.5">Essentials List</label>
+                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Essentials List</label>
                 <textarea
                   value={formData.essentials}
                   onChange={(e) => setFormData({ ...formData, essentials: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white outline-none focus:border-primary min-h-[100px] resize-none"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 min-h-[120px] resize-none transition-all"
                   placeholder="Rent, Groceries, Utilities..."
                 />
               </div>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">What kind of spender do you want to be?</h3>
+          <div className="space-y-5">
+            <h3 className="text-xl font-serif text-white">Spender Identity</h3>
             <div className="grid grid-cols-1 gap-2">
               {spenderTypes.map((type) => (
                 <button
                   key={type}
                   onClick={() => setFormData({ ...formData, spenderType: type })}
                   className={cn(
-                    "w-full py-4 px-6 rounded-2xl text-left border transition-all flex items-center justify-between",
+                    "w-full py-5 px-6 rounded-2xl text-left border transition-all flex items-center justify-between group",
                     formData.spenderType === type
-                      ? "bg-primary/20 border-primary text-primary"
-                      : "bg-white/5 border-white/10 text-white hover:border-white/20"
+                      ? "bg-primary/20 border-primary/50 text-primary"
+                      : "bg-white/5 border-white/5 text-white/70 hover:border-white/20 hover:text-white"
                   )}
                 >
-                  {type}
+                  <span className="text-sm font-bold uppercase tracking-widest">{type}</span>
                   {formData.spenderType === type && <CheckCircle className="w-5 h-5" />}
                 </button>
               ))}
@@ -126,12 +131,12 @@ export default function PlanPage() {
 
         <button
           onClick={handleSave}
-          className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-semibold hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-bold hover:shadow-[0_0_20px_rgba(176,132,71,0.2)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4"
         >
           {isSaved ? (
             <>
               <CheckCircle className="w-5 h-5" />
-              Intention Set
+              Intention Recorded
             </>
           ) : (
             "Set My Intention"
@@ -141,31 +146,31 @@ export default function PlanPage() {
 
       {/* Progress Cards */}
       <div className="grid grid-cols-1 gap-4">
-        <div className="p-6 glass rounded-3xl space-y-4">
+        <div className="p-8 glass-card space-y-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-sm font-medium text-muted-foreground">Budget Status</h3>
+            <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Budget Status</h3>
             <span className={cn(
-              "text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1",
-              budgetValue > 0 ? "bg-emerald-500/10 text-emerald-500" : "bg-white/5 text-muted-foreground"
+              "text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1 border",
+              budgetValue > 0 ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-white/5 text-muted-foreground border-white/5"
             )}>
-              {budgetValue > 0 ? "Plan Set" : "No plan set"}
+              {budgetValue > 0 ? "Active Plan" : "No active plan"}
             </span>
           </div>
           <div className="flex justify-between items-end">
-            <div>
-              <p className="text-2xl font-bold text-white">₦{remaining.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Still Safe to Spend</p>
+            <div className="space-y-1">
+              <p className="text-3xl font-serif text-white tracking-tight">₦{remaining.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Still Safe to Spend</p>
             </div>
-            <div className="text-right">
-              <p className="text-sm font-bold text-primary">₦{totalSpent.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Already Logged</p>
+            <div className="text-right space-y-1">
+              <p className="text-lg font-serif text-primary">₦{totalSpent.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Already Logged</p>
             </div>
           </div>
           <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${percentSpent}%` }}
-              className="h-full bg-primary" 
+              className="h-full bg-primary shadow-[0_0_10px_rgba(176,132,71,0.3)]" 
             />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import { AuthProvider } from "@/context/AuthContext";
@@ -7,11 +7,19 @@ import NotificationManager from "@/components/NotificationManager";
 import InstallPrompt from "@/components/InstallPrompt";
 import AppShell from "@/components/layout/AppShell";
 
-const inter = Inter({ subsets: ["latin"] });
+const dmSans = DM_Sans({ 
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+});
+
+const playfair = Playfair_Display({ 
+  subsets: ["latin"],
+  variable: "--font-playfair",
+});
 
 export const metadata: Metadata = {
-  title: "S&B Tracker",
-  description: "Spend & Behavior Tracker - Master your intentions.",
+  title: "Crafting a Mind – Spending & Behavioral Tracker",
+  description: "Master your intentions with guided behavioral tracking.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -35,7 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.className} pb-24 min-h-screen bg-background text-foreground`}>
+      <body className={`${dmSans.variable} ${playfair.variable} ${dmSans.className} pb-24 min-h-screen bg-background text-foreground`}>
         <AuthProvider>
           <NotificationManager />
           <InstallPrompt />

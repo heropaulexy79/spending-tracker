@@ -1,7 +1,8 @@
 "use client";
 
+import React, { useState } from "react";
 import LogForm from "@/components/LogForm";
-import { useState } from "react";
+import WeeklyProgress from "@/components/WeeklyProgress";
 import { motion } from "framer-motion";
 
 import { useTracking } from "@/hooks/useTracking";
@@ -10,6 +11,14 @@ export default function LogPage() {
   const { logs, addLog, loading } = useTracking();
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const today = new Date();
+  const dateString = today.toLocaleDateString("en-US", { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+
   const handleLogSubmit = async (data: any) => {
     await addLog(data);
     setShowSuccess(true);
@@ -17,12 +26,19 @@ export default function LogPage() {
   };
 
   return (
-    <div className="space-y-8 animate-in">
-      <header className="space-y-2">
-        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Log</p>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Reality Log</h1>
-        <p className="text-muted-foreground">Log your daily spending. Slow down and reflect.</p>
+    <div className="space-y-8 animate-in pb-12">
+      <header className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="h-[1px] w-8 bg-primary/40" />
+          <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Daily Log</p>
+        </div>
+        <div className="space-y-1">
+          <h1 className="text-4xl font-serif tracking-tight text-white">{dateString}</h1>
+          <p className="text-muted-foreground text-sm">Logging for today only. Reflect on each entry.</p>
+        </div>
       </header>
+
+      <WeeklyProgress logs={logs} />
 
       <LogForm onSubmit={handleLogSubmit} />
 
@@ -37,25 +53,59 @@ export default function LogPage() {
       )}
 
       {logs.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-white">Log History</h2>
-          <div className="space-y-3 pb-8">
-            {logs.map((log, i) => (
-              <motion.div 
-                key={log.id || i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-4 glass rounded-2xl flex justify-between items-center"
-              >
-                <div>
-                  <p className="font-medium text-white">{log.item || "Unspecified Item"}</p>
-                  <p className="text-xs text-muted-foreground capitalize">
-                    {log.spendingType} • {log.decisionType} • Trigger: {log.trigger}
-                  </p>
-                </div>
-                <p className="font-bold text-white">{log.amount ? `₦${Number(log.amount).toLocaleString()}` : "—"}</p>
-              </motion.div>
-            ))}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3 px-1">
+            <h2 className="text-2xl font-serif text-white">Log History</h2>
+            <div className="h-[1px] flex-1 bg-white/5" />
+          </div>
+          <div className="space-y-4 pb-8">
+            {logs.map((log, i) => {
+              const logDate = new Date(log.createdAt || log.date);
+              const formattedDate = logDate.toLocaleDateString("en-US", {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              });
+
+              return (
+                <motion.div 
+                  key={log.id || i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-6 glass-card space-y-4 border-white/5 hover:border-primary/20 transition-all"
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">{formattedDate}</p>
+                      <h3 className="text-xl font-serif text-white">{log.item || "Unspecified Entry"}</h3>
+                    </div>
+                    <p className="text-2xl font-serif text-white">
+                      {log.noSpendDay ? "—" : `₦${Number(log.amount).toLocaleString()}`}
+                    </p>
+                  </div>
+                  
+                  {!log.noSpendDay ? (
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1 bg-white/5 rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-white/5">
+                        {log.spendingType}
+                      </span>
+                      <span className="px-3 py-1 bg-white/5 rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-white/5">
+                        {log.decisionType}
+                      </span>
+                      <span className="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-bold text-primary uppercase tracking-widest border border-primary/20">
+                        Trigger: {log.trigger}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.2em]">Quiet Discipline Logged</span>
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
         </section>
       )}

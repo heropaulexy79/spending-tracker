@@ -21,8 +21,8 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-black/40 backdrop-blur-3xl border-t border-white/5 pb-safe">
-      <div className="flex justify-between items-center h-20 max-w-lg mx-auto px-4">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0A0A0B]/80 backdrop-blur-3xl border-t border-white/5 pb-safe">
+      <div className="flex justify-between items-center h-16 max-w-lg mx-auto px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -32,26 +32,23 @@ export default function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex flex-col items-center justify-center gap-1 transition-all duration-300",
-                isActive ? "scale-105" : "hover:text-white"
+                "flex-1 relative flex flex-col items-center justify-center transition-all duration-300 py-1",
+                isActive ? "text-primary" : "text-muted-foreground/40 hover:text-white"
               )}
             >
               <div className={cn(
-                "p-2 rounded-xl transition-all duration-300",
-                isActive ? "bg-primary/10 text-primary" : "bg-transparent text-muted-foreground"
+                "transition-all duration-300",
+                isActive && "scale-110"
               )}>
-                <Icon className={cn("w-4.5 h-4.5", isActive && "stroke-[2.5px]")} />
+                <Icon className={cn("w-4.5 h-4.5", isActive && "stroke-[2px]")} />
               </div>
-              <span className={cn(
-                "text-[7px] xs:text-[8px] font-bold uppercase tracking-[0.1em] transition-all duration-300",
-                isActive ? "opacity-100 text-primary" : "opacity-40 text-muted-foreground"
-              )}>
+              <span className="text-[6px] font-bold uppercase tracking-[0.1em] mt-1 text-center">
                 {item.label}
               </span>
               {isActive && (
                 <motion.div 
                   layoutId="activeTab"
-                  className="absolute -bottom-2 w-1 h-1 bg-primary rounded-full shadow-[0_0_10px_rgba(59,130,246,1)]" 
+                  className="absolute -bottom-1 w-4 h-[1px] bg-primary" 
                 />
               )}
             </Link>

@@ -58,19 +58,22 @@ export default function Home() {
 
   return (
     <div className="space-y-8 animate-in pb-12">
-      <header className="flex justify-between items-start pt-2 relative">
-        <div className="space-y-1">
-          <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-1">Home</p>
-          <h1 className="text-4xl font-bold tracking-tight text-gradient">
+      <header className="flex justify-between items-start pt-4 relative">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="h-[1px] w-8 bg-primary/40" />
+            <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Dashboard</p>
+          </div>
+          <h1 className="text-4xl font-serif tracking-tight text-white">
             Hello, {user.displayName?.split(" ")[0] || "Friend"}
           </h1>
-          <p className="text-muted-foreground text-sm font-medium">Observe your patterns today.</p>
+          <p className="text-muted-foreground text-sm font-medium">Observe your patterns with intention.</p>
         </div>
         
         <div className="relative" ref={menuRef}>
           <button 
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="p-3 rounded-2xl glass hover:bg-white/10 transition-all active:scale-95"
+            className="p-3 rounded-2xl glass-card hover:bg-white/10 transition-all active:scale-95"
           >
             <UserIcon className="w-5 h-5 text-white" />
           </button>
@@ -81,31 +84,27 @@ export default function Home() {
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute right-0 mt-2 w-56 glass-dark rounded-[1.5rem] p-2 shadow-2xl z-50 border border-white/10"
+                className="absolute right-0 mt-3 w-56 glass-dark rounded-[1.5rem] p-2 shadow-2xl z-50 border border-white/5"
               >
-                <div className="p-3 border-b border-white/5 mb-1">
-                  <p className="text-xs font-bold text-primary uppercase tracking-widest">Account</p>
-                  <p className="text-sm font-medium text-white truncate">{user.email}</p>
+                <div className="p-4 border-b border-white/5 mb-1">
+                  <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Identity</p>
+                  <p className="text-sm font-bold text-white truncate">{user.email}</p>
                 </div>
                 
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-white/80 transition-colors text-sm font-medium">
-                  <UserIcon className="w-4 h-4" />
-                  View Profile
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-white/70 transition-colors text-xs font-bold uppercase tracking-wider">
+                  <UserIcon className="w-4 h-4 text-primary" />
+                  Profile
                 </button>
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-white/80 transition-colors text-sm font-medium">
-                  <Key className="w-4 h-4" />
-                  Change Password
-                </button>
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-white/80 transition-colors text-sm font-medium">
-                  <Settings className="w-4 h-4" />
-                  Preferences
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-white/70 transition-colors text-xs font-bold uppercase tracking-wider">
+                  <Settings className="w-4 h-4 text-primary" />
+                  Settings
                 </button>
                 
-                <div className="h-px bg-white/5 my-1" />
+                <div className="h-[1px] bg-white/5 my-1 mx-2" />
                 
                 <button 
                   onClick={() => signOut(auth)}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-coral/10 text-coral transition-colors text-sm font-bold"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-coral/10 text-coral transition-colors text-xs font-bold uppercase tracking-wider"
                 >
                   <LogOut className="w-4 h-4" />
                   Logout
@@ -117,23 +116,25 @@ export default function Home() {
       </header>
 
       {/* Main Mindset Card */}
-      <section className="glass-card p-8 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Target className="w-32 h-32 text-primary" />
+      <section className="glass-card p-10 relative overflow-hidden group border-primary/10">
+        <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
+          <Target className="w-48 h-48 text-primary" />
         </div>
-        <div className="relative z-10 space-y-4">
-          <h2 className="text-sm font-bold text-primary uppercase tracking-[0.2em]">Current Mindset</h2>
-          <div className="flex items-baseline gap-2">
-            <span className="text-5xl font-bold text-white tracking-tighter">{plan?.spenderType || "Balanced"}</span>
+        <div className="relative z-10 space-y-5">
+          <div className="space-y-1">
+            <h2 className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Current Mindset</h2>
+            <div className="flex items-baseline gap-2">
+              <span className="text-5xl font-serif text-white tracking-tight">{plan?.spenderType || "Balanced"}</span>
+            </div>
           </div>
-          <p className="text-muted-foreground max-w-[280px] leading-relaxed">
+          <p className="text-muted-foreground max-w-[300px] leading-relaxed text-sm">
             {plan?.spenderType === "Strict" 
-              ? "High-discipline mode active. Focus on core needs." 
-              : "Maintaining intentional balance between needs and joys."}
+              ? "High-discipline mode active. Every decision is intentional." 
+              : "Maintaining a conscious balance between necessity and joy."}
           </p>
           <Link 
             href="/plan" 
-            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white bg-primary/20 hover:bg-primary/30 border border-primary/30 px-5 py-2.5 rounded-full transition-all"
+            className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white bg-primary/20 hover:bg-primary/30 border border-primary/20 px-6 py-3 rounded-full transition-all"
           >
             Refine Intent <ArrowRight className="w-4 h-4" />
           </Link>
@@ -173,40 +174,40 @@ export default function Home() {
       </div>
 
       {/* Behavioral Insight Banner */}
-      <div className="p-6 rounded-3xl bg-primary/10 border border-primary/20 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+      <div className="p-8 rounded-3xl bg-primary/5 border border-primary/10 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
           <Target className="w-24 h-24 text-primary" />
         </div>
-        <h3 className="text-lg font-semibold text-primary mb-2 flex items-center gap-2">
-          <Target className="w-5 h-5" />
-          Today's Focus
+        <h3 className="text-sm font-bold text-primary mb-3 flex items-center gap-2 uppercase tracking-[0.2em]">
+          <Target className="w-4 h-4" />
+          Today&apos;s Focus
         </h3>
-        <p className="text-white/80 leading-relaxed">
-          "Pause for 10 seconds before any unplanned purchase. Ask yourself: Is this a need or a reaction?"
+        <p className="text-white/80 leading-relaxed font-serif text-lg">
+          &ldquo;Pause for 10 seconds before any unplanned purchase. Ask yourself: Is this a need or a reaction?&rdquo;
         </p>
       </div>
 
       {/* Recent Activity Mini-List */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-white">Recent Realities</h2>
-          <Link href="/log" className="text-sm text-primary hover:underline">View all</Link>
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-2xl font-serif text-white">Recent Realities</h2>
+          <Link href="/log" className="text-[10px] font-bold text-primary uppercase tracking-widest hover:underline">View all</Link>
         </div>
         <div className="space-y-3">
           {logs.length > 0 ? (
             logs.slice(0, 3).map((log, i) => (
-              <div key={log.id || i} className="flex items-center justify-between p-4 glass rounded-2xl">
-                <div>
-                  <p className="font-medium text-white">{log.item || "Unspecified Item"}</p>
-                  <p className="text-xs text-muted-foreground capitalize">
+              <div key={log.id || i} className="flex items-center justify-between p-5 glass-card">
+                <div className="space-y-1">
+                  <p className="font-bold text-white text-sm">{log.item || "Unspecified Item"}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
                     {new Date(log.createdAt).toLocaleDateString()} • {log.spendingType}
                   </p>
                 </div>
-                <p className="font-semibold text-white">{log.amount ? `₦${Number(log.amount).toLocaleString()}` : "—"}</p>
+                <p className="font-serif text-lg text-white">{log.amount ? `₦${Number(log.amount).toLocaleString()}` : "—"}</p>
               </div>
             ))
           ) : (
-            <div className="p-8 glass rounded-2xl text-center">
+            <div className="p-10 glass-card text-center border-dashed border-white/10">
               <p className="text-muted-foreground text-sm italic">No entries yet. Start logging your reality.</p>
             </div>
           )}
@@ -228,8 +229,8 @@ function StatCard({ label, value, icon, color, href }: { label: string, value: s
           {icon}
         </div>
         <div>
-          <p className="text-2xl font-bold text-white tracking-tight leading-none">{value}</p>
-          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em] mt-2">{label}</p>
+          <p className="text-2xl font-serif text-white tracking-tight leading-none">{value}</p>
+          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em] mt-3">{label}</p>
         </div>
       </motion.div>
     </Link>
