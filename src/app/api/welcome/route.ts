@@ -80,7 +80,7 @@ export async function POST(request: Request) {
           <p>Let's build intentional financial habits together.</p>
           <br/>
           <p>Warmly,</p>
-          <p><strong>The CTM Team</strong></p>
+          <p><strong>The S&B Team</strong></p>
         </div>
       `,
     };

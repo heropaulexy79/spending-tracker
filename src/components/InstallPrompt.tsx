@@ -79,7 +79,7 @@ export default function InstallPrompt() {
               </div>
               
               <div className="space-y-1">
-                <h3 className="font-bold text-white tracking-tight">Install CTM Tracker</h3>
+                <h3 className="font-bold text-white tracking-tight">Install S&B Tracker</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {platform === "ios" 
                     ? "Tap the share icon and select 'Add to Home Screen' for a premium experience."
