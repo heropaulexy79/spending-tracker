@@ -10,6 +10,7 @@ export function useTracking() {
   const { user } = useAuth();
   const [plan, setPlan] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
+  const [urges, setUrges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,8 +32,8 @@ export function useTracking() {
 
     // Subscribe to Logs (Hierarchical subcollection)
     const logsRef = collection(db, "users", user.uid, "logs");
-    const q = query(logsRef);
-    const unsubLogs = onSnapshot(q, (snap) => {
+    const qLogs = query(logsRef);
+    const unsubLogs = onSnapshot(qLogs, (snap) => {
       const l = snap.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter((log: any) => log.weekKey === weekKey);
@@ -40,9 +41,21 @@ export function useTracking() {
       setLogs(l);
     }, (err) => console.error("Logs Listener Error:", err));
 
+    // Subscribe to Urges
+    const urgesRef = collection(db, "users", user.uid, "urges");
+    const qUrges = query(urgesRef);
+    const unsubUrges = onSnapshot(qUrges, (snap) => {
+      const u = snap.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter((urge: any) => urge.weekKey === weekKey);
+      u.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setUrges(u);
+    }, (err) => console.error("Urges Listener Error:", err));
+
     return () => {
       unsubBudget();
       unsubLogs();
+      unsubUrges();
     };
   }, [user]);
 
@@ -65,6 +78,18 @@ export function useTracking() {
     });
   };
 
+  const addUrge = async (urge: any) => {
+    if (!user) return;
+    const weekKey = getWeekKey();
+    const urgeRef = doc(collection(db, "users", user.uid, "urges"));
+    await setDoc(urgeRef, { 
+      ...urge, 
+      uid: user.uid,
+      weekKey, 
+      createdAt: new Date().toISOString() 
+    });
+  };
 
-  return { plan, logs, savePlan, addLog, loading };
+
+  return { plan, logs, urges, savePlan, addLog, addUrge, loading };
 }

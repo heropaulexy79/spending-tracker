@@ -11,6 +11,11 @@ service cloud.firestore {
       match /logs/{logId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+
+      // Protect the urges subcollection
+      match /urges/{urgeId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
     
     // Deny everything else by default
