@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Zap, ShieldCheck, ShieldAlert, History } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTracking } from "@/hooks/useTracking";
 
 const urgeTypes = ["Emotional", "Impulsive", "Social pressure", "Boredom", "Immediate desire"];
 const actions = ["Bought", "Resisted", "Delayed"];
