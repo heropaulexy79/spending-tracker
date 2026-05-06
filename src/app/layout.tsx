@@ -10,8 +10,8 @@ import AppShell from "@/components/layout/AppShell";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Crafting the Mind - Spending Tracker",
-  description: "A behavioral awareness system for intentional spending.",
+  title: "S&B Tracker",
+  description: "Spend & Behavior Tracker - Master your intentions.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

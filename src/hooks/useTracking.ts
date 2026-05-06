@@ -30,24 +30,20 @@ export function useTracking() {
       setLoading(false);
     }, (err) => console.error("Budget Listener Error:", err));
 
-    // Subscribe to Logs (Hierarchical subcollection)
+    // Subscribe to Logs (Server-side filtered)
     const logsRef = collection(db, "users", user.uid, "logs");
-    const qLogs = query(logsRef);
+    const qLogs = query(logsRef, where("weekKey", "==", weekKey));
     const unsubLogs = onSnapshot(qLogs, (snap) => {
-      const l = snap.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter((log: any) => log.weekKey === weekKey);
+      const l = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       l.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setLogs(l);
     }, (err) => console.error("Logs Listener Error:", err));
 
-    // Subscribe to Urges
+    // Subscribe to Urges (Server-side filtered)
     const urgesRef = collection(db, "users", user.uid, "urges");
-    const qUrges = query(urgesRef);
+    const qUrges = query(urgesRef, where("weekKey", "==", weekKey));
     const unsubUrges = onSnapshot(qUrges, (snap) => {
-      const u = snap.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter((urge: any) => urge.weekKey === weekKey);
+      const u = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       u.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setUrges(u);
     }, (err) => console.error("Urges Listener Error:", err));

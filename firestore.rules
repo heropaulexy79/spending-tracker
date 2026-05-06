@@ -3,23 +3,42 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // Helper functions for common checks
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
     // Core Privacy Rule: Users can ONLY access their own data
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Read is allowed for owners
+      allow read: if isOwner(userId);
       
-      // Protect the logs subcollection
+      // Create: Allow only if creating their own profile
+      allow create: if isOwner(userId);
+      
+      // Update: Prevent mass assignment of sensitive fields (like future 'role' or 'admin')
+      // Only allow updating 'plan' and 'lastUpdated'
+      allow update: if isOwner(userId) && 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['plan', 'lastUpdated', 'sentWelcome']);
+      
+      // Delete: Prevent users from deleting their own root document for now
+      allow delete: if false;
+      
+      // Subcollections
       match /logs/{logId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
       }
 
-      // Protect the urges subcollection
       match /urges/{urgeId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
       }
 
-      // Protect the reflections subcollection
       match /reflections/{reflectionId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
       }
     }
     

@@ -12,7 +12,7 @@ interface OnboardingProps {
 const screens = [
   {
     id: 1,
-    title: "Welcome to Crafting the Mind",
+    title: "Welcome to S&B Tracker",
     description: "This is not just a budgeting app. This is a system designed to help you understand your spending behavior.",
     icon: <div className="w-20 h-20 bg-primary/20 rounded-[2.5rem] flex items-center justify-center border border-primary/30">
       <Target className="w-10 h-10 text-primary" />

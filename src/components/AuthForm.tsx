@@ -70,22 +70,19 @@ export default function AuthForm() {
     try {
       const result = await signInWithPopup(auth, provider);
       
-      // If new user, trigger welcome email
-      const isNewUser = (result.user.metadata as any).createdAt === (result.user.metadata as any).lastLoginAt;
-      if (isNewUser) {
-        try {
-          const idToken = await result.user.getIdToken();
-          await fetch("/api/welcome", {
-            method: "POST",
-            body: JSON.stringify({ email: result.user.email, name: result.user.displayName }),
-            headers: { 
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${idToken}`
-            },
-          });
-        } catch (e) {
-          console.error("Failed to send welcome email for Google user:", e);
-        }
+      // Attempt to trigger welcome email (Server handles idempotency)
+      try {
+        const idToken = await result.user.getIdToken();
+        await fetch("/api/welcome", {
+          method: "POST",
+          body: JSON.stringify({ email: result.user.email, name: result.user.displayName }),
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${idToken}`
+          },
+        });
+      } catch (e) {
+        console.error("Failed to trigger welcome flow for Google user:", e);
       }
     } catch (err: any) {
       console.error("Google Auth Error:", err);

@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
-import { adminAuth } from '@/lib/firebase-admin';
+import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { z } from 'zod';
 
 const welcomeSchema = z.object({
@@ -28,6 +28,14 @@ export async function POST(request: Request) {
 
     const { email, name } = result.data;
 
+    // 2.5 Sanitize name to prevent HTML injection in email
+    const sanitizedName = name
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
     // 3. Verify the Token
     let decodedToken;
     try {
@@ -36,10 +44,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized: Invalid token' }, { status: 401 });
     }
 
-    // 3. Security Check: Ensure the email in the request matches the authenticated user
+    // 4. Security Check: Ensure the email in the request matches the authenticated user
     if (decodedToken.email !== email) {
       console.warn(`SECURITY ALERT: User ${decodedToken.email} tried to send an email to ${email}`);
       return NextResponse.json({ error: 'Forbidden: Email mismatch' }, { status: 403 });
+    }
+
+    // 5. Rate Limiting Check (Database-backed)
+    // Only send the welcome email once per user lifetime
+    const userRef = adminDb.collection('users').doc(decodedToken.uid);
+    const userDoc = await userRef.get();
+    
+    if (userDoc.exists && userDoc.data()?.sentWelcome) {
+      return NextResponse.json({ success: true, message: 'Welcome email already sent' });
     }
 
     // Gmail SMTP Configuration
@@ -52,13 +69,13 @@ export async function POST(request: Request) {
     });
 
     const mailOptions = {
-      from: `"Crafting The Mind" <${process.env.GMAIL_USER}>`,
+      from: `"S&B Tracker" <${process.env.GMAIL_USER}>`,
       to: email,
       subject: 'Welcome to your Behavioral Spending Journey',
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-          <h2 style="color: #4f46e5;">Welcome, ${name}!</h2>
-          <p>Thank you for joining <strong>Crafting the Mind</strong>. This is not just a spending tracker; it's your new system for behavioral awareness.</p>
+          <h2 style="color: #4f46e5;">Welcome, ${sanitizedName}!</h2>
+          <p>Thank you for joining <strong>S&B Tracker</strong>. This is not just a spending tracker; it's your new system for behavioral awareness.</p>
           <p>Every time you spend, remember to pause for 10 seconds and reflect on the <em>why</em> behind your purchase.</p>
           <p>Let's build intentional financial habits together.</p>
           <br/>
@@ -69,6 +86,9 @@ export async function POST(request: Request) {
     };
 
     await transporter.sendMail(mailOptions);
+
+    // 6. Mark as sent in Database
+    await userRef.set({ sentWelcome: true }, { merge: true });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
