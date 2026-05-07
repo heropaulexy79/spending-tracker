@@ -36,8 +36,15 @@ export default function UrgePage() {
   const dayData = [0, 0, 0, 0, 0, 0, 0];
   urges.forEach(u => {
     if (u.type !== "Calm") {
-      const date = u.createdAt ? new Date(u.createdAt) : new Date();
-      const day = date.getDay();
+      // Handle Firestore Timestamp
+      let date: Date;
+      if (u.createdAt && typeof u.createdAt === 'object' && 'seconds' in u.createdAt) {
+        date = new Date(u.createdAt.seconds * 1000);
+      } else {
+        date = u.createdAt ? new Date(u.createdAt) : new Date();
+      }
+      
+      const day = isNaN(date.getTime()) ? new Date().getDay() : date.getDay();
       const index = day === 0 ? 6 : day - 1; // Map Sun to 6, Mon to 0
       dayData[index] += 1;
     }

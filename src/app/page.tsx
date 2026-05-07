@@ -12,6 +12,7 @@ import Link from "next/link";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/dateUtils";
 
 export default function Home() {
   const { user } = useAuth();
@@ -241,7 +242,7 @@ export default function Home() {
                 <div className="space-y-1">
                   <p className="font-bold text-white text-sm">{log.item || "Unspecified Item"}</p>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-                    {new Date(log.createdAt).toLocaleDateString()} • {log.spendingType}
+                    {formatDate(log.createdAt || log.date)} • {log.spendingType}
                   </p>
                 </div>
                 <p className="font-serif text-lg text-white">{log.amount ? `₦${Number(log.amount).toLocaleString()}` : "—"}</p>

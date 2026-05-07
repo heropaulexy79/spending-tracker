@@ -6,6 +6,7 @@ import WeeklyProgress from "@/components/WeeklyProgress";
 import { motion } from "framer-motion";
 
 import { useTracking } from "@/hooks/useTracking";
+import { formatDate } from "@/lib/dateUtils";
 
 export default function LogPage() {
   const { logs, addLog, loading } = useTracking();
@@ -60,13 +61,7 @@ export default function LogPage() {
           </div>
           <div className="space-y-4 pb-8">
             {logs.map((log, i) => {
-              const logDate = new Date(log.createdAt || log.date);
-              const formattedDate = logDate.toLocaleDateString("en-US", {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-              });
+              const formattedDate = formatDate(log.createdAt || log.date);
 
               return (
                 <motion.div 
