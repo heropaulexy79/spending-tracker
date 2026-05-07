@@ -23,34 +23,53 @@ export default function StatsPage() {
   // Group by day of week and calculate insights
   const dayData = [0, 0, 0, 0, 0, 0, 0];
   const triggerCounts: Record<string, number> = {};
+  const moodImpulseCounts: Record<string, number> = {};
+  const moodTotalCounts: Record<string, number> = {};
   
   // Impulse Control Logic
   const dailyUncontrolled: Record<string, number> = {}; // Date -> Count
   let controlledCount = 0;
   let uncontrolledCount = 0;
-
+ 
   // Process Logs
   logs.forEach(log => {
     const dateStr = log.date;
     const date = dateStr ? new Date(dateStr) : new Date();
     if (isNaN(date.getTime())) return;
-
+ 
     const day = date.getDay();
     const index = day === 0 ? 6 : day - 1; // Map Sun to 6, Mon to 0
     const amount = Number(log.amount) || 0;
     dayData[index] += amount;
-
+ 
     if (amount > 0) {
       if (log.trigger) {
         triggerCounts[log.trigger] = (triggerCounts[log.trigger] || 0) + 1;
       }
+      if (log.mood) {
+        moodTotalCounts[log.mood] = (moodTotalCounts[log.mood] || 0) + 1;
+      }
       if (log.spendingType === "Emotional impulse") {
         uncontrolledCount++;
         dailyUncontrolled[dateStr] = (dailyUncontrolled[dateStr] || 0) + 1;
+        if (log.mood) {
+          moodImpulseCounts[log.mood] = (moodImpulseCounts[log.mood] || 0) + 1;
+        }
       }
     }
   });
-
+ 
+  // Calculate Emotional Correlation
+  let topMoodCorrelate = "N/A";
+  let topMoodRatio = 0;
+  Object.keys(moodTotalCounts).forEach(mood => {
+    const ratio = (moodImpulseCounts[mood] || 0) / moodTotalCounts[mood];
+    if (ratio > topMoodRatio) {
+      topMoodRatio = ratio;
+      topMoodCorrelate = mood;
+    }
+  });
+ 
   // Process Urges
   urges.forEach(urge => {
     const dateStr = typeof urge.createdAt === 'string' ? urge.createdAt.split("T")[0] : null;
@@ -61,10 +80,10 @@ export default function StatsPage() {
       if (dateStr) dailyUncontrolled[dateStr] = (dailyUncontrolled[dateStr] || 0) + 1;
     }
   });
-
+ 
   const calmDays = 7 - Object.keys(dailyUncontrolled).length;
   const impulseControlRate = Math.round((calmDays / 7) * 100);
-
+ 
   const maxAmount = Math.max(...dayData);
   const maxDayIndex = dayData.indexOf(maxAmount);
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -253,6 +272,18 @@ export default function StatsPage() {
             title="Busiest Day"
             description={`Your spending peaks on ${busiestDay}. Prepare mentally for this day next week.`}
             color="bg-primary/5 border-primary/10"
+          />
+          <InsightCard 
+            icon={<AlertTriangle className="w-5 h-5 text-coral" />}
+            title="The Emotional Root"
+            description={topMoodCorrelate !== "N/A" ? `You are ${Math.round(topMoodRatio * 100)}% more likely to spend impulsively when you feel "${topMoodCorrelate}".` : "More mood data needed to map your emotional root."}
+            color="bg-coral/5 border-coral/10"
+          />
+          <InsightCard 
+            icon={<Lightbulb className="w-5 h-5 text-amber-400" />}
+            title="Proactive Strategy"
+            description={busiestDay !== "N/A" ? `Strategic Alert: Next ${busiestDay}, we will notify you to maintain high guard. Your discipline is strongest when forewarned.` : "Waiting for more data to build your awareness strategy."}
+            color="bg-amber-400/5 border-amber-400/10"
           />
           <InsightCard 
             icon={<AlertTriangle className="w-5 h-5 text-coral" />}

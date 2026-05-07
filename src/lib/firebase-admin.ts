@@ -28,5 +28,6 @@ if (!admin.apps.length) {
   }
 }
 
-export const adminAuth = admin.auth();
-export const adminDb = admin.firestore();
+// Export getters to avoid immediate initialization failure during build
+export const adminAuth = admin.apps.length ? admin.auth() : null as any;
+export const adminDb = admin.apps.length ? admin.firestore() : null as any;

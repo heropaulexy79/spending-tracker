@@ -10,11 +10,23 @@ import { useTracking } from "@/hooks/useTracking";
 const decisionTypes = ["Planned", "Unplanned"];
 const spendingTypes = ["Need", "Want", "Emotional impulse"];
 const triggers = ["Hunger", "Stress", "Boredom", "Social influence", "Convenience", "Other"];
+const moods = ["Calm", "Anxious", "Exhausted", "Happy", "Stressed", "Bored"];
+
+const PAUSE_QUOTES = [
+  "Is this a want or a need?",
+  "Pause. Breathe. Decide.",
+  "Your future self is watching.",
+  "Discipline is choosing between what you want now and what you want most.",
+  "Awareness is the first step to change.",
+  "The space between stimulus and response is where your power lies.",
+  "Ownership of your choices is the path to freedom."
+];
 
 export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void }) {
   const { noSpendDayLogged } = useTracking();
   const [isPausing, setIsPausing] = useState(false);
   const [countdown, setCountdown] = useState(10);
+  const [currentQuote, setCurrentQuote] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     item: "",
@@ -22,6 +34,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
     decisionType: "Planned",
     spendingType: "Need",
     trigger: "Other",
+    mood: "Calm",
     noSpendDay: false,
   });
 
@@ -32,6 +45,12 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
     month: 'long', 
     day: 'numeric' 
   });
+
+  useEffect(() => {
+    if (isPausing) {
+      setCurrentQuote(PAUSE_QUOTES[Math.floor(Math.random() * PAUSE_QUOTES.length)]);
+    }
+  }, [isPausing]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -60,6 +79,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
         decisionType: "Planned",
         spendingType: "Need",
         trigger: "Other",
+        mood: "Calm",
         noSpendDay: false,
       });
       setIsSubmitted(false);
@@ -205,6 +225,27 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
                     )}
                   >
                     {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Current Mood</label>
+              <div className="flex flex-wrap gap-2">
+                {moods.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, mood: m })}
+                    className={cn(
+                      "px-4 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all",
+                      formData.mood === m
+                        ? "bg-primary/20 border-primary/50 text-primary"
+                        : "bg-white/5 border-white/10 text-muted-foreground hover:border-white/20 hover:text-white"
+                    )}
+                  >
+                    {m}
                   </button>
                 ))}
               </div>

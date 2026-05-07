@@ -75,7 +75,7 @@ export function useTracking() {
 
   const addLog = async (log: any) => {
     if (!user) return;
-    const { item, amount, decisionType, spendingType, trigger, noSpendDay, date } = log;
+    const { item, amount, decisionType, spendingType, trigger, mood, noSpendDay, date } = log;
     const weekKey = getWeekKey();
     const logRef = doc(collection(db, "users", user.uid, "logs"));
     await setDoc(logRef, { 
@@ -84,6 +84,7 @@ export function useTracking() {
       decisionType,
       spendingType,
       trigger,
+      mood: mood || "Calm",
       noSpendDay: !!noSpendDay,
       date,
       uid: user.uid,
