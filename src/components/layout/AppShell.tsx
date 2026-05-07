@@ -51,8 +51,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <header className="max-w-lg mx-auto px-6 pt-12 pb-2 text-center">
+      <header className="max-w-lg mx-auto px-6 pt-12 pb-2 text-center space-y-1">
         <h1 className="text-sm font-bold text-primary uppercase tracking-[0.8em] font-dm-sans">Crafting the Mind</h1>
+        <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-[0.4em]">Spending & Behavioral Tracker</p>
       </header>
       <main className="max-w-lg mx-auto px-4 py-8">
         {children}

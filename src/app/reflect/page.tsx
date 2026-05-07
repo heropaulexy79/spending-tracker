@@ -93,7 +93,7 @@ export default function ReflectPage() {
           <div className="space-y-10">
             <div className="space-y-8">
               <div>
-                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-[0.15em] mb-3 ml-1">Why did I buy what I bought today?</label>
+                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-[0.15em] mb-3 ml-1">Why did I spend on what I paid for today?</label>
                 <textarea
                   value={reflection.why}
                   onChange={(e) => setReflection({ ...reflection, why: e.target.value })}

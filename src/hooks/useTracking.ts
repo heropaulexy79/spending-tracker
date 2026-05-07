@@ -65,10 +65,10 @@ export function useTracking() {
 
   const savePlan = async (newPlan: any) => {
     if (!user) return;
-    const { budget, categoryLimits, currency } = newPlan;
+    const { budget = "", categoryLimits = {}, currency = "₦", ...rest } = newPlan;
     const budgetRef = doc(db, "users", user.uid);
     await setDoc(budgetRef, { 
-      plan: { budget, categoryLimits, currency }, 
+      plan: { budget, categoryLimits, currency, ...rest }, 
       lastUpdated: serverTimestamp() 
     }, { merge: true });
   };

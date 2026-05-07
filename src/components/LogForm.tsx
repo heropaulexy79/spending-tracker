@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Timer, CheckCircle2, XCircle } from "lucide-react";
+import { Timer, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { useTracking } from "@/hooks/useTracking";
@@ -23,7 +23,7 @@ const PAUSE_QUOTES = [
 ];
 
 export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void }) {
-  const { noSpendDayLogged, spendLoggedToday } = useTracking();
+  const { noSpendDayLogged, spendLoggedToday, plan, logs } = useTracking();
   const [isPausing, setIsPausing] = useState(false);
   const [countdown, setCountdown] = useState(10);
   const [currentQuote, setCurrentQuote] = useState("");
@@ -39,6 +39,10 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
   });
 
   const today = new Date();
+  const totalSpent = logs?.reduce((acc, log) => acc + (Number(log.amount) || 0), 0) || 0;
+  const budget = Number(plan?.budget) || 0;
+  const isOverBudget = budget > 0 && totalSpent >= budget;
+
   const dateString = today.toLocaleDateString("en-US", { 
     weekday: 'long', 
     year: 'numeric', 
@@ -156,7 +160,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
       <div className="flex justify-end items-center mb-6">
         <label className={cn(
           "flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest transition-colors",
-          spendLoggedToday ? "text-muted-foreground/30 cursor-not-allowed" : "text-muted-foreground cursor-pointer hover:text-white"
+          spendLoggedToday || (isOverBudget && !formData.noSpendDay) ? "text-muted-foreground/30 cursor-not-allowed" : "text-muted-foreground cursor-pointer hover:text-white"
         )}>
           <input
             type="checkbox"
@@ -169,11 +173,27 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
         </label>
       </div>
 
+      {isOverBudget && !formData.noSpendDay && (
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 bg-coral/10 border border-coral/20 rounded-2xl flex items-start gap-3 mb-6"
+        >
+          <AlertTriangle className="w-5 h-5 text-coral shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-coral uppercase tracking-wider">Weekly Budget Depleted</p>
+            <p className="text-[11px] text-coral-200/70 leading-relaxed">
+              You have reached your spending limit for this week. Purchase logging is disabled to protect your intentions. You may still log a No-Spend Day or increase your budget in the Plan section.
+            </p>
+          </div>
+        </motion.div>
+      )}
+
       {!formData.noSpendDay ? (
         <>
           <div className="space-y-5">
             <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">What did you buy?</label>
+              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">What did you spend on today?</label>
               <input
                 type="text"
                 value={formData.item}
@@ -267,13 +287,23 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
 
           <button
             onClick={handleInitialClick}
-            disabled={isPausing}
+            disabled={isPausing || (isOverBudget && !formData.noSpendDay)}
             className={cn(
               "w-full py-5 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all relative overflow-hidden mt-4 shadow-lg",
-              isPausing ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" : "bg-primary text-primary-foreground hover:shadow-primary/30 active:scale-[0.98]"
+              isPausing ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" : 
+              (isOverBudget && !formData.noSpendDay) ? "bg-coral/10 text-coral border border-coral/20 cursor-not-allowed" :
+              "bg-primary text-primary-foreground hover:shadow-primary/30 active:scale-[0.98]"
             )}
           >
-            {isPausing ? (
+            {isOverBudget && !formData.noSpendDay ? (
+              <div className="flex flex-col items-center gap-1">
+                <span className="flex items-center gap-2">
+                  <XCircle className="w-5 h-5" />
+                  Budget Depleted
+                </span>
+                <span className="text-[9px] font-normal opacity-70">Increase budget or log as No-Spend Day</span>
+              </div>
+            ) : isPausing ? (
               <div className="flex flex-col items-center gap-4 w-full">
                 <div className="flex items-center gap-2">
                   <Timer className="w-5 h-5 animate-pulse" />
