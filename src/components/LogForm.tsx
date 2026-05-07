@@ -23,7 +23,7 @@ const PAUSE_QUOTES = [
 ];
 
 export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void }) {
-  const { noSpendDayLogged } = useTracking();
+  const { noSpendDayLogged, spendLoggedToday } = useTracking();
   const [isPausing, setIsPausing] = useState(false);
   const [countdown, setCountdown] = useState(10);
   const [currentQuote, setCurrentQuote] = useState("");
@@ -154,12 +154,16 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
       </div>
 
       <div className="flex justify-end items-center mb-6">
-        <label className="flex items-center gap-3 text-[11px] font-bold text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-white transition-colors">
+        <label className={cn(
+          "flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest transition-colors",
+          spendLoggedToday ? "text-muted-foreground/30 cursor-not-allowed" : "text-muted-foreground cursor-pointer hover:text-white"
+        )}>
           <input
             type="checkbox"
             checked={formData.noSpendDay}
+            disabled={spendLoggedToday}
             onChange={(e) => setFormData({ ...formData, noSpendDay: e.target.checked })}
-            className="w-5 h-5 rounded-lg border-white/10 bg-white/5 text-primary focus:ring-primary transition-all"
+            className="w-5 h-5 rounded-lg border-white/10 bg-white/5 text-primary focus:ring-primary transition-all disabled:opacity-30"
           />
           No-Spend Day
         </label>

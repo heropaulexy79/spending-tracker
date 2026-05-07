@@ -128,6 +128,7 @@ export function useTracking() {
 
   const todayStr = new Date().toISOString().split("T")[0];
   const noSpendDayLogged = logs.some(l => l.date === todayStr && l.noSpendDay === true);
+  const spendLoggedToday = logs.some(l => l.date === todayStr && !l.noSpendDay);
 
-  return { plan, logs, urges, savePlan, addLog, addUrge, addReflection, loading, noSpendDayLogged };
+  return { plan, logs, urges, savePlan, addLog, addUrge, addReflection, loading, noSpendDayLogged, spendLoggedToday };
 }

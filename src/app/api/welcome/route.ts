@@ -56,7 +56,8 @@ export async function POST(request: Request) {
     const userData = userDoc.data();
     
     // Only send the welcome email once per user lifetime
-    if (userDoc.exists && userData?.sentWelcome) {
+    if (userData?.sentWelcome === true) {
+      console.log(`Email already sent for user ${email}. Skipping.`);
       return NextResponse.json({ success: true, message: 'Welcome email already sent' });
     }
 

@@ -8,7 +8,8 @@ import {
   updateProfile,
   sendPasswordResetEmail,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  getAdditionalUserInfo
 } from "firebase/auth";
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -70,19 +71,25 @@ export default function AuthForm() {
     try {
       const result = await signInWithPopup(auth, provider);
       
-      // Attempt to trigger welcome email (Server handles idempotency)
-      try {
-        const idToken = await result.user.getIdToken();
-        await fetch("/api/welcome", {
-          method: "POST",
-          body: JSON.stringify({ email: result.user.email, name: result.user.displayName }),
-          headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${idToken}`
-          },
-        });
-      } catch (e) {
-        console.error("Failed to trigger welcome flow for Google user:", e);
+      // Attempt to trigger welcome email ONLY for new users
+      const additionalInfo = getAdditionalUserInfo(result);
+      if (additionalInfo?.isNewUser) {
+        try {
+          const idToken = await result.user.getIdToken();
+          await fetch("/api/welcome", {
+            method: "POST",
+            body: JSON.stringify({ 
+              email: result.user.email, 
+              name: result.user.displayName || "Friend" 
+            }),
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${idToken}`
+            },
+          });
+        } catch (e) {
+          console.error("Failed to trigger welcome flow for Google user:", e);
+        }
       }
     } catch (err: any) {
       console.error("Google Auth Error:", err);
