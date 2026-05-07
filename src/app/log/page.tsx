@@ -73,7 +73,7 @@ export default function LogPage() {
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
                       <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">{formattedDate}</p>
-                      <h3 className="text-xl font-serif text-white">{log.item || "Unspecified Entry"}</h3>
+                      <h3 className="text-xl font-serif text-white">{log.noSpendDay ? "No-Spend Day" : (log.item || "Unspecified Entry")}</h3>
                     </div>
                     <p className="text-2xl font-serif text-white">
                       {log.noSpendDay ? "—" : `₦${Number(log.amount).toLocaleString()}`}

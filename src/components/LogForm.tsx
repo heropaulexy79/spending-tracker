@@ -62,9 +62,18 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
     return () => clearInterval(timer);
   }, [isPausing, countdown]);
 
-  const handleSubmit = () => {
+  const handleSubmit = (e?: React.MouseEvent) => {
+    if (e && e.preventDefault) e.preventDefault();
+    
     const dataToSubmit = formData.noSpendDay 
-      ? { ...formData, item: "No-Spend Day", amount: "0", date: new Date().toISOString().split("T")[0] }
+      ? { 
+          ...formData, 
+          item: "No-Spend Day", 
+          amount: "0", 
+          decisionType: "Planned",
+          spendingType: "Need",
+          date: new Date().toISOString().split("T")[0] 
+        }
       : { ...formData, date: new Date().toISOString().split("T")[0] };
       
     onSubmit(dataToSubmit);

@@ -240,7 +240,7 @@ export default function Home() {
             logs.slice(0, 3).map((log, i) => (
               <div key={log.id || i} className="flex items-center justify-between p-5 glass-card">
                 <div className="space-y-1">
-                  <p className="font-bold text-white text-sm">{log.item || "Unspecified Item"}</p>
+                  <p className="font-bold text-white text-sm">{log.noSpendDay ? "No-Spend Day" : (log.item || "Unspecified Item")}</p>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
                     {formatDate(log.createdAt || log.date)} • {log.spendingType}
                   </p>
