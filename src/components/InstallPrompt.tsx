@@ -79,7 +79,7 @@ export default function InstallPrompt() {
               </div>
               
               <div className="space-y-1">
-                <h3 className="text-xl font-serif text-white tracking-tight">Install Crafting the Mind</h3>
+                <h3 className="text-xl font-serif text-white tracking-tight leading-tight">Crafting the Mind Spending and Behavioral Tracking</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {platform === "ios" 
                     ? "Tap the share icon and select 'Add to Home Screen' for a premium experience."
