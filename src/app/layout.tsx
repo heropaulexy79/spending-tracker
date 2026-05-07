@@ -18,6 +18,8 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
 });
 
+import { ThemeProvider } from "@/components/ThemeProvider";
+
 export const metadata: Metadata = {
   title: "Crafting the Mind – Spending & Behavioral Tracker",
   description: "Master your intentions with guided behavioral tracking.",
@@ -30,7 +32,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A0A0B",
+  themeColor: "#b08447",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -43,16 +45,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${dmSans.variable} ${playfair.variable} ${dmSans.className} pb-24 min-h-screen bg-background text-foreground`}>
-        <AuthProvider>
-          <DynamicBackground />
-          <NotificationManager />
-          <InstallPrompt />
-          <AppShell>
-            {children}
-          </AppShell>
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <DynamicBackground />
+            <NotificationManager />
+            <InstallPrompt />
+            <AppShell>
+              {children}
+            </AppShell>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

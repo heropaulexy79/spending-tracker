@@ -6,6 +6,7 @@ import BottomNav from "./BottomNav";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Onboarding from "../Onboarding";
+import ThemeToggle from "../ThemeToggle";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -51,9 +52,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <header className="max-w-lg mx-auto px-6 pt-12 pb-2 text-center space-y-1">
-        <h1 className="text-sm font-bold text-primary uppercase tracking-[0.8em] font-dm-sans">Crafting the Mind</h1>
-        <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-[0.4em]">Spending & Behavioral Tracker</p>
+      <header className="max-w-lg mx-auto px-6 pt-12 pb-2 flex items-center justify-between">
+        <div className="flex-1" />
+        <div className="text-center space-y-1 flex-[2]">
+          <h1 className="text-sm font-bold text-primary uppercase tracking-[0.8em] font-dm-sans">Crafting the Mind</h1>
+          <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-[0.4em]">Spending & Behavioral Tracker</p>
+        </div>
+        <div className="flex-1 flex justify-end">
+          <ThemeToggle />
+        </div>
       </header>
       <main className="max-w-lg mx-auto px-4 py-8">
         {children}
