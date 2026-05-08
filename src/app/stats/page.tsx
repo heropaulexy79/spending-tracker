@@ -99,18 +99,18 @@ export default function StatsPage() {
           <Lock className="w-10 h-10 text-primary" />
         </div>
         <div className="space-y-3 max-w-sm">
-          <h1 className="text-3xl font-serif text-white">Weekly Behavioral Statistics</h1>
+          <h1 className="text-3xl font-serif text-foreground">Weekly Behavioral Statistics</h1>
           <p className="text-muted-foreground leading-relaxed">
             These insights are locked until you complete a full week of logging. 
             Consistency is the key to behavioral clarity.
           </p>
         </div>
-        <div className="mt-8 p-6 glass-card w-full max-w-xs space-y-4 border-white/5">
+        <div className="mt-8 p-6 glass-card w-full max-w-xs space-y-4 border-border">
           <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.2em]">
             <span className="text-muted-foreground">Awareness Progress</span>
             <span className="text-primary">{distinctDays}/7 Days</span>
           </div>
-          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${(distinctDays / 7) * 100}%` }}
@@ -133,29 +133,29 @@ export default function StatsPage() {
           <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Weekly Overview</p>
         </div>
         <div className="space-y-1">
-          <h1 className="text-4xl font-serif tracking-tight text-white">Weekly Statistics</h1>
+          <h1 className="text-4xl font-serif tracking-tight text-foreground">Weekly Statistics</h1>
           <p className="text-muted-foreground text-sm">A multi-section view of your behavioral reality.</p>
         </div>
       </header>
 
       {/* 1. Weekly Spending Summary */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-serif text-white px-1">Spending Summary</h2>
+        <h2 className="text-2xl font-serif text-foreground px-1">Spending Summary</h2>
         <div className="grid grid-cols-2 gap-4">
-          <div className="p-6 glass-card space-y-2 border-white/5">
+          <div className="p-6 glass-card space-y-2 border-border">
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Total Spend</p>
-            <p className="text-3xl font-serif text-white">₦{totalWeekly.toLocaleString()}</p>
+            <p className="text-3xl font-serif text-foreground">₦{totalWeekly.toLocaleString()}</p>
           </div>
-          <div className="p-6 glass-card space-y-2 border-white/5">
+          <div className="p-6 glass-card space-y-2 border-border">
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Daily Average</p>
-            <p className="text-3xl font-serif text-white">₦{dailyAvg.toLocaleString()}</p>
+            <p className="text-3xl font-serif text-foreground">₦{dailyAvg.toLocaleString()}</p>
           </div>
         </div>
       </section>
 
       {/* 2. Budget Performance */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-serif text-white px-1">Budget Performance</h2>
+        <h2 className="text-2xl font-serif text-foreground px-1">Budget Performance</h2>
         <div className={cn(
           "p-8 glass-card space-y-6 border",
           overBudget ? "border-coral/20 bg-coral/5" : "border-emerald-500/20 bg-emerald-500/5"
@@ -163,7 +163,7 @@ export default function StatsPage() {
           <div className="flex justify-between items-center">
             <div className="space-y-1">
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Weekly Goal</p>
-              <p className="text-2xl font-serif text-white">₦{budget.toLocaleString()}</p>
+              <p className="text-2xl font-serif text-foreground">₦{budget.toLocaleString()}</p>
             </div>
             <div className="text-right space-y-1">
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Status</p>
@@ -173,7 +173,7 @@ export default function StatsPage() {
             </div>
           </div>
           
-          <div className="pt-4 border-t border-white/5 flex gap-4 items-center">
+          <div className="pt-4 border-t border-border flex gap-4 items-center">
             <div className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0",
               overBudget ? "bg-coral/10" : "bg-emerald-500/10"
@@ -181,7 +181,7 @@ export default function StatsPage() {
               {overBudget ? <ShieldAlert className="w-6 h-6 text-coral" /> : <ShieldCheck className="w-6 h-6 text-emerald-500" />}
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-bold text-white">
+              <p className="text-sm font-bold text-foreground">
                 {overBudget 
                   ? `⚠️ You exceeded your budget by ₦${budgetDiff.toLocaleString()}`
                   : `✅ You stayed within your budget`}
@@ -198,8 +198,8 @@ export default function StatsPage() {
 
       {/* 3. Impulse Control Statistics */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-serif text-white px-1">Impulse Control</h2>
-        <div className="p-8 glass-card space-y-8 border-white/5">
+        <h2 className="text-2xl font-serif text-foreground px-1">Impulse Control</h2>
+        <div className="p-8 glass-card space-y-8 border-border">
           <div className="grid grid-cols-2 gap-8">
             <div className="space-y-1">
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Controlled</p>
@@ -214,9 +214,9 @@ export default function StatsPage() {
           <div className="space-y-4">
             <div className="flex justify-between items-end">
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Discipline Rate</span>
-              <span className="text-2xl font-serif text-white">{impulseControlRate}%</span>
+              <span className="text-2xl font-serif text-foreground">{impulseControlRate}%</span>
             </div>
-            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${impulseControlRate}%` }}
@@ -229,9 +229,9 @@ export default function StatsPage() {
       </section>
 
       {/* 4. Daily Spending Breakdown */}
-      <section className="p-8 glass-card space-y-10 border-white/5">
+      <section className="p-8 glass-card space-y-10 border-border">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-serif text-white">Daily Breakdown</h2>
+          <h2 className="text-2xl font-serif text-foreground">Daily Breakdown</h2>
           {maxAmount > 0 && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Peak: ₦{maxAmount.toLocaleString()}</span>}
         </div>
         
@@ -239,7 +239,7 @@ export default function StatsPage() {
           {dayData.map((amount, i) => {
             const h = amount > 0 ? Math.max((amount / maxDay) * 100, 3) : 0;
             return (
-              <div key={i} className="flex-1 bg-white/5 rounded-t-xl relative group h-full flex items-end">
+              <div key={i} className="flex-1 bg-muted rounded-t-xl relative group h-full flex items-end">
                 <motion.div 
                   initial={{ height: 0 }}
                   animate={{ height: `${h}%` }}
@@ -250,7 +250,7 @@ export default function StatsPage() {
                   )}
                 />
                 
-                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-2 py-1 rounded-md text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 border border-white/10">
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-muted backdrop-blur-md px-2 py-1 rounded-md text-[10px] font-bold text-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 border border-border">
                   ₦{amount.toLocaleString()}
                 </div>
 
@@ -265,7 +265,7 @@ export default function StatsPage() {
 
       {/* Key Insights (Consolidated) */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-serif text-white px-1">Deep Insights</h2>
+        <h2 className="text-2xl font-serif text-foreground px-1">Deep Insights</h2>
         <div className="grid grid-cols-1 gap-4">
           <InsightCard 
             icon={<TrendingDown className="w-5 h-5 text-primary" />}
@@ -300,10 +300,10 @@ export default function StatsPage() {
 function InsightCard({ icon, title, description, color }: { icon: React.ReactNode, title: string, description: string, color: string }) {
   return (
     <div className={cn("p-4 rounded-2xl border flex gap-4 items-start transition-all hover:scale-[1.01]", color)}>
-      <div className="mt-1 p-2 bg-white/5 rounded-xl">{icon}</div>
+      <div className="mt-1 p-2 bg-muted rounded-xl">{icon}</div>
       <div>
-        <h4 className="font-semibold text-white mb-0.5">{title}</h4>
-        <p className="text-sm text-white/70 leading-relaxed">{description}</p>
+        <h4 className="font-semibold text-foreground mb-0.5">{title}</h4>
+        <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
       </div>
     </div>
   );

@@ -145,7 +145,7 @@ export default function AuthForm() {
   return (
     <div className="w-full max-w-md mx-auto p-8 glass-card animate-in relative overflow-hidden">
       <div className="text-center mb-8">
-        <h2 className="text-4xl font-serif text-white mb-3 tracking-tight">
+        <h2 className="text-4xl font-serif text-foreground mb-3 tracking-tight">
           {isResetMode ? "Restoring Access" : isLogin ? "Welcome Back" : "Begin the Journey"}
         </h2>
         <p className="text-muted-foreground text-sm leading-relaxed">
@@ -171,7 +171,7 @@ export default function AuthForm() {
                 placeholder="Full Name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white outline-none focus:border-primary transition-all"
+                className="w-full bg-muted border border-border rounded-2xl pl-12 pr-4 py-4 text-foreground outline-none focus:border-primary transition-all"
                 required={!isLogin && !isResetMode}
               />
             </motion.div>
@@ -185,7 +185,7 @@ export default function AuthForm() {
             placeholder="Email Address"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
+            className="w-full bg-muted border border-border rounded-2xl pl-12 pr-4 py-4 text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
             required
           />
         </div>
@@ -199,7 +199,7 @@ export default function AuthForm() {
                 placeholder="Password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
+                className="w-full bg-muted border border-border rounded-2xl pl-12 pr-4 py-4 text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
                 required={!isResetMode}
               />
             </div>
@@ -257,10 +257,10 @@ export default function AuthForm() {
         <>
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/5"></div>
+              <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-[10px] uppercase tracking-[0.2em]">
-              <span className="bg-[#0A0A0B] px-4 text-muted-foreground/60 font-bold">Secure Access</span>
+              <span className="bg-background px-4 text-muted-foreground/60 font-bold">Secure Access</span>
             </div>
           </div>
 
@@ -268,7 +268,7 @@ export default function AuthForm() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-white/10 active:scale-[0.98] transition-all"
+            className="w-full py-4 bg-muted border border-border text-foreground rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-muted/80 active:scale-[0.98] transition-all"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -297,7 +297,7 @@ export default function AuthForm() {
         {isResetMode ? (
           <button
             onClick={() => setIsResetMode(false)}
-            className="text-xs text-muted-foreground hover:text-white transition-colors font-medium flex items-center justify-center gap-2 mx-auto"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors font-medium flex items-center justify-center gap-2 mx-auto"
           >
             <ArrowRight className="w-3 h-3 rotate-180" />
             Back to Login
@@ -305,7 +305,7 @@ export default function AuthForm() {
         ) : (
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-muted-foreground hover:text-white transition-colors font-medium"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
           >
             {isLogin ? "New here? Create an account" : "Already have an account? Sign in"}
           </button>

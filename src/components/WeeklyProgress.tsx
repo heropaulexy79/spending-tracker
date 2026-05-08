@@ -29,7 +29,7 @@ export default function WeeklyProgress({ logs }: WeeklyProgressProps) {
   return (
     <div className="glass-card p-6 space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-serif text-white">Weekly Journey</h3>
+        <h3 className="text-lg font-serif text-foreground">Weekly Journey</h3>
         <p className="text-[10px] font-bold text-primary uppercase tracking-widest">
           {logs.filter((v, i, a) => a.findIndex(t => t.date === v.date) === i).length}/7 Days
         </p>
@@ -49,7 +49,7 @@ export default function WeeklyProgress({ logs }: WeeklyProgressProps) {
                   "w-full aspect-square rounded-xl flex items-center justify-center border transition-all duration-500",
                   completed && "bg-emerald-500/10 border-emerald-500/50 text-emerald-500",
                   isToday && !completed && "bg-primary/10 border-primary/50 text-primary animate-pulse",
-                  isFuture && "bg-white/5 border-white/5 text-muted-foreground/30",
+                  isFuture && "bg-muted border-border text-muted-foreground/30",
                   isPast && !completed && "bg-coral/10 border-coral/50 text-coral"
                 )}
               >

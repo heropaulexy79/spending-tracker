@@ -116,7 +116,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
           <CheckCircle2 className="w-10 h-10 text-emerald-500" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-2xl font-serif text-white">🟢 No-Buy Day Recorded</h3>
+          <h3 className="text-2xl font-serif text-foreground">🟢 No-Buy Day Recorded</h3>
           <p className="text-muted-foreground text-sm leading-relaxed">
             No further input required for today.<br />
             Your discipline is the foundation of your growth.
@@ -140,7 +140,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
           <CheckCircle2 className="w-10 h-10 text-primary" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-2xl font-serif text-white">Entry Recorded</h3>
+          <h3 className="text-2xl font-serif text-foreground">Entry Recorded</h3>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Your reality has been logged. <br />
             Take a breath before your next choice.
@@ -154,20 +154,20 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
     <form className="space-y-6 max-w-lg mx-auto p-8 glass-card animate-in">
       <div className="space-y-1 mb-6">
         <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Practice Awareness</p>
-        <h3 className="text-2xl font-serif text-white">{dateString}</h3>
+        <h3 className="text-2xl font-serif text-foreground">{dateString}</h3>
       </div>
 
       <div className="flex justify-end items-center mb-6">
         <label className={cn(
           "flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest transition-colors",
-          spendLoggedToday || (isOverBudget && !formData.noSpendDay) ? "text-muted-foreground/30 cursor-not-allowed" : "text-muted-foreground cursor-pointer hover:text-white"
+          spendLoggedToday || (isOverBudget && !formData.noSpendDay) ? "text-muted-foreground/30 cursor-not-allowed" : "text-muted-foreground cursor-pointer hover:text-foreground"
         )}>
           <input
             type="checkbox"
             checked={formData.noSpendDay}
             disabled={spendLoggedToday}
             onChange={(e) => setFormData({ ...formData, noSpendDay: e.target.checked })}
-            className="w-5 h-5 rounded-lg border-white/10 bg-white/5 text-primary focus:ring-primary transition-all disabled:opacity-30"
+            className="w-5 h-5 rounded-lg border-border bg-muted text-primary focus:ring-primary transition-all disabled:opacity-30"
           />
           No-Spend Day
         </label>
@@ -199,7 +199,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
                 value={formData.item}
                 onChange={(e) => setFormData({ ...formData, item: e.target.value })}
                 placeholder="e.g. Morning Coffee"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-muted-foreground/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 outline-none transition-all"
+                className="w-full bg-muted border border-border rounded-2xl px-5 py-4 text-foreground placeholder:text-muted-foreground/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 outline-none transition-all"
                 required
               />
             </div>
@@ -209,11 +209,17 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
               <div className="relative">
                 <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">₦</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setFormData({ ...formData, amount: val });
+                    }
+                  }}
                   placeholder="0.00"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-5 py-4 text-white placeholder:text-muted-foreground/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 outline-none transition-all"
+                  className="w-full bg-muted border border-border rounded-2xl pl-10 pr-5 py-4 text-foreground placeholder:text-muted-foreground/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 outline-none transition-all"
                   required
                 />
               </div>
@@ -225,9 +231,9 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
                 <select
                   value={formData.decisionType}
                   onChange={(e) => setFormData({ ...formData, decisionType: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-4 text-white outline-none focus:border-primary/50 appearance-none cursor-pointer"
+                  className="w-full bg-muted border border-border rounded-2xl px-4 py-4 text-foreground outline-none focus:border-primary/50 appearance-none cursor-pointer"
                 >
-                  {decisionTypes.map((t) => <option key={t} value={t} className="bg-[#0A0A0B]">{t}</option>)}
+                  {decisionTypes.map((t) => <option key={t} value={t} className="bg-background text-foreground">{t}</option>)}
                 </select>
               </div>
               <div>
@@ -235,9 +241,9 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
                 <select
                   value={formData.spendingType}
                   onChange={(e) => setFormData({ ...formData, spendingType: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-4 text-white outline-none focus:border-primary/50 appearance-none cursor-pointer"
+                  className="w-full bg-muted border border-border rounded-2xl px-4 py-4 text-foreground outline-none focus:border-primary/50 appearance-none cursor-pointer"
                 >
-                  {spendingTypes.map((t) => <option key={t} value={t} className="bg-[#0A0A0B]">{t}</option>)}
+                  {spendingTypes.map((t) => <option key={t} value={t} className="bg-background text-foreground">{t}</option>)}
                 </select>
               </div>
             </div>
@@ -254,7 +260,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
                       "px-4 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all",
                       formData.trigger === t
                         ? "bg-primary/20 border-primary/50 text-primary"
-                        : "bg-white/5 border-white/10 text-muted-foreground hover:border-white/20 hover:text-white"
+                        : "bg-muted border-border text-muted-foreground hover:border-border/60 hover:text-foreground"
                     )}
                   >
                     {t}
@@ -275,7 +281,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
                       "px-4 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all",
                       formData.mood === m
                         ? "bg-primary/20 border-primary/50 text-primary"
-                        : "bg-white/5 border-white/10 text-muted-foreground hover:border-white/20 hover:text-white"
+                        : "bg-muted border-border text-muted-foreground hover:border-border/60 hover:text-foreground"
                     )}
                   >
                     {m}
@@ -331,7 +337,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
             <button
               type="button"
               onClick={() => setIsPausing(false)}
-              className="w-full py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground hover:text-white transition-colors"
+              className="w-full py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors"
             >
               Cancel and rethink
             </button>
@@ -343,13 +349,13 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
             <CheckCircle2 className="w-10 h-10 text-emerald-500" />
           </div>
           <div className="space-y-2">
-            <h4 className="text-2xl font-serif text-white">Quiet Discipline</h4>
+            <h4 className="text-2xl font-serif text-foreground">Quiet Discipline</h4>
             <p className="text-muted-foreground text-sm leading-relaxed">Great job on a no-spend day. Your future self thanks you.</p>
           </div>
           <button
             type="button"
             onClick={handleSubmit}
-            className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-500 transition-all shadow-[0_0_25px_rgba(16,185,129,0.2)]"
+            className="w-full py-5 bg-emerald-600 text-foreground rounded-2xl font-bold hover:bg-emerald-500 transition-all shadow-[0_0_25px_rgba(16,185,129,0.2)]"
           >
             Confirm No-Spend Day
           </button>

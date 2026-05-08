@@ -46,7 +46,7 @@ export default function ReflectPage() {
         <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
           <CheckCircle2 className="w-10 h-10 text-emerald-500" />
         </div>
-        <h2 className="text-3xl font-serif text-white tracking-tight">Reflection Recorded</h2>
+        <h2 className="text-3xl font-serif text-foreground tracking-tight">Reflection Recorded</h2>
         <p className="text-muted-foreground max-w-xs mx-auto leading-relaxed">
           Your awareness is growing. This entry has been added to your journey.
         </p>
@@ -62,7 +62,7 @@ export default function ReflectPage() {
           <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Daily Reflection</p>
         </div>
         <div className="space-y-1">
-          <h1 className="text-4xl font-serif tracking-tight text-white">Awareness Journal</h1>
+          <h1 className="text-4xl font-serif tracking-tight text-foreground">Awareness Journal</h1>
           <p className="text-muted-foreground text-sm">Study your behavior. No judgment, just observation.</p>
         </div>
       </header>
@@ -77,7 +77,7 @@ export default function ReflectPage() {
             <CheckCircle2 className="w-10 h-10 text-emerald-500" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-serif text-white">🟢 No-Buy Day Recorded</h2>
+            <h2 className="text-2xl font-serif text-foreground">🟢 No-Buy Day Recorded</h2>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto">
               A day of absolute discipline. No reflection is required for a choice not made.
             </p>
@@ -97,7 +97,7 @@ export default function ReflectPage() {
                 <textarea
                   value={reflection.why}
                   onChange={(e) => setReflection({ ...reflection, why: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-3xl px-6 py-5 text-white outline-none focus:border-primary/50 min-h-[140px] resize-none transition-all placeholder:text-white/10 text-lg leading-relaxed"
+                  className="w-full bg-muted border border-border rounded-3xl px-6 py-5 text-foreground outline-none focus:border-primary/50 min-h-[140px] resize-none transition-all placeholder:text-muted-foreground/30 text-lg leading-relaxed"
                   placeholder="Dig deep. Was it a need or a reaction?"
                 />
               </div>
@@ -109,7 +109,7 @@ export default function ReflectPage() {
                     type="text"
                     value={reflection.beforeFeel}
                     onChange={(e) => setReflection({ ...reflection, beforeFeel: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white outline-none focus:border-primary/50 transition-all placeholder:text-white/10"
+                    className="w-full bg-muted border border-border rounded-2xl px-6 py-5 text-foreground outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/30"
                     placeholder="Stressed, bored, hungry..."
                   />
                 </div>
@@ -119,7 +119,7 @@ export default function ReflectPage() {
                     type="text"
                     value={reflection.afterFeel}
                     onChange={(e) => setReflection({ ...reflection, afterFeel: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white outline-none focus:border-primary/50 transition-all placeholder:text-white/10"
+                    className="w-full bg-muted border border-border rounded-2xl px-6 py-5 text-foreground outline-none focus:border-primary/50 transition-all placeholder:text-muted-foreground/30"
                     placeholder="Satisfied, guilty, indifferent..."
                   />
                 </div>
@@ -135,7 +135,7 @@ export default function ReflectPage() {
                       className={`flex-1 py-5 rounded-2xl border font-bold uppercase tracking-widest text-[10px] transition-all ${
                         reflection.aligned === opt
                           ? "bg-primary text-primary-foreground border-primary shadow-[0_0_20px_rgba(176,132,71,0.2)]"
-                          : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
+                          : "bg-muted border-border text-muted-foreground hover:bg-muted/80"
                       }`}
                     >
                       {opt}
@@ -149,7 +149,7 @@ export default function ReflectPage() {
                 <textarea
                   value={reflection.nextTime}
                   onChange={(e) => setReflection({ ...reflection, nextTime: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white outline-none focus:border-primary/50 min-h-[120px] resize-none transition-all placeholder:text-white/10 leading-relaxed"
+                  className="w-full bg-muted border border-border rounded-2xl px-6 py-5 text-foreground outline-none focus:border-primary/50 min-h-[120px] resize-none transition-all placeholder:text-muted-foreground/30 leading-relaxed"
                   placeholder="A small adjustment for the future..."
                 />
               </div>

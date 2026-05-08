@@ -65,7 +65,7 @@ export default function Home() {
             <div className="h-[1px] w-8 bg-primary/40" />
             <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Dashboard</p>
           </div>
-          <h1 className="text-4xl font-serif tracking-tight text-white">
+          <h1 className="text-4xl font-serif tracking-tight text-foreground">
             Hello, {user.displayName?.split(" ")[0] || "Friend"}
           </h1>
           <p className="text-muted-foreground text-sm font-medium">Observe your patterns with intention.</p>
@@ -74,9 +74,9 @@ export default function Home() {
         <div className="relative" ref={menuRef}>
           <button 
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="p-3 rounded-2xl glass-card hover:bg-white/10 transition-all active:scale-95"
+            className="p-3 rounded-2xl glass-card hover:bg-muted transition-all active:scale-95"
           >
-            <UserIcon className="w-5 h-5 text-white" />
+            <UserIcon className="w-5 h-5 text-foreground" />
           </button>
 
           <AnimatePresence>
@@ -85,23 +85,23 @@ export default function Home() {
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute right-0 mt-3 w-56 glass-dark rounded-[1.5rem] p-2 shadow-2xl z-50 border border-white/5"
+                className="absolute right-0 mt-3 w-56 glass-card rounded-[1.5rem] p-2 shadow-2xl z-50 border border-border"
               >
-                <div className="p-4 border-b border-white/5 mb-1">
+                <div className="p-4 border-b border-border mb-1">
                   <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Identity</p>
-                  <p className="text-sm font-bold text-white truncate">{user.email}</p>
+                  <p className="text-sm font-bold text-foreground truncate">{user.email}</p>
                 </div>
                 
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-white/70 transition-colors text-xs font-bold uppercase tracking-wider">
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted text-muted-foreground transition-colors text-xs font-bold uppercase tracking-wider">
                   <UserIcon className="w-4 h-4 text-primary" />
                   Profile
                 </button>
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-white/70 transition-colors text-xs font-bold uppercase tracking-wider">
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted text-muted-foreground transition-colors text-xs font-bold uppercase tracking-wider">
                   <Settings className="w-4 h-4 text-primary" />
                   Settings
                 </button>
                 
-                <div className="h-[1px] bg-white/5 my-1 mx-2" />
+                <div className="h-[1px] bg-border my-1 mx-2" />
                 
                 <button 
                   onClick={() => signOut(auth)}
@@ -125,7 +125,7 @@ export default function Home() {
           <div className="space-y-1">
             <h2 className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Current Mindset</h2>
             <div className="flex items-baseline gap-2">
-              <span className="text-5xl font-serif text-white tracking-tight">{plan?.spenderType || "Balanced"}</span>
+              <span className="text-5xl font-serif text-foreground tracking-tight">{plan?.spenderType || "Balanced"}</span>
             </div>
           </div>
           <p className="text-muted-foreground max-w-[300px] leading-relaxed text-sm">
@@ -135,7 +135,7 @@ export default function Home() {
           </p>
           <Link 
             href="/plan" 
-            className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white bg-primary/20 hover:bg-primary/30 border border-primary/20 px-6 py-3 rounded-full transition-all"
+            className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground bg-primary/20 hover:bg-primary/30 border border-primary/20 px-6 py-3 rounded-full transition-all"
           >
             Refine Intent <ArrowRight className="w-4 h-4" />
           </Link>
@@ -148,7 +148,7 @@ export default function Home() {
           <div className="flex justify-between items-end">
             <div className="space-y-1">
               <h2 className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Spending Velocity</h2>
-              <p className="text-xl font-serif text-white">
+              <p className="text-xl font-serif text-foreground">
                 {totalSpent > budgetValue ? "Tank Empty" : totalSpent / budgetValue > (new Date().getDay() || 7) / 7 ? "Overspeeding" : "Cruising"}
               </p>
             </div>
@@ -157,7 +157,7 @@ export default function Home() {
             </p>
           </div>
           
-          <div className="relative h-4 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+          <div className="relative h-4 w-full bg-muted rounded-full overflow-hidden border border-border">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${Math.min(100, (totalSpent / budgetValue) * 100)}%` }}
@@ -172,7 +172,7 @@ export default function Home() {
             />
             {/* Week Progress Marker */}
             <div 
-              className="absolute top-0 bottom-0 w-[2px] bg-white/20 z-10"
+              className="absolute top-0 bottom-0 w-[2px] bg-foreground/20 z-10"
               style={{ left: `${((new Date().getDay() || 7) / 7) * 100}%` }}
             />
           </div>
@@ -224,7 +224,7 @@ export default function Home() {
           <Target className="w-4 h-4" />
           Today&apos;s Focus
         </h3>
-        <p className="text-white/80 leading-relaxed font-serif text-lg">
+        <p className="text-foreground/80 leading-relaxed font-serif text-lg">
           &ldquo;Pause for 10 seconds before any unplanned purchase. Ask yourself: Is this a need or a reaction?&rdquo;
         </p>
       </div>
@@ -232,7 +232,7 @@ export default function Home() {
       {/* Recent Activity Mini-List */}
       <section className="space-y-4">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-2xl font-serif text-white">Recent Realities</h2>
+          <h2 className="text-2xl font-serif text-foreground">Recent Realities</h2>
           <Link href="/log" className="text-[10px] font-bold text-primary uppercase tracking-widest hover:underline">View all</Link>
         </div>
         <div className="space-y-3">
@@ -240,16 +240,16 @@ export default function Home() {
             logs.slice(0, 3).map((log, i) => (
               <div key={log.id || i} className="flex items-center justify-between p-5 glass-card">
                 <div className="space-y-1">
-                  <p className="font-bold text-white text-sm">{log.noSpendDay ? "No-Spend Day" : (log.item || "Unspecified Item")}</p>
+                  <p className="font-bold text-foreground text-sm">{log.noSpendDay ? "No-Spend Day" : (log.item || "Unspecified Item")}</p>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
                     {formatDate(log.createdAt || log.date)} • {log.spendingType}
                   </p>
                 </div>
-                <p className="font-serif text-lg text-white">{log.amount ? `₦${Number(log.amount).toLocaleString()}` : "—"}</p>
+                <p className="font-serif text-lg text-foreground">{log.amount ? `₦${Number(log.amount).toLocaleString()}` : "—"}</p>
               </div>
             ))
           ) : (
-            <div className="p-10 glass-card text-center border-dashed border-white/10">
+            <div className="p-10 glass-card text-center border-dashed border-border">
               <p className="text-muted-foreground text-sm italic">No entries yet. Start logging your reality.</p>
             </div>
           )}
@@ -267,11 +267,11 @@ function StatCard({ label, value, icon, color, href }: { label: string, value: s
         whileTap={{ scale: 0.98 }}
         className="p-6 glass-card space-y-4 cursor-pointer group"
       >
-        <div className={cn("w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center transition-colors group-hover:bg-white/10", color)}>
+        <div className={cn("w-10 h-10 rounded-2xl bg-muted flex items-center justify-center transition-colors group-hover:bg-muted/80", color)}>
           {icon}
         </div>
         <div>
-          <p className="text-2xl font-serif text-white tracking-tight leading-none">{value}</p>
+          <p className="text-2xl font-serif text-foreground tracking-tight leading-none">{value}</p>
           <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em] mt-3">{label}</p>
         </div>
       </motion.div>

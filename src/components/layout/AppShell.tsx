@@ -55,8 +55,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <header className="max-w-lg mx-auto px-6 pt-12 pb-2 flex items-center justify-between">
         <div className="flex-1" />
         <div className="text-center space-y-1 flex-[2]">
-          <h1 className="text-sm font-bold text-primary uppercase tracking-[0.8em] font-dm-sans">Crafting the Mind</h1>
-          <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-[0.4em]">Spending & Behavioral Tracker</p>
+          <h1 className="text-sm font-bold text-primary uppercase tracking-[0.6em] font-dm-sans whitespace-nowrap">Crafting the Mind</h1>
+          <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-[0.4em] whitespace-nowrap">Spending & Behavioral Tracker</p>
         </div>
         <div className="flex-1 flex justify-end">
           <ThemeToggle />

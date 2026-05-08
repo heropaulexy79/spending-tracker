@@ -68,7 +68,7 @@ export default function InstallPrompt() {
             
             <button 
               onClick={() => setShowPrompt(false)}
-              className="absolute top-4 right-4 p-1 text-muted-foreground hover:text-white"
+              className="absolute top-4 right-4 p-1 text-muted-foreground hover:text-foreground"
             >
               <X className="w-4 h-4" />
             </button>
@@ -79,7 +79,7 @@ export default function InstallPrompt() {
               </div>
               
               <div className="space-y-1">
-                <h3 className="text-xl font-serif text-white tracking-tight leading-tight">Crafting the Mind Spending and Behavioral Tracking</h3>
+                <h3 className="text-xl font-serif text-foreground tracking-tight leading-tight">Crafting the Mind Spending and Behavioral Tracking</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {platform === "ios" 
                     ? "Tap the share icon and select 'Add to Home Screen' for a premium experience."
@@ -90,7 +90,7 @@ export default function InstallPrompt() {
 
             <div className="mt-6 flex gap-3">
               {platform === "ios" ? (
-                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-white uppercase tracking-wider">
+                <div className="flex items-center gap-2 px-4 py-2 bg-muted border border-border rounded-xl text-xs font-bold text-foreground uppercase tracking-wider">
                   <Share className="w-4 h-4 text-primary" /> Step-by-step
                 </div>
               ) : (
@@ -103,7 +103,7 @@ export default function InstallPrompt() {
               )}
               <button
                 onClick={() => setShowPrompt(false)}
-                className="px-6 py-3 bg-white/5 text-white rounded-xl text-sm font-bold hover:bg-white/10 transition-all"
+                className="px-6 py-3 bg-muted text-foreground rounded-xl text-sm font-bold hover:bg-muted/80 transition-all"
               >
                 Maybe Later
               </button>

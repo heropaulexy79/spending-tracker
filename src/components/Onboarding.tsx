@@ -79,7 +79,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               key={i} 
               className={cn(
                 "h-1.5 rounded-full transition-all duration-500",
-                i === currentStep ? "w-8 bg-primary" : "w-1.5 bg-white/10"
+                i === currentStep ? "w-8 bg-primary" : "w-1.5 bg-muted"
               )} 
             />
           ))}
@@ -103,7 +103,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               </motion.div>
             )}
 
-            <h2 className="text-3xl font-bold text-white mb-4 text-gradient">
+            <h2 className="text-3xl font-bold text-foreground mb-4 text-gradient">
               {current.title}
             </h2>
             
@@ -116,7 +116,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 {current.items.map((item, i) => (
                   <div key={i} className="glass p-3 rounded-2xl flex flex-col items-center gap-2">
                     <div className="text-primary">{item.icon}</div>
-                    <span className="text-[10px] font-bold text-white uppercase tracking-wider">{item.label}</span>
+                    <span className="text-[10px] font-bold text-foreground uppercase tracking-wider">{item.label}</span>
                   </div>
                 ))}
               </div>

@@ -53,7 +53,7 @@ export default function PlanPage() {
           <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Weekly Plan</p>
         </div>
         <div className="space-y-1">
-          <h1 className="text-4xl font-serif tracking-tight text-white">Intent & Direction</h1>
+          <h1 className="text-4xl font-serif tracking-tight text-foreground">Intent & Direction</h1>
           <p className="text-muted-foreground text-sm">Set your intention for the week. Where is your money going?</p>
         </div>
       </header>
@@ -61,7 +61,7 @@ export default function PlanPage() {
       <div className="glass-card p-8 space-y-8">
         <div className="space-y-6">
           <div className="space-y-5">
-            <h3 className="text-xl font-serif text-white flex items-center gap-2">
+            <h3 className="text-xl font-serif text-foreground flex items-center gap-2">
               <Compass className="w-5 h-5 text-primary" />
               Weekly Goals
             </h3>
@@ -72,10 +72,16 @@ export default function PlanPage() {
                 <div className="relative">
                   <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">₦</span>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={formData.budget}
-                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-5 py-4 text-white placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                        setFormData({ ...formData, budget: val });
+                      }
+                    }}
+                    className="w-full bg-muted border border-border rounded-2xl pl-10 pr-5 py-4 text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
                     placeholder="0.00"
                   />
                 </div>
@@ -86,10 +92,16 @@ export default function PlanPage() {
                 <div className="relative">
                   <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">₦</span>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={formData.savings}
-                    onChange={(e) => setFormData({ ...formData, savings: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-5 py-4 text-white placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                        setFormData({ ...formData, savings: val });
+                      }
+                    }}
+                    className="w-full bg-muted border border-border rounded-2xl pl-10 pr-5 py-4 text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
                     placeholder="0.00"
                   />
                 </div>
@@ -100,7 +112,7 @@ export default function PlanPage() {
                 <textarea
                   value={formData.essentials}
                   onChange={(e) => setFormData({ ...formData, essentials: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 min-h-[120px] resize-none transition-all"
+                  className="w-full bg-muted border border-border rounded-2xl px-5 py-4 text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 min-h-[120px] resize-none transition-all"
                   placeholder="Rent, Groceries, Utilities..."
                 />
               </div>
@@ -108,7 +120,7 @@ export default function PlanPage() {
           </div>
 
           <div className="space-y-5">
-            <h3 className="text-xl font-serif text-white">Spender Identity</h3>
+            <h3 className="text-xl font-serif text-foreground">Spender Identity</h3>
             <div className="grid grid-cols-1 gap-2">
               {spenderTypes.map((type) => (
                 <button
@@ -118,7 +130,7 @@ export default function PlanPage() {
                     "w-full py-5 px-6 rounded-2xl text-left border transition-all flex items-center justify-between group",
                     formData.spenderType === type
                       ? "bg-primary/20 border-primary/50 text-primary"
-                      : "bg-white/5 border-white/5 text-white/70 hover:border-white/20 hover:text-white"
+                      : "bg-muted border-border text-muted-foreground hover:border-border/60 hover:text-foreground"
                   )}
                 >
                   <span className="text-sm font-bold uppercase tracking-widest">{type}</span>
@@ -151,14 +163,14 @@ export default function PlanPage() {
             <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Budget Status</h3>
             <span className={cn(
               "text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1 border",
-              budgetValue > 0 ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-white/5 text-muted-foreground border-white/5"
+              budgetValue > 0 ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-muted text-muted-foreground border-border"
             )}>
               {budgetValue > 0 ? "Active Plan" : "No active plan"}
             </span>
           </div>
           <div className="flex justify-between items-end">
             <div className="space-y-1">
-              <p className="text-3xl font-serif text-white tracking-tight">₦{remaining.toLocaleString()}</p>
+              <p className="text-3xl font-serif text-foreground tracking-tight">₦{remaining.toLocaleString()}</p>
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Still Safe to Spend</p>
             </div>
             <div className="text-right space-y-1">
@@ -166,7 +178,7 @@ export default function PlanPage() {
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Already Logged</p>
             </div>
           </div>
-          <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${percentSpent}%` }}

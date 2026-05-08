@@ -34,7 +34,7 @@ export default function LogPage() {
           <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Daily Log</p>
         </div>
         <div className="space-y-1">
-          <h1 className="text-4xl font-serif tracking-tight text-white">{dateString}</h1>
+          <h1 className="text-4xl font-serif tracking-tight text-foreground">{dateString}</h1>
           <p className="text-muted-foreground text-sm">Logging for today only. Reflect on each entry.</p>
         </div>
       </header>
@@ -56,8 +56,8 @@ export default function LogPage() {
       {logs.length > 0 && (
         <section className="space-y-6">
           <div className="flex items-center gap-3 px-1">
-            <h2 className="text-2xl font-serif text-white">Log History</h2>
-            <div className="h-[1px] flex-1 bg-white/5" />
+            <h2 className="text-2xl font-serif text-foreground">Log History</h2>
+            <div className="h-[1px] flex-1 bg-border" />
           </div>
           <div className="space-y-4 pb-8">
             {logs.map((log, i) => {
@@ -68,24 +68,24 @@ export default function LogPage() {
                   key={log.id || i}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-6 glass-card space-y-4 border-white/5 hover:border-primary/20 transition-all"
+                  className="p-6 glass-card space-y-4 border-border hover:border-primary/20 transition-all"
                 >
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
                       <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">{formattedDate}</p>
-                      <h3 className="text-xl font-serif text-white">{log.noSpendDay ? "No-Spend Day" : (log.item || "Unspecified Entry")}</h3>
+                      <h3 className="text-xl font-serif text-foreground">{log.noSpendDay ? "No-Spend Day" : (log.item || "Unspecified Entry")}</h3>
                     </div>
-                    <p className="text-2xl font-serif text-white">
+                    <p className="text-2xl font-serif text-foreground">
                       {log.noSpendDay ? "—" : `₦${Number(log.amount).toLocaleString()}`}
                     </p>
                   </div>
                   
                   {!log.noSpendDay ? (
                     <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1 bg-white/5 rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-white/5">
+                      <span className="px-3 py-1 bg-muted rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-border">
                         {log.spendingType}
                       </span>
-                      <span className="px-3 py-1 bg-white/5 rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-white/5">
+                      <span className="px-3 py-1 bg-muted rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-border">
                         {log.decisionType}
                       </span>
                       <span className="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-bold text-primary uppercase tracking-widest border border-primary/20">

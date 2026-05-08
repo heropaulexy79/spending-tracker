@@ -27,7 +27,7 @@ export default function MirrorPage() {
             <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Mirror of Reality</p>
           </div>
           <div className="space-y-1">
-            <h1 className="text-4xl font-serif tracking-tight text-white">Monthly Mirror</h1>
+            <h1 className="text-4xl font-serif tracking-tight text-foreground">Monthly Mirror</h1>
           </div>
         </header>
 
@@ -40,12 +40,12 @@ export default function MirrorPage() {
             <Lock className="w-10 h-10 text-primary" />
           </div>
           <div className="space-y-3">
-            <h2 className="text-2xl font-serif text-white">Analysis in Progress</h2>
+            <h2 className="text-2xl font-serif text-foreground">Analysis in Progress</h2>
             <p className="text-muted-foreground text-sm leading-relaxed font-serif italic">
               &ldquo;Self-study requires time. A mirror only shows the truth once the patterns have been established.&rdquo;
             </p>
           </div>
-          <div className="pt-4 border-t border-white/5 space-y-4">
+          <div className="pt-4 border-t border-border space-y-4">
             <div className="flex items-center gap-3 justify-center text-[10px] font-bold text-primary uppercase tracking-widest">
               <Calendar className="w-4 h-4" />
               Unlocks in {daysRemaining} Days
@@ -56,7 +56,7 @@ export default function MirrorPage() {
           </div>
         </motion.div>
         
-        <div className="bg-white/5 border border-white/10 p-5 rounded-2xl flex gap-4 items-start max-w-sm text-left">
+        <div className="bg-muted border border-border p-5 rounded-2xl flex gap-4 items-start max-w-sm text-left">
           <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
           <p className="text-xs text-muted-foreground leading-relaxed">
             The Monthly Mirror uses advanced behavioral aggregation. We need a full month cycle to provide accurate insight into your spending personality and triggers.
@@ -98,7 +98,7 @@ export default function MirrorPage() {
           <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Mirror of Reality</p>
         </div>
         <div className="space-y-1">
-          <h1 className="text-4xl font-serif tracking-tight text-white">Monthly Mirror</h1>
+          <h1 className="text-4xl font-serif tracking-tight text-foreground">Monthly Mirror</h1>
           <p className="text-muted-foreground text-sm">A summary of your behavior this month.</p>
         </div>
       </header>
@@ -112,7 +112,7 @@ export default function MirrorPage() {
           <Sparkles className="w-4 h-4" />
           Growth Narrative
         </h2>
-        <div className="space-y-4 text-white leading-relaxed max-w-[90%] font-serif text-xl">
+        <div className="space-y-4 text-foreground leading-relaxed max-w-[90%] font-serif text-xl">
           {totalSpent > 0 ? (
             <p>
               &ldquo;You are becoming more aware of your reality. With ₦{totalSpent.toLocaleString()} logged, 
@@ -128,7 +128,7 @@ export default function MirrorPage() {
       <div className="grid grid-cols-2 gap-4">
         <div className="p-6 glass-card space-y-3">
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.15em]">Total Spent</p>
-          <p className="text-2xl font-serif text-white tracking-tight">₦{totalSpent.toLocaleString()}</p>
+          <p className="text-2xl font-serif text-foreground tracking-tight">₦{totalSpent.toLocaleString()}</p>
         </div>
         <div className="p-6 glass-card space-y-3">
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.15em]">Estimated Saved</p>
@@ -138,17 +138,17 @@ export default function MirrorPage() {
 
       {/* Behavior Consistency */}
       <section className="space-y-5">
-        <h2 className="text-2xl font-serif text-white px-1">Consistency</h2>
+        <h2 className="text-2xl font-serif text-foreground px-1">Consistency</h2>
         <div className="p-8 glass-card space-y-8">
           <div className="space-y-3">
             <div className="flex justify-between items-end">
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Budget Adherence</span>
               <span className={cn(
                 "font-serif text-lg",
-                adherenceRate > 100 ? "text-coral" : "text-white"
+                adherenceRate > 100 ? "text-coral" : "text-foreground"
               )}>{adherenceRate}%</span>
             </div>
-            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(100, adherenceRate)}%` }}
@@ -163,9 +163,9 @@ export default function MirrorPage() {
           <div className="space-y-3">
             <div className="flex justify-between items-end">
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No-Spend Practice</span>
-              <span className="text-white font-serif text-lg">{noSpendDays} Days</span>
+              <span className="text-foreground font-serif text-lg">{noSpendDays} Days</span>
             </div>
-            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(100, (noSpendDays / 7) * 100)}%` }}
@@ -174,14 +174,14 @@ export default function MirrorPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
+          <div className="grid grid-cols-2 gap-6 pt-6 border-t border-border">
             <div className="space-y-2">
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Primary Trigger</p>
-              <p className="text-sm font-bold text-white truncate">{topTrigger}</p>
+              <p className="text-sm font-bold text-foreground truncate">{topTrigger}</p>
             </div>
             <div className="space-y-2">
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Impulse Rate</p>
-              <p className="text-sm font-bold text-white">{impulseRate}%</p>
+              <p className="text-sm font-bold text-foreground">{impulseRate}%</p>
             </div>
           </div>
         </div>
@@ -201,7 +201,7 @@ export default function MirrorPage() {
 
       {/* Final Message */}
       <div className="text-center py-12 space-y-5">
-        <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center mx-auto border border-white/5">
+        <div className="w-14 h-14 bg-muted rounded-full flex items-center justify-center mx-auto border border-border">
           <Heart className="w-6 h-6 text-pink-400 fill-pink-400/10" />
         </div>
         <p className="text-muted-foreground italic font-serif text-lg px-10 leading-relaxed">

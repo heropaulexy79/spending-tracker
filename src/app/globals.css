@@ -1,78 +1,75 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 4%;
-    --card: 0 0% 98%;
-    --card-foreground: 240 10% 4%;
-    --primary: 35 43% 48%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 5% 96%;
-    --secondary-foreground: 240 10% 4%;
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 5% 40%;
-    --accent: 240 5% 94%;
-    --accent-foreground: 240 10% 4%;
-    --border: 240 5% 90%;
-    --radius: 1.25rem;
-    
-    --emerald: 160 84% 39%;
-    --coral: 12 92% 65%;
-    --amber: 38 92% 50%;
-    --indigo: 35 43% 48%;
+/* ─── Design Tokens (Runtime CSS Variables) ─── */
+:root {
+  --background: #ffffff;
+  --foreground: #0f0f10;
+  --card: #f9f9f9;
+  --card-foreground: #0f0f10;
+  --primary: #b08447;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #0f0f10;
+  --muted: #f4f4f5;
+  --muted-foreground: #6b7280;
+  --accent: #f0f0f1;
+  --accent-foreground: #0f0f10;
+  --border: #e5e5e7;
 
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(0, 0, 0, 0.08);
-    --glass-shadow: rgba(0, 0, 0, 0.05);
-    --text-gradient: linear-gradient(to bottom right, #1a1a1a, #666666);
-  }
+  --emerald: #10b981;
+  --coral: #f87171;
+  --amber: #f59e0b;
 
-  .dark {
-    --background: 240 10% 4%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 6%;
-    --card-foreground: 0 0% 98%;
-    --primary: 35 43% 48%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 4% 10%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 4% 14%;
-    --muted-foreground: 240 5% 70%;
-    --accent: 240 4% 16%;
-    --accent-foreground: 0 0% 98%;
-    --border: 240 4% 14%;
-
-    --glass-bg: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-shadow: rgba(0, 0, 0, 0.4);
-    --text-gradient: linear-gradient(to bottom right, #ffffff, rgba(255, 255, 255, 0.4));
-  }
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-shadow: rgba(0, 0, 0, 0.05);
+  --text-gradient: linear-gradient(to bottom right, #1a1a1a, #666666);
 }
 
+.dark {
+  --background: #0a0a0b;
+  --foreground: #f9f9fa;
+  --card: #111113;
+  --card-foreground: #f9f9fa;
+  --primary: #b08447;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a1e;
+  --secondary-foreground: #f9f9fa;
+  --muted: #1e1e22;
+  --muted-foreground: #9ca3af;
+  --accent: #1e1e22;
+  --accent-foreground: #f9f9fa;
+  --border: #2a2a2e;
+
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: rgba(0, 0, 0, 0.4);
+  --text-gradient: linear-gradient(to bottom right, #ffffff, rgba(255, 255, 255, 0.4));
+}
+
+/* ─── Map Tailwind color utilities to runtime CSS vars ─── */
 @theme inline {
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui;
   --font-serif: var(--font-playfair), ui-serif, Georgia;
 
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-border: hsl(var(--border));
-  
-  --color-emerald: hsl(var(--emerald));
-  --color-coral: hsl(var(--coral));
-  --color-amber: hsl(var(--amber));
-  --color-indigo: hsl(var(--indigo));
-  
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+
+  --color-emerald: var(--emerald);
+  --color-coral: var(--coral);
+  --color-amber: var(--amber);
+
   --radius-2xl: 1.25rem;
   --radius-3xl: 1.5rem;
   --radius-4xl: 2rem;
@@ -80,22 +77,24 @@
 
 @layer base {
   html {
-    font-size: 15px; /* Slightly smaller base font */
+    font-size: 15px;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif tracking-tight;
   }
-  
+
   body {
-    @apply bg-background text-foreground antialiased selection:bg-primary/30 font-sans;
-    background-image: 
+    background-color: var(--background);
+    color: var(--foreground);
+    @apply antialiased selection:bg-primary/30 font-sans;
+    background-image:
       radial-gradient(at 0% 0%, rgba(176, 132, 71, 0.05) 0px, transparent 40%),
       radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.02) 0px, transparent 40%);
   }
 }
 
-/* Custom Utilities - Defined with standard CSS for better compatibility */
+/* ─── Glass Effects ─── */
 .glass {
   background-color: var(--glass-bg);
   backdrop-filter: blur(24px);
@@ -113,10 +112,10 @@
 }
 
 .glass-card:hover {
-  border-color: color-mix(in srgb, var(--glass-border), transparent 50%);
-  background-color: color-mix(in srgb, var(--glass-bg), transparent 50%);
+  border-color: color-mix(in srgb, var(--glass-border), transparent 30%);
 }
 
+/* ─── Text Gradient ─── */
 .text-gradient {
   background-image: var(--text-gradient);
   -webkit-background-clip: text;
@@ -124,6 +123,7 @@
   color: transparent;
 }
 
+/* ─── Animations ─── */
 .animate-in {
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
