@@ -39,6 +39,8 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
+import OfflineStatus from "@/components/OfflineStatus";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -57,6 +59,7 @@ export default function RootLayout({
             <DynamicBackground />
             <NotificationManager />
             <InstallPrompt />
+            <OfflineStatus />
             <AppShell>
               {children}
             </AppShell>

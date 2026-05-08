@@ -19,6 +19,18 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Enable Firestore persistence (Client-side only)
+if (typeof window !== "undefined") {
+  const { enableMultiTabIndexedDbPersistence } = require("firebase/firestore");
+  enableMultiTabIndexedDbPersistence(db).catch((err: any) => {
+    if (err.code === 'failed-precondition') {
+      console.warn("Firestore persistence failed: Multiple tabs open.");
+    } else if (err.code === 'unimplemented') {
+      console.warn("Firestore persistence not supported by browser.");
+    }
+  });
+}
+
 // Analytics initialization (Client-side only)
 const analytics = async () => {
   if (typeof window !== "undefined" && await isAnalyticsSupported()) {
