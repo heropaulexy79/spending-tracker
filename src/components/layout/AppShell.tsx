@@ -7,11 +7,19 @@ import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Onboarding from "../Onboarding";
 import ThemeToggle from "../ThemeToggle";
+import { useTheme } from "next-themes";
+import Image from "next/image";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
   const [hasSeenGuide, setHasSeenGuide] = useState<boolean | null>(null);
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const globalSeen = localStorage.getItem(`hasSeenGuide_global`);
@@ -54,9 +62,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <>
       <header className="max-w-lg mx-auto px-6 pt-12 pb-2 flex items-center justify-between">
         <div className="flex-1" />
-        <div className="text-center space-y-1 flex-[2]">
-          <h1 className="text-sm font-bold text-primary uppercase tracking-[0.6em] font-dm-sans whitespace-nowrap">Crafting the Mind</h1>
-          <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-[0.4em] whitespace-nowrap">Spending & Behavioral Tracker</p>
+        <div className="text-center space-y-1 flex-[2] flex flex-col items-center">
+          {mounted ? (
+            <Image 
+              src={resolvedTheme === "dark" ? "/spendingtracker(black_bac_logo).png" : "/Spendingtracker(white_bac_logo).png"}
+              alt="Crafting the Mind"
+              width={180}
+              height={40}
+              className="h-auto w-auto max-h-12"
+              priority
+            />
+          ) : (
+            <div className="h-12 w-40" /> // Placeholder for hydration
+          )}
         </div>
         <div className="flex-1 flex justify-end">
           <ThemeToggle />

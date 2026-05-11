@@ -3,10 +3,11 @@
 import { useState, useEffect, useRef } from "react";
 import Onboarding from "@/components/Onboarding";
 import AuthForm from "@/components/AuthForm";
+import Reminders from "@/components/Reminders";
 import { useAuth } from "@/context/AuthContext";
 import { useTracking } from "@/hooks/useTracking";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wallet, Target, TrendingUp, Zap, Calendar, User as UserIcon, Loader2, ArrowRight, LogOut, Key, Settings } from "lucide-react";
+import { Wallet, Target, TrendingUp, Zap, Calendar, User as UserIcon, Loader2, ArrowRight, LogOut, Key, Settings, Coins, Award, Sparkles } from "lucide-react";
 
 import Link from "next/link";
 import { auth } from "@/lib/firebase";
@@ -16,7 +17,7 @@ import { formatDate } from "@/lib/dateUtils";
 
 export default function Home() {
   const { user } = useAuth();
-  const { plan, logs, urges, loading } = useTracking();
+  const { plan, rewards, logs, urges, loading } = useTracking();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -56,6 +57,11 @@ export default function Home() {
   const resistedRate = totalDecisions > 0 ? Math.round((totalResisted / totalDecisions) * 100) : 0;
   
   const noSpendDays = logs.filter(l => l.noSpendDay).length;
+
+  const isWithinBudget = budgetValue > 0 && totalSpent <= budgetValue;
+  const hasResistedUrges = urgesResisted > 0;
+
+  const isMonday = new Date().getDay() === 1;
 
   return (
     <div className="space-y-8 animate-in pb-12">
@@ -115,6 +121,79 @@ export default function Home() {
           </AnimatePresence>
         </div>
       </header>
+
+      <Reminders />
+
+      {isMonday && logs.length === 0 && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-8 rounded-3xl bg-primary text-primary-foreground relative overflow-hidden shadow-2xl shadow-primary/20"
+        >
+          <div className="absolute top-0 right-0 p-8 opacity-10">
+            <Sparkles className="w-24 h-24" />
+          </div>
+          <div className="relative z-10 space-y-4">
+            <h2 className="text-2xl font-serif tracking-tight">A Fresh Start</h2>
+            <p className="text-sm opacity-90 leading-relaxed max-w-[280px]">
+              It&apos;s a new week. Your logs are cleared, and your mind is ready. Review your plan to set your intentions for the next 7 days.
+            </p>
+            <Link 
+              href="/plan" 
+              className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-background text-primary px-6 py-3 rounded-full hover:opacity-90 transition-all"
+            >
+              Review Weekly Plan <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Behavioral Rewards & Feedback */}
+      <section className="grid grid-cols-2 gap-4">
+        <div className="glass-card p-5 flex items-center gap-4 bg-amber-500/5 border-amber-500/10">
+          <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+            <Coins className="w-5 h-5 text-amber-500" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-amber-500/60 uppercase tracking-widest">Coins</p>
+            <p className="text-xl font-serif text-foreground">{rewards.coins || 0}</p>
+          </div>
+        </div>
+        <div className="glass-card p-5 flex items-center gap-4 bg-primary/5 border-primary/10">
+          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+            <Award className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">Badges</p>
+            <p className="text-xl font-serif text-foreground">{rewards.badges?.length || 0}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Behavioral Feedback */}
+      <AnimatePresence>
+        {(isWithinBudget || hasResistedUrges) && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 flex items-center gap-4"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-6 h-6 text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-emerald-500 uppercase tracking-wider mb-1">Excellent Practice</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {isWithinBudget && hasResistedUrges 
+                  ? "You stayed within budget AND mastered your impulses this week. Exceptional discipline."
+                  : isWithinBudget 
+                    ? "You stayed within budget this week. Your future self is proud."
+                    : "Your impulse spending reduced. You are reclaiming control."}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Mindset Card */}
       <section className="glass-card p-10 relative overflow-hidden group border-primary/10">

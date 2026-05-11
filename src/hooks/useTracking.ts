@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc, collection, query, where, onSnapshot, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
-import { getWeekKey } from "@/lib/dateUtils";
+import { getWeekKey, getMonthKey } from "@/lib/dateUtils";
 
 export function useTracking() {
   const { user } = useAuth();
   const [plan, setPlan] = useState<any>(null);
+  const [rewards, setRewards] = useState<{ coins: number, badges: string[] }>({ coins: 0, badges: [] });
   const [logs, setLogs] = useState<any[]>([]);
   const [urges, setUrges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,13 +23,15 @@ export function useTracking() {
     const weekKey = getWeekKey();
 
     // Subscribe to Budget (Hierarchical path)
-    const budgetRef = doc(db, "users", user.uid);
-    const unsubBudget = onSnapshot(budgetRef, (doc) => {
+    const userRef = doc(db, "users", user.uid);
+    const unsubUser = onSnapshot(userRef, (doc) => {
       if (doc.exists()) {
-        setPlan(doc.data().plan || null);
+        const data = doc.data();
+        setPlan(data.plan || null);
+        setRewards(data.rewards || { coins: 0, badges: [] });
       }
       setLoading(false);
-    }, (err) => console.error("Budget Listener Error:", err));
+    }, (err) => console.error("User Listener Error:", err));
 
     // Subscribe to Logs (Server-side filtered)
     const logsRef = collection(db, "users", user.uid, "logs");
@@ -57,7 +60,7 @@ export function useTracking() {
     }, (err) => console.error("Urges Listener Error:", err));
 
     return () => {
-      unsubBudget();
+      unsubUser();
       unsubLogs();
       unsubUrges();
     };
@@ -89,6 +92,7 @@ export function useTracking() {
       date,
       uid: user.uid,
       weekKey, 
+      monthKey: getMonthKey(),
       createdAt: serverTimestamp() 
     });
   };
@@ -104,8 +108,31 @@ export function useTracking() {
       resisted24h: !!resisted24h,
       uid: user.uid,
       weekKey, 
+      monthKey: getMonthKey(),
       createdAt: serverTimestamp() 
     });
+
+    // Reward for resisting
+    if (action === "Resisted" || action === "Delayed") {
+      await updateRewards(10); // 10 coins for resisting
+    }
+  };
+
+  const updateRewards = async (coinDelta: number, newBadge?: string) => {
+    if (!user) return;
+    const userRef = doc(db, "users", user.uid);
+    const currentCoins = rewards.coins || 0;
+    const currentBadges = rewards.badges || [];
+    
+    const updateData: any = {
+      "rewards.coins": currentCoins + coinDelta,
+    };
+
+    if (newBadge && !currentBadges.includes(newBadge)) {
+      updateData["rewards.badges"] = [...currentBadges, newBadge];
+    }
+
+    await setDoc(userRef, updateData, { merge: true });
   };
 
   const addReflection = async (reflection: any) => {
@@ -121,6 +148,7 @@ export function useTracking() {
       nextTime: String(nextTime).substring(0, 1000),
       uid: user.uid,
       weekKey, 
+      monthKey: getMonthKey(),
       createdAt: serverTimestamp() 
     });
   };
@@ -130,5 +158,39 @@ export function useTracking() {
   const noSpendDayLogged = logs.some(l => l.date === todayStr && l.noSpendDay === true);
   const spendLoggedToday = logs.some(l => l.date === todayStr && !l.noSpendDay);
 
-  return { plan, logs, urges, savePlan, addLog, addUrge, addReflection, loading, noSpendDayLogged, spendLoggedToday };
+  const getHistoricalData = async (type: 'week' | 'month', key: string) => {
+    if (!user) return { logs: [], urges: [] };
+    
+    const logsRef = collection(db, "users", user.uid, "logs");
+    const urgesRef = collection(db, "users", user.uid, "urges");
+    
+    const field = type === 'week' ? "weekKey" : "monthKey";
+    
+    const qLogs = query(logsRef, where(field, "==", key));
+    const qUrges = query(urgesRef, where(field, "==", key));
+    
+    const { getDocs } = await import("firebase/firestore");
+    const [lSnap, uSnap] = await Promise.all([getDocs(qLogs), getDocs(qUrges)]);
+    
+    return {
+      logs: lSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })),
+      urges: uSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    };
+  };
+
+  return { 
+    plan, 
+    rewards,
+    logs, 
+    urges, 
+    savePlan, 
+    addLog, 
+    addUrge, 
+    addReflection, 
+    updateRewards,
+    getHistoricalData,
+    loading, 
+    noSpendDayLogged, 
+    spendLoggedToday 
+  };
 }

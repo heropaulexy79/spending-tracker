@@ -61,6 +61,12 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     }
   };
 
+  const prev = () => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
   const current = screens[currentStep];
 
   return (
@@ -124,13 +130,24 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           </motion.div>
         </AnimatePresence>
 
-        <button
-          onClick={next}
-          className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all group mt-auto"
-        >
-          {current.button || "Next Step"}
-          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-        </button>
+        <div className="flex gap-3 w-full mt-auto">
+          {currentStep > 0 && (
+            <button
+              onClick={prev}
+              className="flex-1 py-4 bg-muted text-foreground rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-muted/80 active:scale-[0.98] transition-all group"
+            >
+              <ArrowRight className="w-5 h-5 rotate-180 group-hover:-translate-x-1 transition-transform" />
+              Previous
+            </button>
+          )}
+          <button
+            onClick={next}
+            className="flex-[2] py-4 bg-primary text-primary-foreground rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all group"
+          >
+            {current.button || "Next Step"}
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
       </div>
     </div>
   );

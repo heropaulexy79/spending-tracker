@@ -2,9 +2,15 @@ export const getWeekKey = () => {
   const d = new Date();
   // Adjust to Monday of the current week
   const day = d.getDay() === 0 ? 7 : d.getDay();
-  d.setDate(d.getDate() - day + 1);
-  d.setHours(0, 0, 0, 0);
-  return `w_${d.getFullYear()}_${d.getMonth() + 1}_${d.getDate()}`;
+  const dCopy = new Date(d);
+  dCopy.setDate(d.getDate() - day + 1);
+  dCopy.setHours(0, 0, 0, 0);
+  return `w_${dCopy.getFullYear()}_${dCopy.getMonth() + 1}_${dCopy.getDate()}`;
+};
+
+export const getMonthKey = () => {
+  const d = new Date();
+  return `m_${d.getFullYear()}_${d.getMonth() + 1}`;
 };
 
 export const formatDate = (dateValue: any) => {

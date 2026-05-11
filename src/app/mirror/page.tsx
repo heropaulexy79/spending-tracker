@@ -5,66 +5,57 @@ import { Calendar, TrendingUp, Sparkles, Heart, ShieldAlert, Zap, Lock, Info } f
 import { useTracking } from "@/hooks/useTracking";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { getWeekKey, getMonthKey, formatDate } from "@/lib/dateUtils";
+import { useEffect, useState } from "react";
 
 export default function MirrorPage() {
   const { user } = useAuth();
-  const { logs, urges, plan, loading } = useTracking();
+  const { logs: currentLogs, urges: currentUrges, plan, getHistoricalData, loading } = useTracking();
+  
+  const [viewType, setViewType] = useState<'current' | 'history'>('current');
+  const [historyType, setHistoryType] = useState<'week' | 'month'>('week');
+  const [historyLogs, setHistoryLogs] = useState<any[]>([]);
+  const [historyUrges, setHistoryUrges] = useState<any[]>([]);
+  const [isFetchingHistory, setIsFetchingHistory] = useState(false);
 
-  if (loading) return null;
-
-  // Check if account is older than 30 days
+  // Growth Narrative Lock (Keep for premium feel)
   const creationTime = user?.metadata.creationTime ? new Date(user.metadata.creationTime).getTime() : Date.now();
   const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
-  const isLocked = Date.now() - creationTime < thirtyDaysInMs;
-  const daysRemaining = Math.ceil((thirtyDaysInMs - (Date.now() - creationTime)) / (24 * 60 * 60 * 1000));
+  const isNarrativeLocked = Date.now() - creationTime < thirtyDaysInMs;
 
-  if (isLocked) {
-    return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center space-y-8 p-6 text-center animate-in">
-        <header className="space-y-3 mb-8 w-full max-w-md">
-          <div className="flex items-center gap-2 justify-center">
-            <div className="h-[1px] w-8 bg-primary/40" />
-            <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Mirror of Reality</p>
-          </div>
-          <div className="space-y-1">
-            <h1 className="text-4xl font-serif tracking-tight text-foreground">Monthly Mirror</h1>
-          </div>
-        </header>
+  const logs = viewType === 'current' ? currentLogs : historyLogs;
+  const urges = viewType === 'current' ? currentUrges : historyUrges;
 
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="p-10 glass-card space-y-8 max-w-sm border-primary/20"
-        >
-          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto border border-primary/20">
-            <Lock className="w-10 h-10 text-primary" />
-          </div>
-          <div className="space-y-3">
-            <h2 className="text-2xl font-serif text-foreground">Analysis in Progress</h2>
-            <p className="text-muted-foreground text-sm leading-relaxed font-serif italic">
-              &ldquo;Self-study requires time. A mirror only shows the truth once the patterns have been established.&rdquo;
-            </p>
-          </div>
-          <div className="pt-4 border-t border-border space-y-4">
-            <div className="flex items-center gap-3 justify-center text-[10px] font-bold text-primary uppercase tracking-widest">
-              <Calendar className="w-4 h-4" />
-              Unlocks in {daysRemaining} Days
-            </div>
-            <p className="text-[11px] text-muted-foreground/60 leading-relaxed px-4">
-              Continue logging your daily reality. Your first monthly insight will be revealed once we have 30 days of behavioral data.
-            </p>
-          </div>
-        </motion.div>
-        
-        <div className="bg-muted border border-border p-5 rounded-2xl flex gap-4 items-start max-w-sm text-left">
-          <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            The Monthly Mirror uses advanced behavioral aggregation. We need a full month cycle to provide accurate insight into your spending personality and triggers.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (viewType === 'history') {
+      loadLastWeek();
+    }
+  }, [viewType]);
+
+  const loadLastWeek = async () => {
+    setIsFetchingHistory(true);
+    // Calculate last week key
+    const d = new Date();
+    d.setDate(d.getDate() - 7);
+    const day = d.getDay() === 0 ? 7 : d.getDay();
+    d.setDate(d.getDate() - day + 1);
+    const lastWeekKey = `w_${d.getFullYear()}_${d.getMonth() + 1}_${d.getDate()}`;
+    
+    const data = await getHistoricalData('week', lastWeekKey);
+    setHistoryLogs(data.logs);
+    setHistoryUrges(data.urges);
+    setIsFetchingHistory(false);
+  };
+
+  const loadCurrentMonth = async () => {
+    setIsFetchingHistory(true);
+    const data = await getHistoricalData('month', getMonthKey());
+    setHistoryLogs(data.logs);
+    setHistoryUrges(data.urges);
+    setIsFetchingHistory(false);
+  };
+
+  if (loading) return null;
 
   const totalSpent = logs.reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budget = Number(plan?.budget) || 0;
@@ -98,10 +89,65 @@ export default function MirrorPage() {
           <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Mirror of Reality</p>
         </div>
         <div className="space-y-1">
-          <h1 className="text-4xl font-serif tracking-tight text-foreground">Monthly Mirror</h1>
-          <p className="text-muted-foreground text-sm">A summary of your behavior this month.</p>
+          <h1 className="text-4xl font-serif tracking-tight text-foreground">Behavioral Mirror</h1>
+          <p className="text-muted-foreground text-sm">Review your current practice or explore past realities.</p>
         </div>
       </header>
+
+      {/* View Selector */}
+      <div className="flex p-1 bg-muted rounded-2xl border border-border">
+        <button 
+          onClick={() => setViewType('current')}
+          className={cn(
+            "flex-1 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all",
+            viewType === 'current' ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Current Week
+        </button>
+        <button 
+          onClick={() => setViewType('history')}
+          className={cn(
+            "flex-1 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all",
+            viewType === 'history' ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          History Explorer
+        </button>
+      </div>
+
+      {viewType === 'history' && (
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex gap-2"
+        >
+          <button 
+            onClick={() => { setHistoryType('week'); loadLastWeek(); }}
+            className={cn(
+              "px-4 py-2 rounded-full text-[9px] font-bold uppercase border transition-all",
+              historyType === 'week' ? "bg-primary/20 border-primary text-primary" : "bg-muted border-border text-muted-foreground"
+            )}
+          >
+            Last Week
+          </button>
+          <button 
+            onClick={() => { setHistoryType('month'); loadCurrentMonth(); }}
+            className={cn(
+              "px-4 py-2 rounded-full text-[9px] font-bold uppercase border transition-all",
+              historyType === 'month' ? "bg-primary/20 border-primary text-primary" : "bg-muted border-border text-muted-foreground"
+            )}
+          >
+            Current Month
+          </button>
+        </motion.div>
+      )}
+
+      {isFetchingHistory && (
+        <div className="py-12 flex justify-center">
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
 
       {/* Growth Narrative */}
       <div className="p-10 glass-card bg-gradient-to-br from-primary/5 to-purple-500/5 border-primary/10 relative overflow-hidden">
@@ -110,16 +156,21 @@ export default function MirrorPage() {
         </div>
         <h2 className="text-sm font-bold text-primary mb-4 flex items-center gap-2 uppercase tracking-[0.2em]">
           <Sparkles className="w-4 h-4" />
-          Growth Narrative
+          {viewType === 'current' ? "Growth Narrative" : "Historical Insight"}
         </h2>
         <div className="space-y-4 text-foreground leading-relaxed max-w-[90%] font-serif text-xl">
-          {totalSpent > 0 ? (
+          {isNarrativeLocked && viewType === 'current' ? (
+            <div className="space-y-2">
+               <p className="text-muted-foreground italic text-lg">&ldquo;Your narrative is forming. Complete your first month to reveal your growth story.&rdquo;</p>
+               <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">Analysis in Progress</p>
+            </div>
+          ) : logs.length > 0 ? (
             <p>
-              &ldquo;You are becoming more aware of your reality. With ₦{totalSpent.toLocaleString()} logged, 
-              you are studying the subtle difference between your impulses and your true intentions.&rdquo;
+              &ldquo;You are {viewType === 'current' ? "becoming" : "were"} more aware of your reality. With ₦{totalSpent.toLocaleString()} logged, 
+              you {viewType === 'current' ? "are studying" : "studied"} the subtle difference between your impulses and your true intentions.&rdquo;
             </p>
           ) : (
-            <p className="text-muted-foreground italic text-lg">&ldquo;Your narrative is forming. Complete your first week to reveal your growth story.&rdquo;</p>
+            <p className="text-muted-foreground italic text-lg">&ldquo;No entries found for this period.&rdquo;</p>
           )}
         </div>
       </div>
@@ -188,7 +239,7 @@ export default function MirrorPage() {
       </section>
 
       {/* Behavioral Warning/Tip */}
-      {adherenceRate > 90 && (
+      {adherenceRate > 90 && viewType === 'current' && (
         <div className="p-5 rounded-2xl bg-coral/5 border border-coral/10 flex gap-4 items-center">
           <div className="w-10 h-10 rounded-full bg-coral/10 flex items-center justify-center flex-shrink-0">
             <ShieldAlert className="w-5 h-5 text-coral" />
@@ -197,6 +248,24 @@ export default function MirrorPage() {
             You&apos;ve utilized {adherenceRate}% of your weekly plan. This is a moment for extra pause and reflection.
           </p>
         </div>
+      )}
+
+      {/* Detailed Log List in History */}
+      {viewType === 'history' && logs.length > 0 && (
+        <section className="space-y-6">
+          <h2 className="text-2xl font-serif text-foreground px-1">Detailed Logs</h2>
+          <div className="space-y-3">
+            {logs.map((log, i) => (
+              <div key={log.id || i} className="p-5 glass-card flex justify-between items-center border-border">
+                <div className="space-y-1">
+                  <p className="text-sm font-bold text-foreground">{log.noSpendDay ? "No-Spend Day" : log.item}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{formatDate(log.createdAt || log.date)}</p>
+                </div>
+                <p className="text-lg font-serif text-foreground">{log.noSpendDay ? "—" : `₦${Number(log.amount).toLocaleString()}`}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
 
       {/* Final Message */}
