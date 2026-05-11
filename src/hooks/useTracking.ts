@@ -184,6 +184,27 @@ export function useTracking() {
     };
   };
 
+  const triggerSystemNotification = async (title: string, body: string) => {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+    
+    if (Notification.permission === "granted") {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        registration.showNotification(title, {
+          body,
+          icon: "/spendingtracker(black_bac_logo).png",
+          badge: "/spendingtracker(black_bac_logo).png",
+          tag: "behavior-reminder", // Avoid duplicate notifications
+          renotify: true
+        });
+      } catch (err) {
+        console.error("SW Notification Error:", err);
+        // Fallback to simple notification
+        new Notification(title, { body });
+      }
+    }
+  };
+
   return { 
     plan, 
     rewards,
@@ -195,6 +216,7 @@ export function useTracking() {
     addReflection, 
     updateRewards,
     getHistoricalData,
+    triggerSystemNotification,
     loading, 
     noSpendDayLogged, 
     spendLoggedToday 

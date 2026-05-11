@@ -2,27 +2,77 @@
 
 import { useTracking } from "@/hooks/useTracking";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, ArrowRight, Calendar, Compass } from "lucide-react";
+import { Bell, ArrowRight, Calendar, Compass, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 export default function Reminders() {
-  const { logs, plan, loading } = useTracking();
+  const { logs, plan, loading, triggerSystemNotification } = useTracking();
+  const [permission, setPermission] = useState<NotificationPermission>("default");
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setPermission(Notification.permission);
+    }
+  }, []);
 
   if (loading) return null;
 
   const hasPlan = !!plan;
-
   const todayStr = new Date().toISOString().split("T")[0];
   const hasLoggedToday = logs.some(l => l.date === todayStr);
-  
-  // Weekly Review Ready condition: 7 distinct days logged
   const distinctDays = new Array(...new Set(logs.map(l => l.date))).length;
   const isWeeklyReviewReady = distinctDays >= 7;
+
+  // Local Push Logic
+  useEffect(() => {
+    if (permission === "granted") {
+      const lastNotified = localStorage.getItem("last_reminder_date");
+      if (lastNotified !== todayStr) {
+        if (!hasPlan) {
+          triggerSystemNotification("Plan Required", "Set your weekly intention to start tracking.");
+          localStorage.setItem("last_reminder_date", todayStr);
+        } else if (!hasLoggedToday) {
+          triggerSystemNotification("Daily Nudge", "Log today's spending to maintain your awareness.");
+          localStorage.setItem("last_reminder_date", todayStr);
+        }
+      }
+    }
+  }, [hasPlan, hasLoggedToday, permission, todayStr]);
+
+  const requestPermission = async () => {
+    const res = await Notification.requestPermission();
+    setPermission(res);
+  };
 
   return (
     <div className="space-y-3 mb-6">
       <AnimatePresence>
+        {permission !== "granted" && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="overflow-hidden"
+          >
+            <button 
+              onClick={requestPermission}
+              className="w-full p-4 bg-primary text-primary-foreground rounded-2xl flex items-center justify-between group hover:opacity-90 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-background/20 flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4 text-background" />
+                </div>
+                <div className="space-y-0.5 text-left">
+                  <p className="text-xs font-bold uppercase tracking-wider">Enable Push Notifications</p>
+                  <p className="text-[11px] opacity-80">Stay mindful with daily behavioral reminders.</p>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+
         {!hasPlan && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
