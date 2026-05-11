@@ -27,7 +27,12 @@ export function useTracking() {
     const unsubUser = onSnapshot(userRef, (doc) => {
       if (doc.exists()) {
         const data = doc.data();
-        setPlan(data.plan || null);
+        const currentWeek = getWeekKey();
+        if (data.plan && data.plan.weekKey === currentWeek) {
+          setPlan(data.plan);
+        } else {
+          setPlan(null);
+        }
         setRewards(data.rewards || { coins: 0, badges: [] });
       }
       setLoading(false);
@@ -69,9 +74,10 @@ export function useTracking() {
   const savePlan = async (newPlan: any) => {
     if (!user) return;
     const { budget = "", categoryLimits = {}, currency = "₦", ...rest } = newPlan;
-    const budgetRef = doc(db, "users", user.uid);
-    await setDoc(budgetRef, { 
-      plan: { budget, categoryLimits, currency, ...rest }, 
+    const userRef = doc(db, "users", user.uid);
+    const weekKey = getWeekKey();
+    await setDoc(userRef, { 
+      plan: { budget, categoryLimits, currency, weekKey, ...rest }, 
       lastUpdated: serverTimestamp() 
     }, { merge: true });
   };

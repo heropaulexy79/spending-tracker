@@ -2,14 +2,16 @@
 
 import { useTracking } from "@/hooks/useTracking";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, ArrowRight, Calendar } from "lucide-react";
+import { Bell, ArrowRight, Calendar, Compass } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export default function Reminders() {
-  const { logs, loading } = useTracking();
+  const { logs, plan, loading } = useTracking();
 
   if (loading) return null;
+
+  const hasPlan = !!plan;
 
   const todayStr = new Date().toISOString().split("T")[0];
   const hasLoggedToday = logs.some(l => l.date === todayStr);
@@ -21,6 +23,30 @@ export default function Reminders() {
   return (
     <div className="space-y-3 mb-6">
       <AnimatePresence>
+        {!hasPlan && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <Link href="/plan">
+              <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-between group hover:bg-amber-500/15 transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                    <Compass className="w-4 h-4 text-amber-500" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-foreground uppercase tracking-wider">Plan Required</p>
+                    <p className="text-[11px] text-muted-foreground">Set your weekly intention to start tracking.</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-amber-500 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+          </motion.div>
+        )}
+
         {!hasLoggedToday && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
