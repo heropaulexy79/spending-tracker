@@ -1,0 +1,17 @@
+export const currencies = [
+  { code: "USD", symbol: "$", name: "US Dollar" },
+  { code: "EUR", symbol: "€", name: "Euro" },
+  { code: "GBP", symbol: "£", name: "British Pound" },
+  { code: "JPY", symbol: "¥", name: "Japanese Yen" },
+  { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
+  { code: "AUD", symbol: "A$", name: "Australian Dollar" },
+  { code: "CHF", symbol: "Fr", name: "Swiss Franc" },
+  { code: "CNY", symbol: "¥", name: "Chinese Yuan" },
+  { code: "INR", symbol: "₹", name: "Indian Rupee" },
+  { code: "NGN", symbol: "₦", name: "Nigerian Naira" },
+  { code: "BRL", symbol: "R$", name: "Brazilian Real" },
+  { code: "RUB", symbol: "₽", name: "Russian Ruble" },
+  { code: "KRW", symbol: "₩", name: "South Korean Won" },
+  { code: "MXN", symbol: "$", name: "Mexican Peso" },
+  { code: "SAR", symbol: "﷼", name: "Saudi Riyal" },
+];

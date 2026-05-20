@@ -14,7 +14,8 @@ export default function StatsPage() {
 
   // Calculate distinct days logged
   const distinctDays = new Array(...new Set(logs.map(l => l.date))).length;
-  const isLocked = distinctDays < 7;
+  const isSunday = new Date().getDay() === 0;
+  const isLocked = distinctDays < 7 && !isSunday;
 
   const totalWeekly = logs.reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budget = Number(plan?.budget) || 0;
@@ -101,7 +102,7 @@ export default function StatsPage() {
         <div className="space-y-3 max-w-sm">
           <h1 className="text-3xl font-serif text-foreground">Weekly Behavioral Statistics</h1>
           <p className="text-muted-foreground leading-relaxed">
-            These insights are locked until you complete a full week of logging. 
+            These insights are locked until you complete a full week of logging or until Sunday. 
             Consistency is the key to behavioral clarity.
           </p>
         </div>
@@ -144,11 +145,11 @@ export default function StatsPage() {
         <div className="grid grid-cols-2 gap-4">
           <div className="p-6 glass-card space-y-2 border-border">
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Total Spend</p>
-            <p className="text-3xl font-serif text-foreground">₦{totalWeekly.toLocaleString()}</p>
+            <p className="text-3xl font-serif text-foreground">{plan?.currency || "₦"}{totalWeekly.toLocaleString()}</p>
           </div>
           <div className="p-6 glass-card space-y-2 border-border">
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Daily Average</p>
-            <p className="text-3xl font-serif text-foreground">₦{dailyAvg.toLocaleString()}</p>
+            <p className="text-3xl font-serif text-foreground">{plan?.currency || "₦"}{dailyAvg.toLocaleString()}</p>
           </div>
         </div>
       </section>
@@ -163,7 +164,7 @@ export default function StatsPage() {
           <div className="flex justify-between items-center">
             <div className="space-y-1">
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Weekly Goal</p>
-              <p className="text-2xl font-serif text-foreground">₦{budget.toLocaleString()}</p>
+              <p className="text-2xl font-serif text-foreground">{plan?.currency || "₦"}{budget.toLocaleString()}</p>
             </div>
             <div className="text-right space-y-1">
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Status</p>
@@ -183,7 +184,7 @@ export default function StatsPage() {
             <div className="space-y-1">
               <p className="text-sm font-bold text-foreground">
                 {overBudget 
-                  ? `⚠️ You exceeded your budget by ₦${budgetDiff.toLocaleString()}`
+                  ? `⚠️ You exceeded your budget by ${plan?.currency || "₦"}${budgetDiff.toLocaleString()}`
                   : `✅ You stayed within your budget`}
               </p>
               <p className="text-xs text-muted-foreground leading-relaxed">
@@ -232,7 +233,7 @@ export default function StatsPage() {
       <section className="p-8 glass-card space-y-10 border-border">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-serif text-foreground">Daily Breakdown</h2>
-          {maxAmount > 0 && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Peak: ₦{maxAmount.toLocaleString()}</span>}
+          {maxAmount > 0 && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Peak: {plan?.currency || "₦"}{maxAmount.toLocaleString()}</span>}
         </div>
         
         <div className="flex items-end gap-3 h-48 pt-8">
@@ -251,7 +252,7 @@ export default function StatsPage() {
                 />
                 
                 <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-muted backdrop-blur-md px-2 py-1 rounded-md text-[10px] font-bold text-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 border border-border">
-                  ₦{amount.toLocaleString()}
+                  {plan?.currency || "₦"}{amount.toLocaleString()}
                 </div>
 
                 <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">

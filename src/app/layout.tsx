@@ -6,7 +6,6 @@ import { AuthProvider } from "@/context/AuthContext";
 import NotificationManager from "@/components/NotificationManager";
 import InstallPrompt from "@/components/InstallPrompt";
 import AppShell from "@/components/layout/AppShell";
-import DynamicBackground from "@/components/layout/DynamicBackground";
 
 const dmSans = DM_Sans({ 
   subsets: ["latin"],
@@ -56,7 +55,6 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <DynamicBackground />
             <NotificationManager />
             <InstallPrompt />
             <OfflineStatus />

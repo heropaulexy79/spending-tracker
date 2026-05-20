@@ -207,7 +207,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
             <div>
               <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Amount</label>
               <div className="relative">
-                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">₦</span>
+                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">{plan?.currency || "₦"}</span>
                 <input
                   type="text"
                   inputMode="decimal"

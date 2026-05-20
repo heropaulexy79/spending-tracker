@@ -9,7 +9,7 @@ import { useTracking } from "@/hooks/useTracking";
 import { formatDate } from "@/lib/dateUtils";
 
 export default function LogPage() {
-  const { logs, addLog, loading } = useTracking();
+  const { logs, addLog, plan, loading } = useTracking();
   const [showSuccess, setShowSuccess] = useState(false);
 
   const today = new Date();
@@ -76,7 +76,7 @@ export default function LogPage() {
                       <h3 className="text-xl font-serif text-foreground">{log.noSpendDay ? "No-Spend Day" : (log.item || "Unspecified Entry")}</h3>
                     </div>
                     <p className="text-2xl font-serif text-foreground">
-                      {log.noSpendDay ? "—" : `₦${Number(log.amount).toLocaleString()}`}
+                      {log.noSpendDay ? "—" : `${plan?.currency || "₦"}${Number(log.amount).toLocaleString()}`}
                     </p>
                   </div>
                   

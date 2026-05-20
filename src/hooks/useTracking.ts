@@ -195,7 +195,6 @@ export function useTracking() {
           icon: "/spendingtracker(black_bac_logo).png",
           badge: "/spendingtracker(black_bac_logo).png",
           tag: "behavior-reminder", // Avoid duplicate notifications
-          renotify: true
         });
       } catch (err) {
         console.error("SW Notification Error:", err);

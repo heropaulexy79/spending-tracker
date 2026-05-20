@@ -70,7 +70,7 @@ export default function PlanPage() {
               <div>
                 <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Weekly Budget</label>
                 <div className="relative">
-                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">₦</span>
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">{plan?.currency || "₦"}</span>
                   <input
                     type="text"
                     inputMode="decimal"
@@ -90,7 +90,7 @@ export default function PlanPage() {
               <div>
                 <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Savings Target</label>
                 <div className="relative">
-                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">₦</span>
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">{plan?.currency || "₦"}</span>
                   <input
                     type="text"
                     inputMode="decimal"
@@ -170,11 +170,11 @@ export default function PlanPage() {
           </div>
           <div className="flex justify-between items-end">
             <div className="space-y-1">
-              <p className="text-3xl font-serif text-foreground tracking-tight">₦{remaining.toLocaleString()}</p>
+              <p className="text-3xl font-serif text-foreground tracking-tight">{plan?.currency || "₦"}{remaining.toLocaleString()}</p>
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Still Safe to Spend</p>
             </div>
             <div className="text-right space-y-1">
-              <p className="text-lg font-serif text-primary">₦{totalSpent.toLocaleString()}</p>
+              <p className="text-lg font-serif text-primary">{plan?.currency || "₦"}{totalSpent.toLocaleString()}</p>
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Already Logged</p>
             </div>
           </div>

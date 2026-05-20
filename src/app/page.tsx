@@ -98,14 +98,20 @@ export default function Home() {
                   <p className="text-sm font-bold text-foreground truncate">{user.email}</p>
                 </div>
                 
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted text-muted-foreground transition-colors text-xs font-bold uppercase tracking-wider">
+                <Link 
+                  href="/settings"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted text-muted-foreground transition-colors text-xs font-bold uppercase tracking-wider"
+                >
                   <UserIcon className="w-4 h-4 text-primary" />
                   Profile
-                </button>
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted text-muted-foreground transition-colors text-xs font-bold uppercase tracking-wider">
+                </Link>
+                <Link 
+                  href="/settings"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted text-muted-foreground transition-colors text-xs font-bold uppercase tracking-wider"
+                >
                   <Settings className="w-4 h-4 text-primary" />
                   Settings
-                </button>
+                </Link>
                 
                 <div className="h-[1px] bg-border my-1 mx-2" />
                 
@@ -257,7 +263,7 @@ export default function Home() {
           </div>
           <div className="flex justify-between text-[8px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
             <span>Fuel Tank (Budget)</span>
-            <span>₦{totalSpent.toLocaleString()} / ₦{budgetValue.toLocaleString()}</span>
+            <span>{plan?.currency || "₦"}{totalSpent.toLocaleString()} / {plan?.currency || "₦"}{budgetValue.toLocaleString()}</span>
           </div>
         </section>
       )}
@@ -266,14 +272,14 @@ export default function Home() {
       <div className="grid grid-cols-2 gap-4">
         <StatCard 
           label="Weekly Plan" 
-          value={`₦${budgetValue.toLocaleString()}`} 
+          value={`${plan?.currency || "₦"}${budgetValue.toLocaleString()}`} 
           icon={<Wallet className="w-4 h-4" />} 
           color="text-primary"
           href="/plan"
         />
         <StatCard 
           label="Already Logged" 
-          value={`₦${totalSpent.toLocaleString()}`} 
+          value={`${plan?.currency || "₦"}${totalSpent.toLocaleString()}`} 
           icon={<TrendingUp className="w-4 h-4" />} 
           color="text-emerald-400"
           href="/log"
@@ -324,7 +330,7 @@ export default function Home() {
                     {formatDate(log.createdAt || log.date)} • {log.spendingType}
                   </p>
                 </div>
-                <p className="font-serif text-lg text-foreground">{log.amount ? `₦${Number(log.amount).toLocaleString()}` : "—"}</p>
+                <p className="font-serif text-lg text-foreground">{log.amount ? `${plan?.currency || "₦"}${Number(log.amount).toLocaleString()}` : "—"}</p>
               </div>
             ))
           ) : (

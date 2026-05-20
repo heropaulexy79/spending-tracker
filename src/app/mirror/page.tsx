@@ -166,7 +166,7 @@ export default function MirrorPage() {
             </div>
           ) : logs.length > 0 ? (
             <p>
-              &ldquo;You are {viewType === 'current' ? "becoming" : "were"} more aware of your reality. With ₦{totalSpent.toLocaleString()} logged, 
+              &ldquo;You are {viewType === 'current' ? "becoming" : "were"} more aware of your reality. With {plan?.currency || "₦"}{totalSpent.toLocaleString()} logged, 
               you {viewType === 'current' ? "are studying" : "studied"} the subtle difference between your impulses and your true intentions.&rdquo;
             </p>
           ) : (
@@ -179,11 +179,11 @@ export default function MirrorPage() {
       <div className="grid grid-cols-2 gap-4">
         <div className="p-6 glass-card space-y-3">
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.15em]">Total Spent</p>
-          <p className="text-2xl font-serif text-foreground tracking-tight">₦{totalSpent.toLocaleString()}</p>
+          <p className="text-2xl font-serif text-foreground tracking-tight">{plan?.currency || "₦"}{totalSpent.toLocaleString()}</p>
         </div>
         <div className="p-6 glass-card space-y-3">
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.15em]">Estimated Saved</p>
-          <p className="text-2xl font-serif text-emerald-400 tracking-tight">₦{totalSaved.toLocaleString()}</p>
+          <p className="text-2xl font-serif text-emerald-400 tracking-tight">{plan?.currency || "₦"}{totalSaved.toLocaleString()}</p>
         </div>
       </div>
 
@@ -261,7 +261,7 @@ export default function MirrorPage() {
                   <p className="text-sm font-bold text-foreground">{log.noSpendDay ? "No-Spend Day" : log.item}</p>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{formatDate(log.createdAt || log.date)}</p>
                 </div>
-                <p className="text-lg font-serif text-foreground">{log.noSpendDay ? "—" : `₦${Number(log.amount).toLocaleString()}`}</p>
+                <p className="text-lg font-serif text-foreground">{log.noSpendDay ? "—" : `${plan?.currency || "₦"}${Number(log.amount).toLocaleString()}`}</p>
               </div>
             ))}
           </div>

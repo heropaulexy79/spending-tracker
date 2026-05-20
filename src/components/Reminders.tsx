@@ -17,16 +17,16 @@ export default function Reminders() {
     }
   }, []);
 
-  if (loading) return null;
-
   const hasPlan = !!plan;
   const todayStr = new Date().toISOString().split("T")[0];
   const hasLoggedToday = logs.some(l => l.date === todayStr);
   const distinctDays = new Array(...new Set(logs.map(l => l.date))).length;
-  const isWeeklyReviewReady = distinctDays >= 7;
+  const isSunday = new Date().getDay() === 0;
+  const isWeeklyReviewReady = distinctDays >= 7 || isSunday;
 
   // Local Push Logic
   useEffect(() => {
+    if (loading) return;
     if (permission === "granted") {
       const lastNotified = localStorage.getItem("last_reminder_date");
       if (lastNotified !== todayStr) {
@@ -39,12 +39,14 @@ export default function Reminders() {
         }
       }
     }
-  }, [hasPlan, hasLoggedToday, permission, todayStr]);
+  }, [hasPlan, hasLoggedToday, permission, todayStr, loading]);
 
   const requestPermission = async () => {
     const res = await Notification.requestPermission();
     setPermission(res);
   };
+
+  if (loading) return null;
 
   return (
     <div className="space-y-3 mb-6">
