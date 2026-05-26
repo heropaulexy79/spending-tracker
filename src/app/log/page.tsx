@@ -92,15 +92,35 @@ export default function LogPage() {
                     </div>
                   ) : !log.noSpendDay ? (
                     <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1 bg-muted rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-border">
-                        {log.spendingType}
-                      </span>
-                      <span className="px-3 py-1 bg-muted rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-border">
-                        {log.decisionType}
-                      </span>
-                      <span className="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-bold text-primary uppercase tracking-widest border border-primary/20">
-                        Trigger: {log.trigger}
-                      </span>
+                      {log.category ? (
+                        <>
+                          <span className="px-3 py-1 bg-muted rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-border">
+                            {log.category}
+                          </span>
+                          {log.subCategory && log.subCategory !== "None" && (
+                            <span className="px-3 py-1 bg-muted/50 rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-border">
+                              {log.subCategory}
+                            </span>
+                          )}
+                          {log.behaviorTags?.map((tag: string) => (
+                            <span key={tag} className="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-bold text-primary uppercase tracking-widest border border-primary/20">
+                              {tag}
+                            </span>
+                          ))}
+                        </>
+                      ) : (
+                        <>
+                          <span className="px-3 py-1 bg-muted rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-border">
+                            {log.spendingType}
+                          </span>
+                          <span className="px-3 py-1 bg-muted rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-border">
+                            {log.decisionType}
+                          </span>
+                          <span className="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-bold text-primary uppercase tracking-widest border border-primary/20">
+                            Trigger: {log.trigger}
+                          </span>
+                        </>
+                      )}
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">

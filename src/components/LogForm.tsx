@@ -8,9 +8,31 @@ import { cn } from "@/lib/utils";
 import { useTracking } from "@/hooks/useTracking";
 import { getLocalDateString } from "@/lib/dateUtils";
 
-const decisionTypes = ["Planned", "Unplanned"];
-const spendingTypes = ["Need", "Want", "Emotional impulse"];
-const triggers = ["Hunger", "Stress", "Boredom", "Social influence", "Convenience", "Other"];
+const NIGERIAN_CATEGORIES: Record<string, string[]> = {
+  "Food & Feeding": ["Groceries / foodstuff", "Restaurant", "Street food", "Delivery", "Snacks & drinks", "Market runs"],
+  "Transport & Movement": ["Public transport", "Bolt/Uber/taxi", "Fuel", "Car maintenance", "Bike transport", "Travel"],
+  "Bills & Utilities": ["Electricity", "Generator fuel", "Water", "Rent", "Data", "Recharge card", "Subscriptions"],
+  "Family & Support": ["Sending money home", "Family support", "Children/school needs", "Emergency support", "Gifts"],
+  "Lifestyle & Social Life": ["Aso-ebi & events", "Outings", "Fashion", "Hair & beauty", "Entertainment", "Birthdays", "Flexing"],
+  "Business & Hustle": ["Inventory/materials", "Logistics", "Ads/promotion", "Work tools", "Client-related spending", "Staff/support"],
+  "Health & Wellness": ["Medication", "Hospital", "Fitness", "Therapy/self-care", "Pharmacy"],
+  "Faith & Giving": ["Church/mosque giving", "Offering/tithe", "Donations", "Community support"],
+  "Personal Growth": ["Courses", "Books", "Learning", "Mentorship", "Career development"],
+  "Savings & Goals": ["Savings", "Emergency funds", "Investment", "Target goals"],
+  "Impulse & Unexpected Spending": ["Impulse buying", "Random online shopping", "I don’t know where it went", "Unplanned spending"],
+  "Others (custom spending)": []
+};
+
+const BEHAVIOR_TAGS = [
+  "Was it Needed",
+  "Was it Impulse",
+  "Was it Emotional",
+  "Was it Planned",
+  "Was it Social pressure",
+  "Was it survival mood",
+  "Was it Investment in self"
+];
+
 const moods = ["Calm", "Anxious", "Exhausted", "Happy", "Stressed", "Bored"];
 
 const PAUSE_QUOTES = [
@@ -30,12 +52,20 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
   const [countdown, setCountdown] = useState(10);
   const [currentQuote, setCurrentQuote] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    item: string;
+    amount: string;
+    category: string;
+    subCategory: string;
+    behaviorTags: string[];
+    mood: string;
+    noSpendDay: boolean;
+  }>({
     item: "",
     amount: "",
-    decisionType: "Planned",
-    spendingType: "Need",
-    trigger: "Other",
+    category: Object.keys(NIGERIAN_CATEGORIES)[0],
+    subCategory: NIGERIAN_CATEGORIES[Object.keys(NIGERIAN_CATEGORIES)[0]][0],
+    behaviorTags: [],
     mood: "Calm",
     noSpendDay: false,
   });
@@ -76,9 +106,10 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
       dataToSubmit = {
         item: formData.item || "Savings Contribution",
         amount: formData.amount,
-        decisionType: "Planned",
+        category: "Savings & Goals",
+        subCategory: "Savings",
+        behaviorTags: ["Was it Planned", "Was it Investment in self"],
         spendingType: "Savings",
-        trigger: "Other",
         mood: formData.mood,
         noSpendDay: false,
         isSavings: true,
@@ -90,12 +121,13 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
             ...formData, 
             item: "No-Spend Day", 
             amount: "0", 
-            decisionType: "Planned",
             spendingType: "Need",
+            category: "None",
+            subCategory: "None",
             isSavings: false,
             date: getLocalDateString() 
           }
-        : { ...formData, isSavings: false, date: getLocalDateString() };
+        : { ...formData, spendingType: formData.category, isSavings: false, date: getLocalDateString() };
     }
       
     onSubmit(dataToSubmit);
@@ -107,9 +139,9 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
       setFormData({
         item: "",
         amount: "",
-        decisionType: "Planned",
-        spendingType: "Need",
-        trigger: "Other",
+        category: Object.keys(NIGERIAN_CATEGORIES)[0],
+        subCategory: NIGERIAN_CATEGORIES[Object.keys(NIGERIAN_CATEGORIES)[0]][0],
+        behaviorTags: [],
         mood: "Calm",
         noSpendDay: false,
       });
@@ -127,6 +159,33 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
       setIsPausing(true);
     }
   };
+
+  if (!plan?.spenderType) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="p-12 glass-card text-center space-y-6 max-w-lg mx-auto border-amber-500/20 mt-8"
+      >
+        <div className="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-2 border border-amber-500/20">
+          <AlertTriangle className="w-10 h-10 text-amber-500" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-2xl font-serif text-foreground">Set Your Intentions First</h3>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Before tracking your daily spending, you must decide who you want to be this week. 
+            Choose your Spender Identity to align your daily choices with your goals.
+          </p>
+        </div>
+        <a 
+          href="/plan"
+          className="inline-block mt-4 w-full py-5 rounded-2xl font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all shadow-[0_0_25px_rgba(202,138,4,0.2)]"
+        >
+          Choose Spender Identity
+        </a>
+      </motion.div>
+    );
+  }
 
   if (noSpendDayLogged) {
     return (
@@ -341,47 +400,67 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Decision</label>
+                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Category</label>
                 <select
-                  value={formData.decisionType}
-                  onChange={(e) => setFormData({ ...formData, decisionType: e.target.value })}
+                  value={formData.category}
+                  onChange={(e) => {
+                    const newCat = e.target.value;
+                    setFormData({ 
+                      ...formData, 
+                      category: newCat,
+                      subCategory: NIGERIAN_CATEGORIES[newCat]?.[0] || "None"
+                    });
+                  }}
                   className="w-full bg-muted border border-border rounded-2xl px-4 py-4 text-foreground outline-none focus:border-primary/50 appearance-none cursor-pointer"
                 >
-                  {decisionTypes.map((t) => <option key={t} value={t} className="bg-background text-foreground">{t}</option>)}
+                  {Object.keys(NIGERIAN_CATEGORIES).map((c) => <option key={c} value={c} className="bg-background text-foreground">{c}</option>)}
                 </select>
               </div>
-              <div>
-                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Type</label>
-                <select
-                  value={formData.spendingType}
-                  onChange={(e) => setFormData({ ...formData, spendingType: e.target.value })}
-                  className="w-full bg-muted border border-border rounded-2xl px-4 py-4 text-foreground outline-none focus:border-primary/50 appearance-none cursor-pointer"
-                >
-                  {spendingTypes.map((t) => <option key={t} value={t} className="bg-background text-foreground">{t}</option>)}
-                </select>
-              </div>
+              
+              {NIGERIAN_CATEGORIES[formData.category]?.length > 0 && (
+                <div>
+                  <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Sub-group</label>
+                  <select
+                    value={formData.subCategory}
+                    onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
+                    className="w-full bg-muted border border-border rounded-2xl px-4 py-4 text-foreground outline-none focus:border-primary/50 appearance-none cursor-pointer"
+                  >
+                    {NIGERIAN_CATEGORIES[formData.category].map((sc) => <option key={sc} value={sc} className="bg-background text-foreground">{sc}</option>)}
+                  </select>
+                </div>
+              )}
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Trigger</label>
+              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Behavior Tags (Select all that apply)</label>
               <div className="flex flex-wrap gap-2">
-                {triggers.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, trigger: t })}
-                    className={cn(
-                      "px-4 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all",
-                      formData.trigger === t
-                        ? "bg-primary/20 border-primary/50 text-primary"
-                        : "bg-muted border-border text-muted-foreground hover:border-border/60 hover:text-foreground"
-                    )}
-                  >
-                    {t}
-                  </button>
-                ))}
+                {BEHAVIOR_TAGS.map((t) => {
+                  const isSelected = formData.behaviorTags.includes(t);
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => {
+                        setFormData(prev => ({
+                          ...prev,
+                          behaviorTags: isSelected 
+                            ? prev.behaviorTags.filter(tag => tag !== t)
+                            : [...prev.behaviorTags, t]
+                        }))
+                      }}
+                      className={cn(
+                        "px-4 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all",
+                        isSelected
+                          ? "bg-primary/20 border-primary/50 text-primary"
+                          : "bg-muted border-border text-muted-foreground hover:border-border/60 hover:text-foreground"
+                      )}
+                    >
+                      {t}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -445,7 +524,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
                 />
               </div>
             ) : (
-              "Add Spending Entry"
+              "Track today's spending"
             )}
           </button>
           
