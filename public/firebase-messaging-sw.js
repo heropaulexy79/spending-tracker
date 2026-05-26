@@ -25,6 +25,11 @@ messaging.onBackgroundMessage((payload) => {
 
 // PWA offline criteria handler
 self.addEventListener("fetch", (event) => {
+  // Ignore cross-origin requests (like Google Auth APIs) to prevent CORS/CSP errors
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request).catch(() => {
       return caches.match(event.request);
