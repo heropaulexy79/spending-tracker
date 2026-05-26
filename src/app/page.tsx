@@ -7,13 +7,13 @@ import Reminders from "@/components/Reminders";
 import { useAuth } from "@/context/AuthContext";
 import { useTracking } from "@/hooks/useTracking";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wallet, Target, TrendingUp, Zap, Calendar, User as UserIcon, Loader2, ArrowRight, LogOut, Key, Settings, Coins, Award, Sparkles } from "lucide-react";
+import { Wallet, Target, TrendingUp, Zap, Calendar, User as UserIcon, Loader2, ArrowRight, LogOut, Key, Settings, Coins, Award, Sparkles, BarChart3 } from "lucide-react";
 
 import Link from "next/link";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { cn } from "@/lib/utils";
-import { formatDate, getLocalDateString } from "@/lib/dateUtils";
+import { formatDate, getLocalDateString, getWeekKey } from "@/lib/dateUtils";
 
 export default function Home() {
   const { user } = useAuth();
@@ -47,22 +47,27 @@ export default function Home() {
     );
   }
 
-  const totalSpent = logs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
-  const totalSavings = logs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  // Filter logs for the current week only (for weekly stats)
+  const currentWeekKey = getWeekKey();
+  const weeklyLogs = logs.filter(l => l.weekKey === currentWeekKey);
+
+  const totalSpent = weeklyLogs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const totalSavings = weeklyLogs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budgetValue = Number(plan?.budget) || 0;
   
-  const logsResisted = logs.filter(l => l.decisionType === "Resisted").length;
+  const logsResisted = weeklyLogs.filter(l => l.decisionType === "Resisted").length;
   const urgesResisted = urges.filter(u => u.action === "Resisted").length;
-  const totalDecisions = logs.length + urges.length;
+  const totalDecisions = weeklyLogs.length + urges.length;
   const totalResisted = logsResisted + urgesResisted;
   const resistedRate = totalDecisions > 0 ? Math.round((totalResisted / totalDecisions) * 100) : 0;
   
-  const noSpendDays = logs.filter(l => l.noSpendDay).length;
+  const noSpendDays = weeklyLogs.filter(l => l.noSpendDay).length;
 
   const isWithinBudget = budgetValue > 0 && totalSpent <= budgetValue;
   const hasResistedUrges = urgesResisted > 0;
 
   const isMonday = new Date().getDay() === 1;
+  const monthlyLogCount = logs.length;
 
   // Streak Calculation (Daily spending <= (weekly budget / 7) OR No-Spend Day)
   const getActiveStreak = () => {
@@ -184,7 +189,7 @@ export default function Home() {
 
       <Reminders />
 
-      {isMonday && logs.length === 0 && (
+      {isMonday && weeklyLogs.length === 0 && (
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -376,6 +381,31 @@ export default function Home() {
           &ldquo;Pause for 10 seconds before any unplanned purchase. Ask yourself: Is this a need or a reaction?&rdquo;
         </p>
       </div>
+
+      {/* Generate Analysis Button */}
+      <Link href="/analysis">
+        <motion.div
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          className="p-8 rounded-3xl bg-gradient-to-br from-violet-500/10 via-primary/10 to-fuchsia-500/10 border border-violet-500/20 relative overflow-hidden group cursor-pointer"
+        >
+          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+            <BarChart3 className="w-32 h-32 text-violet-500" />
+          </div>
+          <div className="relative z-10 flex items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl bg-violet-500/20 flex items-center justify-center flex-shrink-0 border border-violet-500/20">
+              <BarChart3 className="w-7 h-7 text-violet-500" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-serif text-foreground mb-1">Generate Spending & Behavioral Analysis</h3>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                {monthlyLogCount} entries this month • Tap to discover your patterns
+              </p>
+            </div>
+            <ArrowRight className="w-5 h-5 text-violet-500 group-hover:translate-x-1 transition-transform" />
+          </div>
+        </motion.div>
+      </Link>
 
       {/* Recent Activity Mini-List */}
       <section className="space-y-4">

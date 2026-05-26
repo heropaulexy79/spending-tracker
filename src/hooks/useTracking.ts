@@ -48,7 +48,7 @@ export function useTracking() {
 
     // Subscribe to Logs (Server-side filtered)
     const logsRef = collection(db, "users", user.uid, "logs");
-    const qLogs = query(logsRef, where("weekKey", "==", weekKey));
+    const qLogs = query(logsRef, where("monthKey", "==", getMonthKey()));
     const unsubLogs = onSnapshot(qLogs, (snap) => {
       const l = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       l.sort((a: any, b: any) => {
@@ -104,15 +104,16 @@ export function useTracking() {
 
   const addLog = async (log: any) => {
     if (!user) return;
-    const { item, amount, decisionType, spendingType, trigger, mood, noSpendDay, date, isSavings } = log;
+    const { item, amount, category, subCategory, behaviorTags, spendingType, mood, noSpendDay, date, isSavings } = log;
     const weekKey = getWeekKey();
     const logRef = doc(collection(db, "users", user.uid, "logs"));
     await setDoc(logRef, { 
       item: String(item).substring(0, 100),
       amount: Number(amount) || 0,
-      decisionType,
-      spendingType,
-      trigger,
+      category: category || null,
+      subCategory: subCategory || null,
+      behaviorTags: behaviorTags || [],
+      spendingType: spendingType || category || "Uncategorized",
       mood: mood || "Calm",
       noSpendDay: !!noSpendDay,
       isSavings: !!isSavings,
