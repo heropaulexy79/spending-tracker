@@ -112,13 +112,16 @@ export function useTracking() {
 
   const addUrge = async (urge: any) => {
     if (!user) return;
-    const { type, action, resisted24h } = urge;
+    const { type, action, resisted24h, trigger, delayReason, delayRevisit } = urge;
     const weekKey = getWeekKey();
     const urgeRef = doc(collection(db, "users", user.uid, "urges"));
     await setDoc(urgeRef, { 
       type,
       action,
       resisted24h: !!resisted24h,
+      trigger: trigger || null,
+      delayReason: delayReason || null,
+      delayRevisit: delayRevisit || null,
       uid: user.uid,
       weekKey, 
       monthKey: getMonthKey(),
