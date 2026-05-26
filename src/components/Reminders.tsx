@@ -23,7 +23,7 @@ export default function Reminders() {
   const hasLoggedToday = logs.some(l => l.date === todayStr && !l.isSavings);
   const distinctDays = new Array(...new Set(logs.filter(l => !l.isSavings).map(l => l.date))).length;
   const isSunday = new Date().getDay() === 0;
-  const isWeeklyReviewReady = distinctDays >= 7 || isSunday;
+  const isWeeklyReviewReady = isSunday;
 
   // Local Push Logic
   useEffect(() => {

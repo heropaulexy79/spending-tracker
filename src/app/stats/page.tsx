@@ -15,7 +15,7 @@ export default function StatsPage() {
   // Calculate distinct days logged
   const distinctDays = new Array(...new Set(logs.filter(l => !l.isSavings).map(l => l.date))).length;
   const isSunday = new Date().getDay() === 0;
-  const isLocked = distinctDays < 7 && !isSunday && !bypassLock;
+  const isLocked = !isSunday && !bypassLock;
 
   const totalWeekly = logs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const totalSavingsWeekly = logs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
@@ -219,7 +219,7 @@ export default function StatsPage() {
         <div className="space-y-3 max-w-sm">
           <h1 className="text-3xl font-serif text-foreground">Weekly Behavioral Statistics</h1>
           <p className="text-muted-foreground leading-relaxed text-sm">
-            These insights are locked until you complete a full week of logging or until Sunday. 
+            These insights are locked until Sunday.
             Consistency is the key to behavioral clarity.
           </p>
         </div>

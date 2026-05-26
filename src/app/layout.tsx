@@ -39,6 +39,7 @@ export const viewport: Viewport = {
 };
 
 import OfflineStatus from "@/components/OfflineStatus";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 
 export default function RootLayout({
   children,
@@ -55,6 +56,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
+            <AnalyticsTracker />
             <NotificationManager />
             <InstallPrompt />
             <OfflineStatus />
