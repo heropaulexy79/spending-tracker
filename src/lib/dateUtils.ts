@@ -8,6 +8,14 @@ export const getWeekKey = () => {
   return `w_${dCopy.getFullYear()}_${dCopy.getMonth() + 1}_${dCopy.getDate()}`;
 };
 
+export const getLocalDateString = (d: Date = new Date()) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+
 export const getMonthKey = () => {
   const d = new Date();
   return `m_${d.getFullYear()}_${d.getMonth() + 1}`;

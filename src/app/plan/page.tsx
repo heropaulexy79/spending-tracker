@@ -38,10 +38,13 @@ export default function PlanPage() {
     setTimeout(() => setIsSaved(false), 3000);
   };
 
-  const totalSpent = logs.reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const totalSpent = logs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const totalSavedLogged = logs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budgetValue = Number(formData.budget) || 0;
+  const savingsTarget = Number(formData.savings) || 0;
   const remaining = Math.max(0, budgetValue - totalSpent);
   const percentSpent = budgetValue > 0 ? Math.min(100, Math.round((totalSpent / budgetValue) * 100)) : 0;
+  const percentSaved = savingsTarget > 0 ? Math.min(100, Math.round((totalSavedLogged / savingsTarget) * 100)) : 0;
 
   if (loading) return null;
 
@@ -186,6 +189,34 @@ export default function PlanPage() {
             />
           </div>
         </div>
+
+        {savingsTarget > 0 && (
+          <div className="p-8 glass-card space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Savings Status</h3>
+              <span className="text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                Target Active
+              </span>
+            </div>
+            <div className="flex justify-between items-end">
+              <div className="space-y-1">
+                <p className="text-3xl font-serif text-foreground tracking-tight">{plan?.currency || "₦"}{totalSavedLogged.toLocaleString()} / {plan?.currency || "₦"}{savingsTarget.toLocaleString()}</p>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Saved this week</p>
+              </div>
+              <div className="text-right space-y-1">
+                <p className="text-lg font-serif text-emerald-400">{percentSaved}%</p>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Target Achieved</p>
+              </div>
+            </div>
+            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${percentSaved}%` }}
+                className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" 
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

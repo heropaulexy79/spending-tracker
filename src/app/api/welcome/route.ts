@@ -99,7 +99,7 @@ export async function POST(request: Request) {
 
     const adminMailOptions = {
       from: `"S&B System" <${process.env.GMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL || process.env.GMAIL_USER,
+      to: process.env.ADMIN_EMAIL || 'noreply.craftingthemind@gmail.com',
       subject: 'New User Onboarding: Crafting the Mind',
       html: `
         <div style="font-family: sans-serif; padding: 20px;">

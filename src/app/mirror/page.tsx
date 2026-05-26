@@ -57,7 +57,8 @@ export default function MirrorPage() {
 
   if (loading) return null;
 
-  const totalSpent = logs.reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const totalSpent = logs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const totalSavingsLogged = logs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budget = Number(plan?.budget) || 0;
   const totalSaved = Math.max(0, budget - totalSpent);
   
@@ -176,14 +177,18 @@ export default function MirrorPage() {
       </div>
 
       {/* High Level Stats */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-6 glass-card space-y-3">
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.15em]">Total Spent</p>
-          <p className="text-2xl font-serif text-foreground tracking-tight">{plan?.currency || "₦"}{totalSpent.toLocaleString()}</p>
+          <p className="text-2xl font-serif text-foreground tracking-tight truncate">{plan?.currency || "₦"}{totalSpent.toLocaleString()}</p>
         </div>
         <div className="p-6 glass-card space-y-3">
-          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.15em]">Estimated Saved</p>
-          <p className="text-2xl font-serif text-emerald-400 tracking-tight">{plan?.currency || "₦"}{totalSaved.toLocaleString()}</p>
+          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.15em]">Logged Savings</p>
+          <p className="text-2xl font-serif text-emerald-400 tracking-tight truncate">{plan?.currency || "₦"}{totalSavingsLogged.toLocaleString()}</p>
+        </div>
+        <div className="p-6 glass-card space-y-3">
+          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.15em]">Budget Leftover</p>
+          <p className="text-2xl font-serif text-foreground tracking-tight truncate">{plan?.currency || "₦"}{totalSaved.toLocaleString()}</p>
         </div>
       </div>
 
@@ -258,10 +263,14 @@ export default function MirrorPage() {
             {logs.map((log, i) => (
               <div key={log.id || i} className="p-5 glass-card flex justify-between items-center border-border">
                 <div className="space-y-1">
-                  <p className="text-sm font-bold text-foreground">{log.noSpendDay ? "No-Spend Day" : log.item}</p>
+                  <p className="text-sm font-bold text-foreground">
+                    {log.isSavings ? `💰 Saved: ${log.item}` : log.noSpendDay ? "No-Spend Day" : log.item}
+                  </p>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{formatDate(log.createdAt || log.date)}</p>
                 </div>
-                <p className="text-lg font-serif text-foreground">{log.noSpendDay ? "—" : `${plan?.currency || "₦"}${Number(log.amount).toLocaleString()}`}</p>
+                <p className={cn("text-lg font-serif", log.isSavings ? "text-emerald-400" : "text-foreground")}>
+                  {log.noSpendDay ? "—" : `${log.isSavings ? "+" : ""}${plan?.currency || "₦"}${Number(log.amount).toLocaleString()}`}
+                </p>
               </div>
             ))}
           </div>

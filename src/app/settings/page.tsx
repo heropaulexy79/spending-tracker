@@ -173,6 +173,22 @@ export default function SettingsPage() {
           </div>
         </section>
 
+        {/* Privacy & Trust Reassurance */}
+        <section className="glass-card p-6 space-y-4 border-emerald-500/10 bg-emerald-500/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-serif text-foreground">Privacy & Security</h2>
+          </div>
+          <div className="space-y-2 text-xs text-muted-foreground leading-relaxed">
+            <p className="font-bold text-foreground">🔒 Encrypted Personal Cloud Database</p>
+            <p>Your spending entries, triggers, and reflective writings are securely stored inside your private Firebase database profile and are completely inaccessible by anyone else.</p>
+            <p className="font-bold text-foreground">🚫 Zero Data Selling or Tracking</p>
+            <p>We do not integrate any advertising libraries or third-party trackers. Your self-reflection metrics are never monetized or shared.</p>
+          </div>
+        </section>
+
         <button
           onClick={handleSave}
           disabled={isSaving}

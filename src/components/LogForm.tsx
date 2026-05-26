@@ -6,6 +6,7 @@ import { Timer, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { useTracking } from "@/hooks/useTracking";
+import { getLocalDateString } from "@/lib/dateUtils";
 
 const decisionTypes = ["Planned", "Unplanned"];
 const spendingTypes = ["Need", "Want", "Emotional impulse"];
@@ -24,6 +25,7 @@ const PAUSE_QUOTES = [
 
 export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void }) {
   const { noSpendDayLogged, spendLoggedToday, plan, logs } = useTracking();
+  const [logMode, setLogMode] = useState<"spend" | "save">("spend");
   const [isPausing, setIsPausing] = useState(false);
   const [countdown, setCountdown] = useState(10);
   const [currentQuote, setCurrentQuote] = useState("");
@@ -69,16 +71,32 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
   const handleSubmit = (e?: React.MouseEvent) => {
     if (e && e.preventDefault) e.preventDefault();
     
-    const dataToSubmit = formData.noSpendDay 
-      ? { 
-          ...formData, 
-          item: "No-Spend Day", 
-          amount: "0", 
-          decisionType: "Planned",
-          spendingType: "Need",
-          date: new Date().toISOString().split("T")[0] 
-        }
-      : { ...formData, date: new Date().toISOString().split("T")[0] };
+    let dataToSubmit: any;
+    if (logMode === "save") {
+      dataToSubmit = {
+        item: formData.item || "Savings Contribution",
+        amount: formData.amount,
+        decisionType: "Planned",
+        spendingType: "Savings",
+        trigger: "Other",
+        mood: formData.mood,
+        noSpendDay: false,
+        isSavings: true,
+        date: getLocalDateString()
+      };
+    } else {
+      dataToSubmit = formData.noSpendDay 
+        ? { 
+            ...formData, 
+            item: "No-Spend Day", 
+            amount: "0", 
+            decisionType: "Planned",
+            spendingType: "Need",
+            isSavings: false,
+            date: getLocalDateString() 
+          }
+        : { ...formData, isSavings: false, date: getLocalDateString() };
+    }
       
     onSubmit(dataToSubmit);
     setIsPausing(false);
@@ -101,8 +119,13 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
 
   const handleInitialClick = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.noSpendDay && (!formData.item || !formData.amount)) return;
-    setIsPausing(true);
+    if (logMode === "save") {
+      if (!formData.item || !formData.amount) return;
+      handleSubmit();
+    } else {
+      if (!formData.noSpendDay && (!formData.item || !formData.amount)) return;
+      setIsPausing(true);
+    }
   };
 
   if (noSpendDayLogged) {
@@ -157,23 +180,49 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
         <h3 className="text-2xl font-serif text-foreground">{dateString}</h3>
       </div>
 
-      <div className="flex justify-end items-center mb-6">
-        <label className={cn(
-          "flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest transition-colors",
-          spendLoggedToday || (isOverBudget && !formData.noSpendDay) ? "text-muted-foreground/30 cursor-not-allowed" : "text-muted-foreground cursor-pointer hover:text-foreground"
-        )}>
-          <input
-            type="checkbox"
-            checked={formData.noSpendDay}
-            disabled={spendLoggedToday}
-            onChange={(e) => setFormData({ ...formData, noSpendDay: e.target.checked })}
-            className="w-5 h-5 rounded-lg border-border bg-muted text-primary focus:ring-primary transition-all disabled:opacity-30"
-          />
-          No-Spend Day
-        </label>
+      {/* Segmented Control for Spend/Save */}
+      <div className="flex p-1 bg-muted rounded-2xl border border-border">
+        <button
+          type="button"
+          onClick={() => { setLogMode("spend"); setFormData(prev => ({ ...prev, noSpendDay: false })); }}
+          className={cn(
+            "flex-1 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all",
+            logMode === "spend" ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          💸 Log Spending
+        </button>
+        <button
+          type="button"
+          onClick={() => { setLogMode("save"); setFormData(prev => ({ ...prev, noSpendDay: false })); }}
+          className={cn(
+            "flex-1 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all",
+            logMode === "save" ? "bg-background text-emerald-500 shadow-sm" : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          💰 Log Savings
+        </button>
       </div>
 
-      {isOverBudget && !formData.noSpendDay && (
+      {logMode === "spend" && (
+        <div className="flex justify-end items-center mb-6">
+          <label className={cn(
+            "flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest transition-colors",
+            spendLoggedToday || (isOverBudget && !formData.noSpendDay) ? "text-muted-foreground/30 cursor-not-allowed" : "text-muted-foreground cursor-pointer hover:text-foreground"
+          )}>
+            <input
+              type="checkbox"
+              checked={formData.noSpendDay}
+              disabled={spendLoggedToday}
+              onChange={(e) => setFormData({ ...formData, noSpendDay: e.target.checked })}
+              className="w-5 h-5 rounded-lg border-border bg-muted text-primary focus:ring-primary transition-all disabled:opacity-30"
+            />
+            No-Spend Day
+          </label>
+        </div>
+      )}
+
+      {logMode === "spend" && isOverBudget && !formData.noSpendDay && (
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -189,7 +238,74 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
         </motion.div>
       )}
 
-      {!formData.noSpendDay ? (
+      {logMode === "save" ? (
+        <>
+          <div className="space-y-5">
+            <div>
+              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">What did you save money on?</label>
+              <input
+                type="text"
+                value={formData.item}
+                onChange={(e) => setFormData({ ...formData, item: e.target.value })}
+                placeholder="e.g. Skipped takeout, prepared lunch at home"
+                className="w-full bg-muted border border-border rounded-2xl px-5 py-4 text-foreground placeholder:text-muted-foreground/30 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none transition-all"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Amount Saved</label>
+              <div className="relative">
+                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">{plan?.currency || "₦"}</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={formData.amount}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setFormData({ ...formData, amount: val });
+                    }
+                  }}
+                  placeholder="0.00"
+                  className="w-full bg-muted border border-border rounded-2xl pl-10 pr-5 py-4 text-foreground placeholder:text-muted-foreground/30 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none transition-all"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">How do you feel about saving today?</label>
+              <div className="flex flex-wrap gap-2">
+                {moods.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, mood: m })}
+                    className={cn(
+                      "px-4 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all",
+                      formData.mood === m
+                        ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-500"
+                        : "bg-muted border-border text-muted-foreground hover:border-border/60 hover:text-foreground"
+                    )}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleInitialClick}
+            disabled={!formData.item || !formData.amount}
+            className="w-full py-5 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all mt-4 bg-emerald-600 hover:bg-emerald-500 text-foreground shadow-[0_0_25px_rgba(16,185,129,0.2)] active:scale-[0.98]"
+          >
+            Log Savings Contribution
+          </button>
+        </>
+      ) : !formData.noSpendDay ? (
         <>
           <div className="space-y-5">
             <div>

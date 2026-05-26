@@ -13,13 +13,14 @@ export default function StatsPage() {
   if (loading) return null;
 
   // Calculate distinct days logged
-  const distinctDays = new Array(...new Set(logs.map(l => l.date))).length;
+  const distinctDays = new Array(...new Set(logs.filter(l => !l.isSavings).map(l => l.date))).length;
   const isSunday = new Date().getDay() === 0;
   const isLocked = distinctDays < 7 && !isSunday;
 
-  const totalWeekly = logs.reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const totalWeekly = logs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const totalSavingsWeekly = logs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budget = Number(plan?.budget) || 0;
-  const dailyAvg = logs.length > 0 ? Math.round(totalWeekly / 7) : 0;
+  const dailyAvg = logs.filter(l => !l.isSavings).length > 0 ? Math.round(totalWeekly / 7) : 0;
 
   // Group by day of week and calculate insights
   const dayData = [0, 0, 0, 0, 0, 0, 0];
@@ -34,6 +35,7 @@ export default function StatsPage() {
  
   // Process Logs
   logs.forEach(log => {
+    if (log.isSavings) return;
     const dateStr = log.date;
     const date = dateStr ? new Date(dateStr) : new Date();
     if (isNaN(date.getTime())) return;
@@ -141,15 +143,19 @@ export default function StatsPage() {
 
       {/* 1. Weekly Spending Summary */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-serif text-foreground px-1">Spending Summary</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <h2 className="text-2xl font-serif text-foreground px-1">Spending & Savings Summary</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="p-6 glass-card space-y-2 border-border">
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Total Spend</p>
-            <p className="text-3xl font-serif text-foreground">{plan?.currency || "₦"}{totalWeekly.toLocaleString()}</p>
+            <p className="text-3xl font-serif text-foreground truncate">{plan?.currency || "₦"}{totalWeekly.toLocaleString()}</p>
+          </div>
+          <div className="p-6 glass-card space-y-2 border-border">
+            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Logged Savings</p>
+            <p className="text-3xl font-serif text-emerald-400 truncate">{plan?.currency || "₦"}{totalSavingsWeekly.toLocaleString()}</p>
           </div>
           <div className="p-6 glass-card space-y-2 border-border">
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Daily Average</p>
-            <p className="text-3xl font-serif text-foreground">{plan?.currency || "₦"}{dailyAvg.toLocaleString()}</p>
+            <p className="text-3xl font-serif text-foreground truncate">{plan?.currency || "₦"}{dailyAvg.toLocaleString()}</p>
           </div>
         </div>
       </section>

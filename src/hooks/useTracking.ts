@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc, collection, query, where, onSnapshot, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
-import { getWeekKey, getMonthKey } from "@/lib/dateUtils";
+import { getWeekKey, getMonthKey, getLocalDateString } from "@/lib/dateUtils";
 
 export function useTracking() {
   const { user } = useAuth();
@@ -28,12 +28,16 @@ export function useTracking() {
       if (doc.exists()) {
         const data = doc.data();
         const currentWeek = getWeekKey();
+        const userCurrency = data.currency || data.plan?.currency || "₦";
+        
         if (data.plan && data.plan.weekKey === currentWeek) {
-          setPlan(data.plan);
+          setPlan({ ...data.plan, currency: userCurrency });
         } else {
-          setPlan(null);
+          setPlan({ currency: userCurrency });
         }
         setRewards(data.rewards || { coins: 0, badges: [] });
+      } else {
+        setPlan({ currency: "₦" });
       }
       setLoading(false);
     }, (err) => console.error("User Listener Error:", err));
@@ -73,18 +77,20 @@ export function useTracking() {
 
   const savePlan = async (newPlan: any) => {
     if (!user) return;
-    const { budget = "", categoryLimits = {}, currency = "₦", ...rest } = newPlan;
+    const { budget = "", categoryLimits = {}, ...rest } = newPlan;
+    const currency = newPlan.currency || plan?.currency || "₦";
     const userRef = doc(db, "users", user.uid);
     const weekKey = getWeekKey();
     await setDoc(userRef, { 
       plan: { budget, categoryLimits, currency, weekKey, ...rest }, 
+      currency,
       lastUpdated: serverTimestamp() 
     }, { merge: true });
   };
 
   const addLog = async (log: any) => {
     if (!user) return;
-    const { item, amount, decisionType, spendingType, trigger, mood, noSpendDay, date } = log;
+    const { item, amount, decisionType, spendingType, trigger, mood, noSpendDay, date, isSavings } = log;
     const weekKey = getWeekKey();
     const logRef = doc(collection(db, "users", user.uid, "logs"));
     await setDoc(logRef, { 
@@ -95,6 +101,7 @@ export function useTracking() {
       trigger,
       mood: mood || "Calm",
       noSpendDay: !!noSpendDay,
+      isSavings: !!isSavings,
       date,
       uid: user.uid,
       weekKey, 
@@ -160,9 +167,9 @@ export function useTracking() {
   };
 
 
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = getLocalDateString();
   const noSpendDayLogged = logs.some(l => l.date === todayStr && l.noSpendDay === true);
-  const spendLoggedToday = logs.some(l => l.date === todayStr && !l.noSpendDay);
+  const spendLoggedToday = logs.some(l => l.date === todayStr && !l.noSpendDay && !l.isSavings);
 
   const getHistoricalData = async (type: 'week' | 'month', key: string) => {
     if (!user) return { logs: [], urges: [] };

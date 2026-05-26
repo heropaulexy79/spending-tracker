@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import LogForm from "@/components/LogForm";
 import WeeklyProgress from "@/components/WeeklyProgress";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 import { useTracking } from "@/hooks/useTracking";
 import { formatDate } from "@/lib/dateUtils";
@@ -73,14 +74,23 @@ export default function LogPage() {
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
                       <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">{formattedDate}</p>
-                      <h3 className="text-xl font-serif text-foreground">{log.noSpendDay ? "No-Spend Day" : (log.item || "Unspecified Entry")}</h3>
+                      <h3 className="text-xl font-serif text-foreground">{log.isSavings ? `💰 Saved: ${log.item}` : log.noSpendDay ? "No-Spend Day" : (log.item || "Unspecified Entry")}</h3>
                     </div>
-                    <p className="text-2xl font-serif text-foreground">
-                      {log.noSpendDay ? "—" : `${plan?.currency || "₦"}${Number(log.amount).toLocaleString()}`}
+                    <p className={cn("text-2xl font-serif", log.isSavings ? "text-emerald-500" : "text-foreground")}>
+                      {log.noSpendDay ? "—" : `${log.isSavings ? "+" : ""}${plan?.currency || "₦"}${Number(log.amount).toLocaleString()}`}
                     </p>
                   </div>
                   
-                  {!log.noSpendDay ? (
+                  {log.isSavings ? (
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1 bg-emerald-500/10 rounded-full text-[10px] font-bold text-emerald-500 uppercase tracking-widest border border-emerald-500/20">
+                        Savings
+                      </span>
+                      <span className="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-bold text-primary uppercase tracking-widest border border-primary/20">
+                        Mood: {log.mood}
+                      </span>
+                    </div>
+                  ) : !log.noSpendDay ? (
                     <div className="flex flex-wrap gap-2">
                       <span className="px-3 py-1 bg-muted rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-border">
                         {log.spendingType}

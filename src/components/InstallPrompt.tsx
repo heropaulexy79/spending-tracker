@@ -34,8 +34,8 @@ export default function InstallPrompt() {
 
     window.addEventListener("beforeinstallprompt", handler);
 
-    // 4. Show iOS prompt after a short delay (Safari doesn't have an event)
-    if (/iphone|ipad|ipod/.test(userAgent)) {
+    // 4. Show prompt for mobile/Safari after a short delay if it doesn't support automatic prompt
+    if (/iphone|ipad|ipod|android/.test(userAgent)) {
       const timer = setTimeout(() => setShowPrompt(true), 3000);
       return () => clearTimeout(timer);
     }
@@ -44,12 +44,19 @@ export default function InstallPrompt() {
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") {
-      setDeferredPrompt(null);
-      setShowPrompt(false);
+    if (!deferredPrompt) {
+      alert("Installation is not directly supported by this browser. You can install it using your browser's menu (e.g., tap the three dots ⋮ and select 'Add to Home screen' or 'Install app').");
+      return;
+    }
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        setDeferredPrompt(null);
+        setShowPrompt(false);
+      }
+    } catch (err) {
+      console.error("Install prompt error:", err);
     }
   };
 

@@ -3,10 +3,12 @@
 import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
 import BottomNav from "./BottomNav";
-import { Loader2 } from "lucide-react";
+import { Loader2, HelpCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import Onboarding from "../Onboarding";
 import ThemeToggle from "../ThemeToggle";
+import CurrencySwitcher from "../CurrencySwitcher";
+import HelpModal from "../HelpModal";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 
@@ -16,9 +18,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [hasSeenGuide, setHasSeenGuide] = useState<boolean | null>(null);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    // Register service worker for PWA support and messaging
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/firebase-messaging-sw.js")
+        .then((registration) => {
+          console.log("Service Worker registered with scope:", registration.scope);
+        })
+        .catch((err) => {
+          console.error("Service Worker registration failed:", err);
+        });
+    }
   }, []);
 
   useEffect(() => {
@@ -76,7 +89,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <div className="h-12 w-40" /> // Placeholder for hydration
           )}
         </div>
-        <div className="flex-1 flex justify-end">
+        <div className="flex-1 flex justify-end gap-2 items-center">
+          {user && (
+            <button
+              onClick={() => setShowHelpModal(true)}
+              className="p-3 rounded-2xl glass-card hover:bg-muted transition-all active:scale-95 text-muted-foreground hover:text-foreground"
+              aria-label="Open guidance and FAQ"
+            >
+              <HelpCircle className="w-5 h-5" />
+            </button>
+          )}
+          {user && <CurrencySwitcher />}
           <ThemeToggle />
         </div>
       </header>
@@ -84,6 +107,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       {user && <BottomNav />}
+      <HelpModal isOpen={showHelpModal} onClose={() => setShowHelpModal(false)} />
     </>
   );
 }

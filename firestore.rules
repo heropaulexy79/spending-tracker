@@ -21,9 +21,9 @@ service cloud.firestore {
       allow create: if isOwner(userId);
       
       // Update: Prevent mass assignment of sensitive fields (like future 'role' or 'admin')
-      // Only allow updating 'plan' and 'lastUpdated'
+      // Only allow updating 'plan', 'lastUpdated', 'sentWelcome', 'rewards', 'fcmToken', 'currency'
       allow update: if isOwner(userId) && 
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['plan', 'lastUpdated', 'sentWelcome']);
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['plan', 'lastUpdated', 'sentWelcome', 'rewards', 'fcmToken', 'currency']);
       
       // Delete: Prevent users from deleting their own root document for now
       allow delete: if false;

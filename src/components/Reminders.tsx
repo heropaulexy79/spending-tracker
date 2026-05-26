@@ -6,6 +6,7 @@ import { Bell, ArrowRight, Calendar, Compass, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { getLocalDateString } from "@/lib/dateUtils";
 
 export default function Reminders() {
   const { logs, plan, loading, triggerSystemNotification } = useTracking();
@@ -17,10 +18,10 @@ export default function Reminders() {
     }
   }, []);
 
-  const hasPlan = !!plan;
-  const todayStr = new Date().toISOString().split("T")[0];
-  const hasLoggedToday = logs.some(l => l.date === todayStr);
-  const distinctDays = new Array(...new Set(logs.map(l => l.date))).length;
+  const hasPlan = !!(plan && plan.budget);
+  const todayStr = getLocalDateString();
+  const hasLoggedToday = logs.some(l => l.date === todayStr && !l.isSavings);
+  const distinctDays = new Array(...new Set(logs.filter(l => !l.isSavings).map(l => l.date))).length;
   const isSunday = new Date().getDay() === 0;
   const isWeeklyReviewReady = distinctDays >= 7 || isSunday;
 

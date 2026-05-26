@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, Lock, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getLocalDateString } from "@/lib/dateUtils";
 
 interface WeeklyProgressProps {
   logs: any[];
@@ -15,15 +16,12 @@ export default function WeeklyProgress({ logs }: WeeklyProgressProps) {
 
   // Helper to check if a day has logs
   const isDayComplete = (dayIndex: number) => {
-    // This is a simplified check. In a real app, we'd compare dates properly.
-    // For now, we'll assume days before today with any logs are complete.
-    // In a more robust version, we'd check if specific daily goals were met.
     const dayDate = new Date();
     const diff = currentDayIndex - dayIndex;
     dayDate.setDate(today.getDate() - diff);
-    const dateString = dayDate.toISOString().split("T")[0];
+    const dateString = getLocalDateString(dayDate);
     
-    return logs.some(log => log.date === dateString);
+    return logs.some(log => log.date === dateString && !log.isSavings);
   };
 
   return (
@@ -31,7 +29,7 @@ export default function WeeklyProgress({ logs }: WeeklyProgressProps) {
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-serif text-foreground">Weekly Journey</h3>
         <p className="text-[10px] font-bold text-primary uppercase tracking-widest">
-          {logs.filter((v, i, a) => a.findIndex(t => t.date === v.date) === i).length}/7 Days
+          {logs.filter(log => !log.isSavings).filter((v, i, a) => a.findIndex(t => t.date === v.date) === i).length}/7 Days
         </p>
       </div>
       

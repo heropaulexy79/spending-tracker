@@ -47,7 +47,8 @@ export default function Home() {
     );
   }
 
-  const totalSpent = logs.reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const totalSpent = logs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const totalSavings = logs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budgetValue = Number(plan?.budget) || 0;
   
   const logsResisted = logs.filter(l => l.decisionType === "Resisted").length;
@@ -281,7 +282,7 @@ export default function Home() {
           label="Already Logged" 
           value={`${plan?.currency || "₦"}${totalSpent.toLocaleString()}`} 
           icon={<TrendingUp className="w-4 h-4" />} 
-          color="text-emerald-400"
+          color="text-coral-400"
           href="/log"
         />
         <StatCard 
@@ -295,9 +296,18 @@ export default function Home() {
           label="Days Aware" 
           value={noSpendDays.toString()} 
           icon={<Calendar className="w-4 h-4" />} 
-          color="text-coral-400"
+          color="text-purple-400"
           href="/mirror"
         />
+        <div className="col-span-2">
+          <StatCard 
+            label="Logged Savings" 
+            value={`${plan?.currency || "₦"}${totalSavings.toLocaleString()}`} 
+            icon={<Coins className="w-4 h-4" />} 
+            color="text-emerald-400"
+            href="/log"
+          />
+        </div>
       </div>
 
       {/* Behavioral Insight Banner */}
@@ -325,12 +335,16 @@ export default function Home() {
             logs.slice(0, 3).map((log, i) => (
               <div key={log.id || i} className="flex items-center justify-between p-5 glass-card">
                 <div className="space-y-1">
-                  <p className="font-bold text-foreground text-sm">{log.noSpendDay ? "No-Spend Day" : (log.item || "Unspecified Item")}</p>
+                  <p className="font-bold text-foreground text-sm">
+                    {log.isSavings ? `💰 Saved: ${log.item}` : log.noSpendDay ? "No-Spend Day" : (log.item || "Unspecified Item")}
+                  </p>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-                    {formatDate(log.createdAt || log.date)} • {log.spendingType}
+                    {formatDate(log.createdAt || log.date)} • {log.isSavings ? "Savings" : log.spendingType}
                   </p>
                 </div>
-                <p className="font-serif text-lg text-foreground">{log.amount ? `${plan?.currency || "₦"}${Number(log.amount).toLocaleString()}` : "—"}</p>
+                <p className={cn("font-serif text-lg", log.isSavings ? "text-emerald-400" : "text-foreground")}>
+                  {log.amount ? `${log.isSavings ? "+" : ""}${plan?.currency || "₦"}${Number(log.amount).toLocaleString()}` : "—"}
+                </p>
               </div>
             ))
           ) : (
