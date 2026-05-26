@@ -1,26 +1,27 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
-import { BarChart3, TrendingDown, AlertTriangle, Lightbulb, Lock, ShieldCheck, ShieldAlert } from "lucide-react";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { BarChart3, TrendingDown, AlertTriangle, Lightbulb, Lock, ShieldCheck, ShieldAlert, Sparkles, Award, Star, Eye } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
 import { cn } from "@/lib/utils";
 
-
 export default function StatsPage() {
   const { logs, urges, plan, loading } = useTracking();
+  const [bypassLock, setBypassLock] = useState(false);
 
   if (loading) return null;
 
   // Calculate distinct days logged
   const distinctDays = new Array(...new Set(logs.filter(l => !l.isSavings).map(l => l.date))).length;
   const isSunday = new Date().getDay() === 0;
-  const isLocked = distinctDays < 7 && !isSunday;
+  const isLocked = distinctDays < 7 && !isSunday && !bypassLock;
 
   const totalWeekly = logs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const totalSavingsWeekly = logs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budget = Number(plan?.budget) || 0;
   const dailyAvg = logs.filter(l => !l.isSavings).length > 0 ? Math.round(totalWeekly / 7) : 0;
+  const noSpendDays = logs.filter(l => l.noSpendDay).length;
 
   // Group by day of week and calculate insights
   const dayData = [0, 0, 0, 0, 0, 0, 0];
@@ -94,6 +95,120 @@ export default function StatsPage() {
   const topTrigger = Object.entries(triggerCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
   
   const maxDay = Math.max(...dayData, 1);
+  const overBudget = totalWeekly > budget;
+  const budgetDiff = Math.abs(totalWeekly - budget);
+
+  // Grade & Score Calculation
+  const calculateGrade = () => {
+    let score = 0;
+    
+    // 1. Budget Adherence (up to 50 points)
+    if (budget > 0) {
+      if (totalWeekly <= budget) {
+        score += 50;
+      } else {
+        const exceededPercent = ((totalWeekly - budget) / budget) * 100;
+        score += Math.max(0, 50 - exceededPercent * 0.5);
+      }
+    } else {
+      score += 35; // Default if no budget set
+    }
+    
+    // 2. No-Spend Days (up to 30 points)
+    score += Math.min(30, noSpendDays * 5);
+    
+    // 3. Impulse Control Rate (up to 20 points)
+    score += Math.min(20, (impulseControlRate / 100) * 20);
+
+    score = Math.round(score);
+    
+    let grade = "C";
+    let colorClass = "text-primary border-primary/20 bg-primary/5";
+    let description = "Doing okay, but there's room to be more intentional.";
+    
+    if (score >= 90) {
+      grade = "A";
+      colorClass = "text-emerald-400 border-emerald-500/20 bg-emerald-500/5";
+      description = "Outstanding! Absolute mastery of your impulses and intentions.";
+    } else if (score >= 80) {
+      grade = "B+";
+      colorClass = "text-amber-400 border-amber-500/20 bg-amber-500/5";
+      description = "Great job! Strong control with very minor slip ups.";
+    } else if (score >= 70) {
+      grade = "B";
+      colorClass = "text-amber-400/80 border-amber-500/10 bg-amber-500/5";
+      description = "Good progress, but some impulses are getting through.";
+    } else if (score >= 60) {
+      grade = "C";
+      colorClass = "text-primary border-primary/20 bg-primary/5";
+      description = "Awareness is forming, but let's practice more pause.";
+    } else {
+      grade = "F";
+      colorClass = "text-coral border-coral/20 bg-coral/5";
+      description = "High emotional/impulsive spending. Pause. Breathe. Re-align.";
+    }
+    
+    return { score, grade, colorClass, description };
+  };
+
+  const { grade, colorClass, description } = calculateGrade();
+
+  // Dynamic Report Card Commentary
+  const getCommentary = () => {
+    if (logs.length === 0) return "A quiet, clean canvas. Your spending has not yet begun. Observe each choice with pause and intent.";
+    
+    let commentary = `This week you scored ${grade}. `;
+    
+    if (grade === "A") {
+      commentary += "Your discipline is exemplary! You stayed fully within your budget, resisted urges with absolute precision, and protected your intentions.";
+    } else {
+      if (overBudget) {
+        commentary += `You exceeded your budget by ${plan?.currency || "₦"}${budgetDiff.toLocaleString()}. `;
+      } else {
+        commentary += "You kept your overall spending within budget. ";
+      }
+      
+      const categoryCounts: Record<string, number> = {};
+      logs.forEach(l => {
+        if (!l.isSavings && l.spendingType) {
+          categoryCounts[l.spendingType] = (categoryCounts[l.spendingType] || 0) + 1;
+        }
+      });
+      const topCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "wants";
+      
+      commentary += `You slipped on ${topCategory.toLowerCase()} purchases (again), showing some impulsive patterns. `;
+    }
+    
+    if (busiestDay !== "N/A") {
+      commentary += `Your best day was ${busiestDay}.`;
+    }
+    
+    return commentary;
+  };
+
+  // Deep Emotional Tagging Analysis
+  const getEmotionalAnalysis = () => {
+    const impulseLogs = logs.filter(l => !l.isSavings && l.spendingType === "Emotional impulse");
+    const totalImpulses = impulseLogs.length;
+    if (totalImpulses === 0) return null;
+    
+    const moodCounts: Record<string, number> = {};
+    impulseLogs.forEach(l => {
+      if (l.mood) moodCounts[l.mood] = (moodCounts[l.mood] || 0) + 1;
+    });
+    
+    const topImpulseMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "Stressed";
+    const moodImpulseCount = moodCounts[topImpulseMood] || 0;
+    const percent = Math.round((moodImpulseCount / totalImpulses) * 100);
+    
+    return {
+      mood: topImpulseMood,
+      percent,
+      totalImpulses
+    };
+  };
+
+  const emotionalAnalysis = getEmotionalAnalysis();
 
   if (isLocked) {
     return (
@@ -103,12 +218,12 @@ export default function StatsPage() {
         </div>
         <div className="space-y-3 max-w-sm">
           <h1 className="text-3xl font-serif text-foreground">Weekly Behavioral Statistics</h1>
-          <p className="text-muted-foreground leading-relaxed">
+          <p className="text-muted-foreground leading-relaxed text-sm">
             These insights are locked until you complete a full week of logging or until Sunday. 
             Consistency is the key to behavioral clarity.
           </p>
         </div>
-        <div className="mt-8 p-6 glass-card w-full max-w-xs space-y-4 border-border">
+        <div className="mt-6 p-6 glass-card w-full max-w-xs space-y-4 border-border">
           <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.2em]">
             <span className="text-muted-foreground">Awareness Progress</span>
             <span className="text-primary">{distinctDays}/7 Days</span>
@@ -121,12 +236,16 @@ export default function StatsPage() {
             />
           </div>
         </div>
+
+        <button
+          onClick={() => setBypassLock(true)}
+          className="mt-6 flex items-center gap-2 px-5 py-3 rounded-full bg-primary/10 hover:bg-primary/20 border border-primary/20 text-[10px] font-bold uppercase tracking-widest text-primary transition-all"
+        >
+          <Eye className="w-4 h-4" /> Preview Live Draft Overview
+        </button>
       </div>
     );
   }
-
-  const overBudget = totalWeekly > budget;
-  const budgetDiff = Math.abs(totalWeekly - budget);
 
   return (
     <div className="space-y-10 animate-in pb-12">
@@ -140,6 +259,37 @@ export default function StatsPage() {
           <p className="text-muted-foreground text-sm">A multi-section view of your behavioral reality.</p>
         </div>
       </header>
+
+      {/* NEW: Sunday Report Card Section */}
+      <section className="space-y-6">
+        <h2 className="text-2xl font-serif text-foreground px-1 flex items-center gap-2">
+          <Award className="w-6 h-6 text-primary" />
+          Weekly Report Card
+        </h2>
+        
+        <div className={cn("p-8 glass-card border flex flex-col md:flex-row gap-6 items-center relative overflow-hidden", colorClass)}>
+          {/* Top spark decoration */}
+          <div className="absolute top-0 right-0 p-6 opacity-[0.03]">
+            <Star className="w-32 h-32" />
+          </div>
+          
+          {/* Grade Badge */}
+          <div className="w-24 h-24 rounded-full border border-current/30 flex flex-col items-center justify-center flex-shrink-0 bg-background/30 backdrop-blur-md shadow-xl">
+            <span className="text-xs font-bold uppercase tracking-widest opacity-60">Grade</span>
+            <span className="text-4xl font-serif font-bold tracking-tight leading-none mt-1">{grade}</span>
+          </div>
+
+          <div className="space-y-3 text-center md:text-left">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-0.5">Automated Commentary</p>
+              <h3 className="text-lg font-bold text-foreground font-serif leading-tight">{description}</h3>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-lg">
+              &ldquo;{getCommentary()}&rdquo;
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* 1. Weekly Spending Summary */}
       <section className="space-y-6">
@@ -280,12 +430,24 @@ export default function StatsPage() {
             description={`Your spending peaks on ${busiestDay}. Prepare mentally for this day next week.`}
             color="bg-primary/5 border-primary/10"
           />
-          <InsightCard 
-            icon={<AlertTriangle className="w-5 h-5 text-coral" />}
-            title="The Emotional Root"
-            description={topMoodCorrelate !== "N/A" ? `You are ${Math.round(topMoodRatio * 100)}% more likely to spend impulsively when you feel "${topMoodCorrelate}".` : "More mood data needed to map your emotional root."}
-            color="bg-coral/5 border-coral/10"
-          />
+          
+          {/* NEW: Deep Emotional Tagging Analysis Card */}
+          {emotionalAnalysis ? (
+            <InsightCard 
+              icon={<Sparkles className="w-5 h-5 text-purple-400" />}
+              title="Emotional Root"
+              description={`⚠️ Mindful Alert: ${emotionalAnalysis.percent}% of your emotional/impulse purchases occur when you feel "${emotionalAnalysis.mood}". This trigger drives your spending patterns.`}
+              color="bg-purple-500/5 border-purple-500/10"
+            />
+          ) : (
+            <InsightCard 
+              icon={<AlertTriangle className="w-5 h-5 text-coral" />}
+              title="The Emotional Root"
+              description={topMoodCorrelate !== "N/A" ? `You are ${Math.round(topMoodRatio * 100)}% more likely to spend impulsively when you feel "${topMoodCorrelate}".` : "More mood data needed to map your emotional root."}
+              color="bg-coral/5 border-coral/10"
+            />
+          )}
+
           <InsightCard 
             icon={<Lightbulb className="w-5 h-5 text-amber-400" />}
             title="Proactive Strategy"

@@ -12,6 +12,8 @@ export function useTracking() {
   const [rewards, setRewards] = useState<{ coins: number, badges: string[] }>({ coins: 0, badges: [] });
   const [logs, setLogs] = useState<any[]>([]);
   const [urges, setUrges] = useState<any[]>([]);
+  const [monthlyIncome, setMonthlyIncome] = useState<number>(0);
+  const [preAppMonthlySpendingEstimate, setPreAppMonthlySpendingEstimate] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,6 +38,8 @@ export function useTracking() {
           setPlan({ currency: userCurrency });
         }
         setRewards(data.rewards || { coins: 0, badges: [] });
+        setMonthlyIncome(Number(data.monthlyIncome) || 0);
+        setPreAppMonthlySpendingEstimate(Number(data.preAppMonthlySpendingEstimate) || 0);
       } else {
         setPlan({ currency: "₦" });
       }
@@ -84,6 +88,16 @@ export function useTracking() {
     await setDoc(userRef, { 
       plan: { budget, categoryLimits, currency, weekKey, ...rest }, 
       currency,
+      lastUpdated: serverTimestamp() 
+    }, { merge: true });
+  };
+
+  const saveProjectionsBaseline = async (income: number, estimate: number) => {
+    if (!user) return;
+    const userRef = doc(db, "users", user.uid);
+    await setDoc(userRef, { 
+      monthlyIncome: Number(income) || 0,
+      preAppMonthlySpendingEstimate: Number(estimate) || 0,
       lastUpdated: serverTimestamp() 
     }, { merge: true });
   };
@@ -226,6 +240,9 @@ export function useTracking() {
     updateRewards,
     getHistoricalData,
     triggerSystemNotification,
+    monthlyIncome,
+    preAppMonthlySpendingEstimate,
+    saveProjectionsBaseline,
     loading, 
     noSpendDayLogged, 
     spendLoggedToday 

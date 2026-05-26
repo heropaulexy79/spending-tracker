@@ -445,7 +445,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
                 />
               </div>
             ) : (
-              "Log Purchase"
+              "Add Spending Entry"
             )}
           </button>
           

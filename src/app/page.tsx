@@ -13,7 +13,7 @@ import Link from "next/link";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { cn } from "@/lib/utils";
-import { formatDate } from "@/lib/dateUtils";
+import { formatDate, getLocalDateString } from "@/lib/dateUtils";
 
 export default function Home() {
   const { user } = useAuth();
@@ -64,6 +64,51 @@ export default function Home() {
 
   const isMonday = new Date().getDay() === 1;
 
+  // Streak Calculation (Daily spending <= (weekly budget / 7) OR No-Spend Day)
+  const getActiveStreak = () => {
+    if (!logs || logs.length === 0) return 0;
+    const dailySpend: Record<string, number> = {};
+    const hasNoSpendLog: Record<string, boolean> = {};
+    
+    logs.forEach(l => {
+      if (l.isSavings) return;
+      const dStr = l.date;
+      if (!dStr) return;
+      if (l.noSpendDay) {
+        hasNoSpendLog[dStr] = true;
+      } else {
+        dailySpend[dStr] = (dailySpend[dStr] || 0) + (Number(l.amount) || 0);
+      }
+    });
+
+    const dailyBudget = budgetValue > 0 ? budgetValue / 7 : Infinity;
+    let streak = 0;
+    const today = new Date();
+    
+    for (let i = 0; i < 365; i++) {
+      const d = new Date();
+      d.setDate(today.getDate() - i);
+      const dStr = getLocalDateString(d);
+      
+      const spent = dailySpend[dStr] || 0;
+      const isNoSpend = hasNoSpendLog[dStr] || false;
+      const hasLogsForDay = (spent > 0 || isNoSpend);
+      
+      if (i === 0 && !hasLogsForDay) {
+        continue; // Don't break if they haven't logged today yet
+      }
+      
+      if (isNoSpend || (hasLogsForDay && spent <= dailyBudget)) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  };
+
+  const currentStreak = getActiveStreak();
+
   return (
     <div className="space-y-8 animate-in pb-12">
       <header className="flex justify-between items-start pt-4 relative">
@@ -75,7 +120,22 @@ export default function Home() {
           <h1 className="text-4xl font-serif tracking-tight text-foreground">
             Hello, {user.displayName?.split(" ")[0] || "Friend"}
           </h1>
-          <p className="text-muted-foreground text-sm font-medium">Observe your patterns with intention.</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-muted-foreground text-sm font-medium">Observe your patterns with intention.</p>
+            {currentStreak > 0 ? (
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-full text-[9px] font-bold uppercase tracking-wider"
+              >
+                🔥 {currentStreak} Day Streak
+              </motion.div>
+            ) : (
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-muted border border-border text-muted-foreground rounded-full text-[9px] font-bold uppercase tracking-wider">
+                🌱 Start Streak
+              </div>
+            )}
+          </div>
         </div>
         
         <div className="relative" ref={menuRef}>

@@ -19,7 +19,8 @@ export default function PlanPage() {
     spenderType: "Balanced",
   });
 
-  const [isSaved, setIsSaved] = useState(false);
+  const [isGoalsSaved, setIsGoalsSaved] = useState(false);
+  const [isIdentitySaved, setIsIdentitySaved] = useState(false);
 
   useEffect(() => {
     if (plan) {
@@ -32,10 +33,26 @@ export default function PlanPage() {
     }
   }, [plan]);
 
-  const handleSave = async () => {
-    await savePlan(formData);
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 3000);
+  const handleSaveGoals = async () => {
+    await savePlan({
+      budget: formData.budget,
+      savings: formData.savings,
+      essentials: formData.essentials,
+      spenderType: formData.spenderType,
+    });
+    setIsGoalsSaved(true);
+    setTimeout(() => setIsGoalsSaved(false), 3000);
+  };
+
+  const handleSaveIdentity = async () => {
+    await savePlan({
+      budget: formData.budget,
+      savings: formData.savings,
+      essentials: formData.essentials,
+      spenderType: formData.spenderType,
+    });
+    setIsIdentitySaved(true);
+    setTimeout(() => setIsIdentitySaved(false), 3000);
   };
 
   const totalSpent = logs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
@@ -61,97 +78,113 @@ export default function PlanPage() {
         </div>
       </header>
 
-      <div className="glass-card p-8 space-y-8">
-        <div className="space-y-6">
-          <div className="space-y-5">
-            <h3 className="text-xl font-serif text-foreground flex items-center gap-2">
-              <Compass className="w-5 h-5 text-primary" />
-              Weekly Goals
-            </h3>
-            
-            <div className="grid grid-cols-1 gap-5">
-              <div>
-                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Weekly Budget</label>
-                <div className="relative">
-                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">{plan?.currency || "₦"}</span>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={formData.budget}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                        setFormData({ ...formData, budget: val });
-                      }
-                    }}
-                    className="w-full bg-muted border border-border rounded-2xl pl-10 pr-5 py-4 text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Savings Target</label>
-                <div className="relative">
-                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">{plan?.currency || "₦"}</span>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={formData.savings}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                        setFormData({ ...formData, savings: val });
-                      }
-                    }}
-                    className="w-full bg-muted border border-border rounded-2xl pl-10 pr-5 py-4 text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Essentials List</label>
-                <textarea
-                  value={formData.essentials}
-                  onChange={(e) => setFormData({ ...formData, essentials: e.target.value })}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-4 text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 min-h-[120px] resize-none transition-all"
-                  placeholder="Rent, Groceries, Utilities..."
+      {/* CARD 1: Weekly Goals */}
+      <div className="glass-card p-8 space-y-6">
+        <div className="space-y-5">
+          <h3 className="text-xl font-serif text-foreground flex items-center gap-2">
+            <Compass className="w-5 h-5 text-primary" />
+            Weekly Goals
+          </h3>
+          
+          <div className="grid grid-cols-1 gap-5">
+            <div>
+              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Weekly Budget</label>
+              <div className="relative">
+                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">{plan?.currency || "₦"}</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={formData.budget}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setFormData({ ...formData, budget: val });
+                    }
+                  }}
+                  className="w-full bg-muted border border-border rounded-2xl pl-10 pr-5 py-4 text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
+                  placeholder="0.00"
                 />
               </div>
             </div>
-          </div>
+            
+            <div>
+              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Savings Target</label>
+              <div className="relative">
+                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">{plan?.currency || "₦"}</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={formData.savings}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setFormData({ ...formData, savings: val });
+                    }
+                  }}
+                  className="w-full bg-muted border border-border rounded-2xl pl-10 pr-5 py-4 text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 transition-all"
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
 
-          <div className="space-y-5">
-            <h3 className="text-xl font-serif text-foreground">Spender Identity</h3>
-            <div className="grid grid-cols-1 gap-2">
-              {spenderTypes.map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setFormData({ ...formData, spenderType: type })}
-                  className={cn(
-                    "w-full py-5 px-6 rounded-2xl text-left border transition-all flex items-center justify-between group",
-                    formData.spenderType === type
-                      ? "bg-primary/20 border-primary/50 text-primary"
-                      : "bg-muted border-border text-muted-foreground hover:border-border/60 hover:text-foreground"
-                  )}
-                >
-                  <span className="text-sm font-bold uppercase tracking-widest">{type}</span>
-                  {formData.spenderType === type && <CheckCircle className="w-5 h-5" />}
-                </button>
-              ))}
+            <div>
+              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Essentials List</label>
+              <textarea
+                value={formData.essentials}
+                onChange={(e) => setFormData({ ...formData, essentials: e.target.value })}
+                className="w-full bg-muted border border-border rounded-2xl px-5 py-4 text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 min-h-[120px] resize-none transition-all"
+                placeholder="Rent, Groceries, Utilities..."
+              />
             </div>
           </div>
         </div>
 
         <button
-          onClick={handleSave}
+          onClick={handleSaveGoals}
           className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-bold hover:shadow-[0_0_20px_rgba(176,132,71,0.2)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4"
         >
-          {isSaved ? (
+          {isGoalsSaved ? (
             <>
-              <CheckCircle className="w-5 h-5" />
-              Intention Recorded
+              <CheckCircle className="w-5 h-5 text-emerald-400" />
+              Goals Recorded
+            </>
+          ) : (
+            "Track Today's Spending"
+          )}
+        </button>
+      </div>
+
+      {/* CARD 2: Spender Identity */}
+      <div className="glass-card p-8 space-y-6">
+        <div className="space-y-5">
+          <h3 className="text-xl font-serif text-foreground">Spender Identity</h3>
+          <div className="grid grid-cols-1 gap-2">
+            {spenderTypes.map((type) => (
+              <button
+                key={type}
+                onClick={() => setFormData({ ...formData, spenderType: type })}
+                className={cn(
+                  "w-full py-5 px-6 rounded-2xl text-left border transition-all flex items-center justify-between group",
+                  formData.spenderType === type
+                    ? "bg-primary/20 border-primary/50 text-primary"
+                    : "bg-muted border-border text-muted-foreground hover:border-border/60 hover:text-foreground"
+                )}
+              >
+                <span className="text-sm font-bold uppercase tracking-widest">{type}</span>
+                {formData.spenderType === type && <CheckCircle className="w-5 h-5" />}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button
+          onClick={handleSaveIdentity}
+          className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-bold hover:shadow-[0_0_20px_rgba(176,132,71,0.2)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4"
+        >
+          {isIdentitySaved ? (
+            <>
+              <CheckCircle className="w-5 h-5 text-emerald-400" />
+              Identity Set
             </>
           ) : (
             "Set My Intention"
