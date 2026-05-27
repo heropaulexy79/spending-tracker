@@ -127,15 +127,7 @@ export default function PlanPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Essentials List</label>
-              <textarea
-                value={formData.essentials}
-                onChange={(e) => setFormData({ ...formData, essentials: e.target.value })}
-                className="w-full bg-muted border border-border rounded-2xl px-5 py-4 text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/50 min-h-[120px] resize-none transition-all"
-                placeholder="Rent, Groceries, Utilities..."
-              />
-            </div>
+
           </div>
         </div>
 

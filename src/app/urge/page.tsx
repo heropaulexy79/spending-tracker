@@ -48,6 +48,7 @@ export default function UrgePage() {
   const [hasUrge, setHasUrge] = useState<boolean | null>(null);
   const [step, setStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [urgeData, setUrgeData] = useState({
     type: "",
     action: "",
@@ -65,9 +66,12 @@ export default function UrgePage() {
   };
 
   const handleComplete = async (finalData?: any) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     const dataToSave = finalData || urgeData;
     await addUrge(dataToSave);
     setShowSuccess(true);
+    setIsSubmitting(false);
     setTimeout(reset, 2500);
   };
 

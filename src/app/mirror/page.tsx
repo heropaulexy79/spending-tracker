@@ -92,7 +92,9 @@ export default function MirrorPage() {
   const totalSaved = Math.max(0, budget - totalSpent);
   
   const adherenceRate = budget > 0 ? Math.min(100, Math.round((totalSpent / budget) * 100)) : 0;
-  const noSpendDays = logs.filter(l => l.noSpendDay).length;
+  const currentWeekKey = getWeekKey();
+  const weeklyLogs = logs.filter(l => l.weekKey === currentWeekKey);
+  const noSpendDays = weeklyLogs.filter(l => l.noSpendDay).length;
   
   // Triggers and Impulse from logs + urges
   const triggerCounts: Record<string, number> = {};

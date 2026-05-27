@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Onboarding from "@/components/Onboarding";
 import AuthForm from "@/components/AuthForm";
 import Reminders from "@/components/Reminders";
 import { useAuth } from "@/context/AuthContext";
 import { useTracking } from "@/hooks/useTracking";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wallet, Target, TrendingUp, Zap, Calendar, User as UserIcon, Loader2, ArrowRight, LogOut, Key, Settings, Coins, Award, Sparkles, BarChart3 } from "lucide-react";
+import { Wallet, Target, TrendingUp, Zap, Calendar, Loader2, ArrowRight, Coins, Award, Sparkles, BarChart3 } from "lucide-react";
 
 import Link from "next/link";
 import { auth } from "@/lib/firebase";
@@ -18,18 +18,7 @@ import { formatDate, getLocalDateString, getWeekKey } from "@/lib/dateUtils";
 export default function Home() {
   const { user } = useAuth();
   const { plan, rewards, logs, urges, loading } = useTracking();
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setShowUserMenu(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   if (!user) {
     return (
@@ -116,7 +105,7 @@ export default function Home() {
 
   return (
     <div className="space-y-8 animate-in pb-12">
-      <header className="flex justify-between items-start pt-4 relative">
+      <header className="pt-4">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <div className="h-[1px] w-8 bg-primary/40" />
@@ -136,54 +125,11 @@ export default function Home() {
                 🔥 {currentStreak} Day Streak
               </motion.div>
             ) : (
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-muted border border-border text-muted-foreground rounded-full text-[9px] font-bold uppercase tracking-wider">
+              <Link href="/log" className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-muted border border-border text-muted-foreground rounded-full text-[9px] font-bold uppercase tracking-wider hover:bg-muted/80 transition-colors">
                 🌱 Start Streak
-              </div>
+              </Link>
             )}
           </div>
-        </div>
-        
-        <div className="relative" ref={menuRef}>
-          <button 
-            onClick={() => setShowUserMenu(!showUserMenu)}
-            className="p-3 rounded-2xl glass-card hover:bg-muted transition-all active:scale-95"
-          >
-            <UserIcon className="w-5 h-5 text-foreground" />
-          </button>
-
-          <AnimatePresence>
-            {showUserMenu && (
-              <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute right-0 mt-3 w-56 bg-background rounded-[1.5rem] p-2 shadow-2xl z-50 border border-border"
-              >
-                <div className="p-4 border-b border-border mb-1">
-                  <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Identity</p>
-                  <p className="text-sm font-bold text-foreground truncate">{user.email}</p>
-                </div>
-                
-                <Link 
-                  href="/settings"
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted text-muted-foreground transition-colors text-xs font-bold uppercase tracking-wider"
-                >
-                  <Settings className="w-4 h-4 text-primary" />
-                  Settings
-                </Link>
-                
-                <div className="h-[1px] bg-border my-1 mx-2" />
-                
-                <button 
-                  onClick={() => signOut(auth)}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-coral/10 text-coral transition-colors text-xs font-bold uppercase tracking-wider"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </header>
 

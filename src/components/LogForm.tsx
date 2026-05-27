@@ -15,7 +15,7 @@ const NIGERIAN_CATEGORIES: Record<string, string[]> = {
   "Family & Support": ["Sending money home", "Family support", "Children/school needs", "Emergency support", "Gifts"],
   "Lifestyle & Social Life": ["Aso-ebi & events", "Outings", "Fashion", "Hair & beauty", "Entertainment", "Birthdays", "Flexing"],
   "Business & Hustle": ["Inventory/materials", "Logistics", "Ads/promotion", "Work tools", "Client-related spending", "Staff/support"],
-  "Health & Wellness": ["Medication", "Hospital", "Fitness", "Therapy/self-care", "Pharmacy"],
+  "Health & Wellness": ["Medication", "Hospital", "Fitness", "Therapy/self-care", "Pharmacy", "Toiletries"],
   "Faith & Giving": ["Church/mosque giving", "Offering/tithe", "Donations", "Community support"],
   "Personal Growth": ["Courses", "Books", "Learning", "Mentorship", "Career development"],
   "Savings & Goals": ["Savings", "Emergency funds", "Investment", "Target goals"],
@@ -127,7 +127,13 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
             isSavings: false,
             date: getLocalDateString() 
           }
-        : { ...formData, spendingType: formData.category, isSavings: false, date: getLocalDateString() };
+        : { 
+            ...formData, 
+            item: formData.item || formData.subCategory || formData.category,
+            spendingType: formData.category, 
+            isSavings: false, 
+            date: getLocalDateString() 
+          };
     }
       
     onSubmit(dataToSubmit);
@@ -149,13 +155,13 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
     }, 5000);
   };
 
-  const handleInitialClick = (e: React.FormEvent) => {
+  const handleInitialClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (logMode === "save") {
       if (!formData.item || !formData.amount) return;
       handleSubmit();
     } else {
-      if (!formData.noSpendDay && (!formData.item || !formData.amount)) return;
+      if (!formData.noSpendDay && !formData.amount) return;
       setIsPausing(true);
     }
   };
@@ -249,7 +255,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
             logMode === "spend" ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
           )}
         >
-          💸 Log Spending
+          💸 Daily Spending
         </button>
         <button
           type="button"
@@ -259,7 +265,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
             logMode === "save" ? "bg-background text-emerald-500 shadow-sm" : "text-muted-foreground hover:text-foreground"
           )}
         >
-          💰 Log Savings
+          💰 Daily Savings
         </button>
       </div>
 
@@ -367,39 +373,13 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
       ) : !formData.noSpendDay ? (
         <>
           <div className="space-y-5">
-            <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">What did you spend on today?</label>
-              <input
-                type="text"
-                value={formData.item}
-                onChange={(e) => setFormData({ ...formData, item: e.target.value })}
-                placeholder="e.g. Morning Coffee"
-                className="w-full bg-muted border border-border rounded-2xl px-5 py-4 text-foreground placeholder:text-muted-foreground/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 outline-none transition-all"
-                required
-              />
+            {/* Statement heading — no input box */}
+            <div className="pb-1">
+              <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1 ml-1">What did you spend on today?</p>
+              <p className="text-sm text-foreground/60 font-serif px-1 leading-relaxed">Select a category that best describes your spending.</p>
             </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Amount</label>
-              <div className="relative">
-                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">{plan?.currency || "₦"}</span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={formData.amount}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setFormData({ ...formData, amount: val });
-                    }
-                  }}
-                  placeholder="0.00"
-                  className="w-full bg-muted border border-border rounded-2xl pl-10 pr-5 py-4 text-foreground placeholder:text-muted-foreground/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 outline-none transition-all"
-                  required
-                />
-              </div>
-            </div>
-
+            {/* 1. Category + Sub-group */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Category</label>
@@ -433,6 +413,29 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
               )}
             </div>
 
+            {/* 2. Amount */}
+            <div>
+              <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Amount</label>
+              <div className="relative">
+                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/50 font-bold">{plan?.currency || "₦"}</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={formData.amount}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setFormData({ ...formData, amount: val });
+                    }
+                  }}
+                  placeholder="0.00"
+                  className="w-full bg-muted border border-border rounded-2xl pl-10 pr-5 py-4 text-foreground placeholder:text-muted-foreground/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 outline-none transition-all"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* 3. Behavioral Tags */}
             <div>
               <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Behavior Tags (Select all that apply)</label>
               <div className="flex flex-wrap gap-2">
@@ -464,6 +467,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
               </div>
             </div>
 
+            {/* 4. Current Mood */}
             <div>
               <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 ml-1">Current Mood</label>
               <div className="flex flex-wrap gap-2">
@@ -487,6 +491,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
           </div>
 
           <button
+            type="button"
             onClick={handleInitialClick}
             disabled={isPausing || (isOverBudget && !formData.noSpendDay)}
             className={cn(

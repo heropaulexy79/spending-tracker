@@ -123,6 +123,9 @@ export function useTracking() {
       monthKey: getMonthKey(),
       createdAt: serverTimestamp() 
     });
+
+    // Reward for logging
+    await updateRewards(5);
   };
 
   const addUrge = async (urge: any) => {
@@ -182,6 +185,9 @@ export function useTracking() {
       monthKey: getMonthKey(),
       createdAt: serverTimestamp() 
     });
+
+    // Reward for reflecting
+    await updateRewards(5);
   };
 
 

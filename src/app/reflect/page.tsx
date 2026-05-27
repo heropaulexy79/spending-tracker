@@ -8,6 +8,7 @@ import { useTracking } from "@/hooks/useTracking";
 export default function ReflectPage() {
   const { addReflection, noSpendDayLogged, loading } = useTracking();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [reflection, setReflection] = useState({
     why: "",
     beforeFeel: "",
@@ -17,10 +18,12 @@ export default function ReflectPage() {
   });
 
   const handleSave = async () => {
-    if (!reflection.why) return;
+    if (!reflection.why || isSubmitting) return;
     
+    setIsSubmitting(true);
     await addReflection(reflection);
     setShowSuccess(true);
+    setIsSubmitting(false);
     
     setTimeout(() => {
       setShowSuccess(false);
@@ -145,7 +148,7 @@ export default function ReflectPage() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-[0.15em] mb-3 ml-1">What would I do differently next time?</label>
+                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-[0.15em] mb-3 ml-1">What would I do differently or still retain next time?</label>
                 <textarea
                   value={reflection.nextTime}
                   onChange={(e) => setReflection({ ...reflection, nextTime: e.target.value })}
@@ -158,11 +161,11 @@ export default function ReflectPage() {
 
           <button
             onClick={handleSave}
-            disabled={!reflection.why}
+            disabled={!reflection.why || isSubmitting}
             className="w-full py-6 bg-primary text-primary-foreground rounded-2xl font-bold hover:shadow-primary/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
           >
             <Save className="w-6 h-6" />
-            Save Reflection
+            {isSubmitting ? "Saving..." : "Save Reflection"}
           </button>
         </div>
       )}

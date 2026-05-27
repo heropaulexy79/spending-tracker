@@ -9,6 +9,7 @@ import Onboarding from "../Onboarding";
 import ThemeToggle from "../ThemeToggle";
 import CurrencySwitcher from "../CurrencySwitcher";
 import HelpModal from "../HelpModal";
+import UserProfileMenu from "../UserProfileMenu";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 
@@ -101,6 +102,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           )}
           {user && <CurrencySwitcher />}
           <ThemeToggle />
+          {user && <UserProfileMenu />}
         </div>
       </header>
       <main className="max-w-lg mx-auto px-4 py-8">
