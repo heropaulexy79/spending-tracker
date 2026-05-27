@@ -59,7 +59,6 @@ export default function PlanPage() {
   const totalSavedLogged = logs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budgetValue = Number(formData.budget) || 0;
   const savingsTarget = Number(formData.savings) || 0;
-  const savingsTarget = Number(formData.savings) || 0;
   const remaining = Math.max(0, budgetValue - totalSpent);
   const percentSpent = budgetValue > 0 ? Math.min(100, Math.round((totalSpent / budgetValue) * 100)) : 0;
   const percentSaved = savingsTarget > 0 ? Math.min(100, Math.round((totalSavedLogged / savingsTarget) * 100)) : 0;
