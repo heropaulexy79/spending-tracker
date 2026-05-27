@@ -185,6 +185,7 @@ export default function Home() {
       <AnimatePresence>
         {(isWithinBudget || hasResistedUrges) && (
           <motion.div 
+            key="behavioral-feedback"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 flex items-center gap-4"

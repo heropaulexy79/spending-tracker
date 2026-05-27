@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, setDoc, collection, query, where, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, onSnapshot, serverTimestamp, increment, arrayUnion } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
 import { getWeekKey, getMonthKey, getLocalDateString } from "@/lib/dateUtils";
 
@@ -155,18 +155,22 @@ export function useTracking() {
   const updateRewards = async (coinDelta: number, newBadge?: string) => {
     if (!user) return;
     const userRef = doc(db, "users", user.uid);
-    const currentCoins = rewards.coins || 0;
-    const currentBadges = rewards.badges || [];
     
     const updateData: any = {
-      "rewards.coins": (rewards.coins || 0) + coinDelta,
+      "rewards.coins": increment(coinDelta),
     };
 
-    if (newBadge && !currentBadges.includes(newBadge)) {
-      updateData["rewards.badges"] = [...currentBadges, newBadge];
+    if (newBadge) {
+      updateData["rewards.badges"] = arrayUnion(newBadge);
     }
 
-    await setDoc(userRef, updateData, { merge: true });
+    try {
+      await updateDoc(userRef, updateData);
+    } catch (err) {
+      console.error("Error updating rewards:", err);
+      // Fallback to setDoc with merge if updateDoc fails (e.g. document doesn't exist)
+      await setDoc(userRef, updateData, { merge: true });
+    }
   };
 
   const addReflection = async (reflection: any) => {

@@ -54,6 +54,7 @@ export default function Reminders() {
       <AnimatePresence>
         {permission !== "granted" && (
           <motion.div
+            key="permission-request"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             className="overflow-hidden"
@@ -78,6 +79,7 @@ export default function Reminders() {
 
         {!hasPlan && (
           <motion.div
+            key="plan-required"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -102,6 +104,7 @@ export default function Reminders() {
 
         {!hasLoggedToday && (
           <motion.div
+            key="daily-nudge"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -126,6 +129,7 @@ export default function Reminders() {
 
         {isWeeklyReviewReady && (
           <motion.div
+            key="weekly-review"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
