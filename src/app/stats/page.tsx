@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BarChart3, TrendingDown, AlertTriangle, Lightbulb, Lock, ShieldCheck, ShieldAlert, Sparkles, Award, Star, Eye } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
 import { cn } from "@/lib/utils";
+import { getWeekKey } from "@/lib/dateUtils";
 
 export default function StatsPage() {
   const { logs, urges, plan, loading } = useTracking();
@@ -12,16 +13,20 @@ export default function StatsPage() {
 
   if (loading) return null;
 
-  // Calculate distinct days logged
-  const distinctDays = new Array(...new Set(logs.filter(l => !l.isSavings).map(l => l.date))).length;
+  const currentWeekKey = getWeekKey();
+  const weeklyLogs = logs.filter(l => l.weekKey === currentWeekKey);
+  const weeklyUrges = urges.filter(u => u.weekKey === currentWeekKey);
+
+  // Calculate distinct days logged (Weekly)
+  const distinctDays = new Array(...new Set(weeklyLogs.filter(l => !l.isSavings).map(l => l.date))).length;
   const isSunday = new Date().getDay() === 0;
   const isLocked = !isSunday && !bypassLock;
 
-  const totalWeekly = logs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
-  const totalSavingsWeekly = logs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const totalWeekly = weeklyLogs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const totalSavingsWeekly = weeklyLogs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budget = Number(plan?.budget) || 0;
-  const dailyAvg = logs.filter(l => !l.isSavings).length > 0 ? Math.round(totalWeekly / 7) : 0;
-  const noSpendDays = logs.filter(l => l.noSpendDay).length;
+  const dailyAvg = weeklyLogs.filter(l => !l.isSavings).length > 0 ? Math.round(totalWeekly / 7) : 0;
+  const noSpendDays = weeklyLogs.filter(l => l.noSpendDay).length;
 
   // Group by day of week and calculate insights
   const dayData = [0, 0, 0, 0, 0, 0, 0];
@@ -35,7 +40,7 @@ export default function StatsPage() {
   let uncontrolledCount = 0;
  
   // Process Logs
-  logs.forEach(log => {
+  weeklyLogs.forEach(log => {
     if (log.isSavings) return;
     const dateStr = log.date;
     const date = dateStr ? new Date(dateStr) : new Date();
@@ -75,7 +80,7 @@ export default function StatsPage() {
   });
  
   // Process Urges
-  urges.forEach(urge => {
+  weeklyUrges.forEach(urge => {
     const dateStr = typeof urge.createdAt === 'string' ? urge.createdAt.split("T")[0] : null;
     if (urge.action === "Resisted" || urge.action === "Delayed") {
       controlledCount++;
@@ -188,7 +193,7 @@ export default function StatsPage() {
 
   // Deep Emotional Tagging Analysis
   const getEmotionalAnalysis = () => {
-    const impulseLogs = logs.filter(l => !l.isSavings && l.spendingType === "Emotional impulse");
+    const impulseLogs = weeklyLogs.filter(l => !l.isSavings && l.spendingType === "Emotional impulse");
     const totalImpulses = impulseLogs.length;
     if (totalImpulses === 0) return null;
     

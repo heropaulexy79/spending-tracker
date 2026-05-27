@@ -59,9 +59,13 @@ export default function PlanPage() {
   const totalSavedLogged = logs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budgetValue = Number(formData.budget) || 0;
   const savingsTarget = Number(formData.savings) || 0;
+  const savingsTarget = Number(formData.savings) || 0;
   const remaining = Math.max(0, budgetValue - totalSpent);
   const percentSpent = budgetValue > 0 ? Math.min(100, Math.round((totalSpent / budgetValue) * 100)) : 0;
   const percentSaved = savingsTarget > 0 ? Math.min(100, Math.round((totalSavedLogged / savingsTarget) * 100)) : 0;
+  
+  const weekProgressPercent = Math.round(((new Date().getDay() || 7) / 7) * 100);
+  const velocityStatus = budgetValue > 0 && totalSpent > budgetValue ? "Tank Empty" : totalSpent / budgetValue > (new Date().getDay() || 7) / 7 ? "Overspeeding" : "Cruising";
 
   if (loading) return null;
 
@@ -184,34 +188,49 @@ export default function PlanPage() {
         </button>
       </div>
 
-      {/* Progress Cards */}
+  {/* Progress Cards */}
       <div className="grid grid-cols-1 gap-4">
+        {/* Spending Velocity Meter (Merged with Budget Status) */}
         <div className="p-8 glass-card space-y-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Budget Status</h3>
-            <span className={cn(
-              "text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1 border",
-              budgetValue > 0 ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-muted text-muted-foreground border-border"
-            )}>
-              {budgetValue > 0 ? "Active Plan" : "No active plan"}
-            </span>
-          </div>
-          <div className="flex justify-between items-end">
             <div className="space-y-1">
-              <p className="text-3xl font-serif text-foreground tracking-tight">{plan?.currency || "₦"}{remaining.toLocaleString()}</p>
-              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Still Safe to Spend</p>
+              <h3 className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Spending Velocity</h3>
+              <p className="text-2xl font-serif text-foreground">{velocityStatus}</p>
             </div>
-            <div className="text-right space-y-1">
-              <p className="text-lg font-serif text-primary">{plan?.currency || "₦"}{totalSpent.toLocaleString()}</p>
-              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Already Logged</p>
-            </div>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+              Week Progress: {weekProgressPercent}%
+            </p>
           </div>
-          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+          
+          <div className="relative h-4 w-full bg-muted rounded-full overflow-hidden border border-border">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${percentSpent}%` }}
-              className="h-full bg-primary shadow-[0_0_10px_rgba(176,132,71,0.3)]" 
+              className={cn(
+                "h-full transition-all duration-1000 shadow-[0_0_20px_rgba(0,0,0,0.5)]",
+                (totalSpent / budgetValue) > (new Date().getDay() || 7) / 7 
+                  ? "bg-coral shadow-coral/20" 
+                  : (totalSpent / budgetValue) > 0.8 
+                    ? "bg-amber-500 shadow-amber-500/20"
+                    : "bg-emerald-500 shadow-emerald-500/20"
+              )}
             />
+            {/* Week Progress Marker */}
+            <div 
+              className="absolute top-0 bottom-0 w-[2px] bg-foreground/20 z-10"
+              style={{ left: `${weekProgressPercent}%` }}
+            />
+          </div>
+
+          <div className="flex justify-between items-end pt-2">
+            <div className="space-y-1">
+              <p className="text-3xl font-serif text-foreground tracking-tight">{plan?.currency || "₦"}{remaining.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Remaining Fuel (Budget)</p>
+            </div>
+            <div className="text-right space-y-1">
+              <p className="text-lg font-serif text-primary">{plan?.currency || "₦"}{totalSpent.toLocaleString()} / {plan?.currency || "₦"}{budgetValue.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Already Burned</p>
+            </div>
           </div>
         </div>
 

@@ -44,7 +44,7 @@ const delayRevisitOptions = [
 const actions = ["Resisted", "Delayed", "Bought"];
 
 export default function UrgePage() {
-  const { urges, addUrge, loading, noSpendDayLogged } = useTracking();
+  const { urges, addUrge, loading, noSpendDayLogged, urgeLoggedToday } = useTracking();
   const [hasUrge, setHasUrge] = useState<boolean | null>(null);
   const [step, setStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -135,19 +135,27 @@ export default function UrgePage() {
       )}
 
       {/* Main Form Area */}
-      {noSpendDayLogged ? (
+      {noSpendDayLogged || urgeLoggedToday ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="p-12 glass-card text-center space-y-6 border-emerald-500/20"
         >
           <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-2 border border-emerald-500/20">
-            <ShieldCheck className="w-10 h-10 text-emerald-500" />
+            {noSpendDayLogged ? (
+              <ShieldCheck className="w-10 h-10 text-emerald-500" />
+            ) : (
+              <Zap className="w-10 h-10 text-primary" />
+            )}
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-serif text-foreground">🟢 No-Buy Day Recorded</h2>
+            <h2 className="text-2xl font-serif text-foreground">
+              {noSpendDayLogged ? "🟢 No-Buy Day Recorded" : "⚡ Impulse Already Recorded"}
+            </h2>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto">
-              Your day is defined by quiet discipline. No further impulse tracking is required today.
+              {noSpendDayLogged 
+                ? "Your day is defined by quiet discipline. No further impulse tracking is required today."
+                : "You've already processed an impulse today. Focus on maintaining your presence and intention."}
             </p>
           </div>
         </motion.div>

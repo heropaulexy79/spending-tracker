@@ -7,11 +7,14 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 import { useTracking } from "@/hooks/useTracking";
-import { formatDate } from "@/lib/dateUtils";
+import { formatDate, getWeekKey } from "@/lib/dateUtils";
 
 export default function LogPage() {
   const { logs, addLog, plan, loading } = useTracking();
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const currentWeekKey = getWeekKey();
+  const weeklyLogs = logs.filter(l => l.weekKey === currentWeekKey);
 
   const today = new Date();
   const dateString = today.toLocaleDateString("en-US", { 
@@ -40,7 +43,7 @@ export default function LogPage() {
         </div>
       </header>
 
-      <WeeklyProgress logs={logs} />
+      <WeeklyProgress logs={weeklyLogs} />
 
       <LogForm onSubmit={handleLogSubmit} />
 
@@ -54,14 +57,14 @@ export default function LogPage() {
         </motion.div>
       )}
 
-      {logs.length > 0 && (
+      {weeklyLogs.length > 0 && (
         <section className="space-y-6">
           <div className="flex items-center gap-3 px-1">
             <h2 className="text-2xl font-serif text-foreground">Log History</h2>
             <div className="h-[1px] flex-1 bg-border" />
           </div>
           <div className="space-y-4 pb-8">
-            {logs.map((log, i) => {
+            {weeklyLogs.map((log, i) => {
               const formattedDate = formatDate(log.createdAt || log.date);
 
               return (

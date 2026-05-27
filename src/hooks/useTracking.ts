@@ -159,11 +159,14 @@ export function useTracking() {
     const currentBadges = rewards.badges || [];
     
     const updateData: any = {
-      "rewards.coins": currentCoins + coinDelta,
+      rewards: {
+        ...rewards,
+        coins: (rewards.coins || 0) + coinDelta
+      }
     };
 
     if (newBadge && !currentBadges.includes(newBadge)) {
-      updateData["rewards.badges"] = [...currentBadges, newBadge];
+      updateData.rewards.badges = [...currentBadges, newBadge];
     }
 
     await setDoc(userRef, updateData, { merge: true });
@@ -194,6 +197,16 @@ export function useTracking() {
   const todayStr = getLocalDateString();
   const noSpendDayLogged = logs.some(l => l.date === todayStr && l.noSpendDay === true);
   const spendLoggedToday = logs.some(l => l.date === todayStr && !l.noSpendDay && !l.isSavings);
+  const urgeLoggedToday = urges.some(u => {
+    if (u.type === "Calm") return false;
+    let uDate: Date;
+    if (u.createdAt && typeof u.createdAt === "object" && "seconds" in u.createdAt) {
+      uDate = new Date((u.createdAt as any).seconds * 1000);
+    } else {
+      uDate = u.createdAt ? new Date(u.createdAt) : new Date();
+    }
+    return getLocalDateString(uDate) === todayStr;
+  });
 
   const getHistoricalData = async (type: 'week' | 'month', key: string) => {
     if (!user) return { logs: [], urges: [] };
@@ -252,6 +265,7 @@ export function useTracking() {
     saveProjectionsBaseline,
     loading, 
     noSpendDayLogged, 
-    spendLoggedToday 
+    spendLoggedToday,
+    urgeLoggedToday
   };
 }
