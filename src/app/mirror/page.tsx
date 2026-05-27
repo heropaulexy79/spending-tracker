@@ -38,8 +38,9 @@ export default function MirrorPage() {
   const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
   const isNarrativeLocked = Date.now() - creationTime < thirtyDaysInMs;
 
-  const logs = viewType === 'current' ? currentLogs : historyLogs;
-  const urges = viewType === 'current' ? currentUrges : historyUrges;
+  const currentWeekKey = getWeekKey();
+  const logs = viewType === 'current' ? currentLogs.filter(l => l.weekKey === currentWeekKey) : historyLogs;
+  const urges = viewType === 'current' ? currentUrges.filter(u => u.weekKey === currentWeekKey) : historyUrges;
 
   useEffect(() => {
     if (viewType === 'history') {

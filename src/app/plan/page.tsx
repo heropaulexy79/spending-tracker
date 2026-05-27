@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Compass, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTracking } from "@/hooks/useTracking";
+import { getWeekKey } from "@/lib/dateUtils";
 
 
 const spenderTypes = ["Controlled", "Balanced", "Intentional", "Strict", "Not sure yet"];
@@ -55,8 +56,11 @@ export default function PlanPage() {
     setTimeout(() => setIsIdentitySaved(false), 3000);
   };
 
-  const totalSpent = logs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
-  const totalSavedLogged = logs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const currentWeekKey = getWeekKey();
+  const weeklyLogs = logs.filter(l => l.weekKey === currentWeekKey);
+
+  const totalSpent = weeklyLogs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
+  const totalSavedLogged = weeklyLogs.filter(l => l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   const budgetValue = Number(formData.budget) || 0;
   const savingsTarget = Number(formData.savings) || 0;
   const remaining = Math.max(0, budgetValue - totalSpent);

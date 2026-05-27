@@ -159,14 +159,11 @@ export function useTracking() {
     const currentBadges = rewards.badges || [];
     
     const updateData: any = {
-      rewards: {
-        ...rewards,
-        coins: (rewards.coins || 0) + coinDelta
-      }
+      "rewards.coins": (rewards.coins || 0) + coinDelta,
     };
 
     if (newBadge && !currentBadges.includes(newBadge)) {
-      updateData.rewards.badges = [...currentBadges, newBadge];
+      updateData["rewards.badges"] = [...currentBadges, newBadge];
     }
 
     await setDoc(userRef, updateData, { merge: true });
