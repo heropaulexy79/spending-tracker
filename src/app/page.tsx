@@ -7,7 +7,7 @@ import Reminders from "@/components/Reminders";
 import { useAuth } from "@/context/AuthContext";
 import { useTracking } from "@/hooks/useTracking";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wallet, Target, TrendingUp, Zap, Calendar, Loader2, ArrowRight, Coins, Award, Sparkles, BarChart3 } from "lucide-react";
+import { Wallet, Target, TrendingUp, Zap, Calendar, Loader2, ArrowRight, Coins, Award, Sparkles, BarChart3, AlertTriangle } from "lucide-react";
 
 import Link from "next/link";
 import { auth } from "@/lib/firebase";
@@ -57,6 +57,8 @@ export default function Home() {
 
   const isMonday = new Date().getDay() === 1;
   const monthlyLogCount = logs.length;
+  const hasWeeklyActivity = weeklyLogs.length > 0;
+  const hasBudgetSet = budgetValue > 0;
 
   // Streak Calculation (Daily spending <= (weekly budget / 7) OR No-Spend Day)
   const getActiveStreak = () => {
@@ -183,9 +185,9 @@ export default function Home() {
 
       {/* Behavioral Feedback */}
       <AnimatePresence>
-        {(isWithinBudget || hasResistedUrges) && (
+        {hasWeeklyActivity && hasBudgetSet && isWithinBudget && (
           <motion.div 
-            key="behavioral-feedback"
+            key="excellent-practice"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 flex items-center gap-4"
@@ -196,14 +198,50 @@ export default function Home() {
             <div>
               <p className="text-sm font-bold text-emerald-500 uppercase tracking-wider mb-1">Excellent Practice</p>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                {isWithinBudget && hasResistedUrges 
+                {hasResistedUrges 
                   ? "You stayed within budget AND mastered your impulses this week. Exceptional discipline."
-                  : isWithinBudget 
-                    ? "You stayed within budget this week. Your future self is proud."
-                    : "Your impulse spending reduced. You are reclaiming control."}
+                  : "You stayed within budget this week. Your future self is proud."}
               </p>
             </div>
           </motion.div>
+        )}
+
+        {hasWeeklyActivity && hasBudgetSet && !isWithinBudget && (
+          <motion.div 
+            key="budget-alert"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-6 rounded-3xl bg-coral/5 border border-coral/10 flex items-center gap-4"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-coral/20 flex items-center justify-center flex-shrink-0">
+              <AlertTriangle className="w-6 h-6 text-coral" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-coral uppercase tracking-wider mb-1">Budget Awareness</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                You have exceeded your planned budget for this week. Take a moment to reflect on your recent choices.
+              </p>
+            </div>
+          </motion.div>
+        )}
+        
+        {hasWeeklyActivity && !hasBudgetSet && hasResistedUrges && (
+           <motion.div 
+           key="resisted-urges-only"
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 flex items-center gap-4"
+         >
+           <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+             <Sparkles className="w-6 h-6 text-emerald-500" />
+           </div>
+           <div>
+             <p className="text-sm font-bold text-emerald-500 uppercase tracking-wider mb-1">Excellent Practice</p>
+             <p className="text-xs text-muted-foreground leading-relaxed">
+               Your impulse spending reduced. You are reclaiming control.
+             </p>
+           </div>
+         </motion.div>
         )}
       </AnimatePresence>
 
