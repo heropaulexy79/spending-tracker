@@ -79,10 +79,17 @@ export default function MirrorPage() {
   const handleSaveBaseline = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!incomeInput || !estimateInput) return;
+    
     setIsSavingBaseline(true);
-    await saveProjectionsBaseline(Number(incomeInput), Number(estimateInput));
-    setIsSavingBaseline(false);
-    setShowSetupForm(false);
+    try {
+      await saveProjectionsBaseline(Number(incomeInput), Number(estimateInput));
+      setShowSetupForm(false);
+    } catch (err) {
+      console.error("Error saving projections baseline:", err);
+      // Optional: alert or toast could be added here if available
+    } finally {
+      setIsSavingBaseline(false);
+    }
   };
 
   if (loading) return null;

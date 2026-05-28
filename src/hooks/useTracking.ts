@@ -95,11 +95,16 @@ export function useTracking() {
   const saveProjectionsBaseline = async (income: number, estimate: number) => {
     if (!user) return;
     const userRef = doc(db, "users", user.uid);
-    await setDoc(userRef, { 
-      monthlyIncome: Number(income) || 0,
-      preAppMonthlySpendingEstimate: Number(estimate) || 0,
-      lastUpdated: serverTimestamp() 
-    }, { merge: true });
+    try {
+      await setDoc(userRef, { 
+        monthlyIncome: Number(income) || 0,
+        preAppMonthlySpendingEstimate: Number(estimate) || 0,
+        lastUpdated: serverTimestamp() 
+      }, { merge: true });
+    } catch (err) {
+      console.error("Error saving projections baseline in hook:", err);
+      throw err; // Re-throw so the UI can handle it
+    }
   };
 
   const addLog = async (log: any) => {
