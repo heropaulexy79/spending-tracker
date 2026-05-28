@@ -83,10 +83,14 @@ export default function MirrorPage() {
     setIsSavingBaseline(true);
     try {
       await saveProjectionsBaseline(Number(incomeInput), Number(estimateInput));
-      setShowSetupForm(false);
+      // Give the local state a moment to sync from the Firestore update
+      // this prevents the "disappearing" effect where it flips back to the form
+      // before the hasSetupProjections flag catches up.
+      setTimeout(() => {
+        setShowSetupForm(false);
+      }, 500);
     } catch (err) {
       console.error("Error saving projections baseline:", err);
-      // Optional: alert or toast could be added here if available
     } finally {
       setIsSavingBaseline(false);
     }
