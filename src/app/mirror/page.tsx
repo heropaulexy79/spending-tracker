@@ -32,6 +32,7 @@ export default function MirrorPage() {
   const [incomeInput, setIncomeInput] = useState("");
   const [estimateInput, setEstimateInput] = useState("");
   const [isSavingBaseline, setIsSavingBaseline] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Growth Narrative Lock (Keep for premium feel)
   const creationTime = user?.metadata.creationTime ? new Date(user.metadata.creationTime).getTime() : Date.now();
@@ -83,12 +84,15 @@ export default function MirrorPage() {
     setIsSavingBaseline(true);
     try {
       await saveProjectionsBaseline(Number(incomeInput), Number(estimateInput));
-      // Give the local state a moment to sync from the Firestore update
-      // this prevents the "disappearing" effect where it flips back to the form
-      // before the hasSetupProjections flag catches up.
+      // Lock the view to "results" mode immediately to prevent flickering 
+      // during Firestore synchronization
+      setIsTransitioning(true);
+      setShowSetupForm(false);
+      
+      // Release the lock after a safe delay, allowing hasSetupProjections to take over
       setTimeout(() => {
-        setShowSetupForm(false);
-      }, 500);
+        setIsTransitioning(false);
+      }, 2000);
     } catch (err) {
       console.error("Error saving projections baseline:", err);
     } finally {
@@ -221,7 +225,7 @@ export default function MirrorPage() {
             )}
           </div>
 
-          {!hasSetupProjections || showSetupForm ? (
+          {(!hasSetupProjections || showSetupForm) && !isTransitioning ? (
             <motion.form 
               onSubmit={handleSaveBaseline}
               initial={{ opacity: 0, y: 10 }}
