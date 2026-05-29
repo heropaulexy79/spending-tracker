@@ -231,7 +231,8 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
           <h3 className="text-2xl font-serif text-foreground">Entry Recorded</h3>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Your reality has been logged. <br />
-            Take a breath before your next choice.
+            Take a breath before your next choice. <br />
+            You can log multiple entries per day.
           </p>
         </div>
       </motion.div>

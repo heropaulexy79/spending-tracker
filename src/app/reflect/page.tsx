@@ -6,7 +6,7 @@ import { BookOpen, Quote, Save, CheckCircle2 } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
 
 export default function ReflectPage() {
-  const { addReflection, noSpendDayLogged, loading } = useTracking();
+  const { addReflection, noSpendDayLogged, reflectionLoggedToday, loading } = useTracking();
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reflection, setReflection] = useState({
@@ -18,7 +18,7 @@ export default function ReflectPage() {
   });
 
   const handleSave = async () => {
-    if (!reflection.why || isSubmitting) return;
+    if (!reflection.why || isSubmitting || reflectionLoggedToday) return;
     
     setIsSubmitting(true);
     await addReflection(reflection);
@@ -83,6 +83,22 @@ export default function ReflectPage() {
             <h2 className="text-2xl font-serif text-foreground">🟢 No-Buy Day Recorded</h2>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto">
               A day of absolute discipline. No reflection is required for a choice not made.
+            </p>
+          </div>
+        </motion.div>
+      ) : reflectionLoggedToday ? (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-12 glass-card text-center space-y-6 border-primary/20"
+        >
+          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 border border-primary/20">
+            <BookOpen className="w-10 h-10 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-serif text-foreground">Reflection Recorded</h2>
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto">
+              You have already recorded your awareness for today. Take time to sit with your observations.
             </p>
           </div>
         </motion.div>

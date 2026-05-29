@@ -12,6 +12,7 @@ export function useTracking() {
   const [rewards, setRewards] = useState<{ coins: number, badges: string[] }>({ coins: 0, badges: [] });
   const [logs, setLogs] = useState<any[]>([]);
   const [urges, setUrges] = useState<any[]>([]);
+  const [reflections, setReflections] = useState<any[]>([]);
   const [monthlyIncome, setMonthlyIncome] = useState<number>(0);
   const [preAppMonthlySpendingEstimate, setPreAppMonthlySpendingEstimate] = useState<number>(0);
   const [loading, setLoading] = useState(true);
@@ -71,11 +72,20 @@ export function useTracking() {
       });
       setUrges(u);
     }, (err) => console.error("Urges Listener Error:", err));
+    
+    // Subscribe to Reflections
+    const reflectionsRef = collection(db, "users", user.uid, "reflections");
+    const qReflections = query(reflectionsRef, where("weekKey", "==", weekKey));
+    const unsubReflections = onSnapshot(qReflections, (snap) => {
+      const r = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setReflections(r);
+    }, (err) => console.error("Reflections Listener Error:", err));
 
     return () => {
       unsubUser();
       unsubLogs();
       unsubUrges();
+      unsubReflections();
     };
   }, [user]);
 
@@ -213,6 +223,15 @@ export function useTracking() {
     }
     return getLocalDateString(uDate) === todayStr;
   });
+  const reflectionLoggedToday = reflections.some(r => {
+    let rDate: Date;
+    if (r.createdAt && typeof r.createdAt === "object" && "seconds" in r.createdAt) {
+      rDate = new Date((r.createdAt as any).seconds * 1000);
+    } else {
+      rDate = r.createdAt ? new Date(r.createdAt) : new Date();
+    }
+    return getLocalDateString(rDate) === todayStr;
+  });
 
   const getHistoricalData = async (type: 'week' | 'month', key: string) => {
     if (!user) return { logs: [], urges: [] };
@@ -272,6 +291,7 @@ export function useTracking() {
     loading, 
     noSpendDayLogged, 
     spendLoggedToday,
-    urgeLoggedToday
+    urgeLoggedToday,
+    reflectionLoggedToday
   };
 }
