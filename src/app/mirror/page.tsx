@@ -302,25 +302,31 @@ export default function MirrorPage() {
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="p-8 glass-card space-y-8 border-border"
+              className="p-8 glass-card space-y-10 border-border"
             >
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold text-primary uppercase tracking-[0.25em]">3-Month Projection</p>
-                <h3 className="text-xl font-serif text-foreground">Future Cash Balance Comparison</h3>
+              <div className="space-y-2">
+                <p className="text-[10px] font-bold text-primary uppercase tracking-[0.25em]">Behavioral Forecast</p>
+                <h3 className="text-2xl font-serif text-foreground tracking-tight">Financial Momentum</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  These projections compare your current behavior against your pre-app estimates to show the long-term power of awareness.
+                </p>
               </div>
 
               {/* Comparative Projections Visual Bars */}
-              <div className="space-y-6">
+              <div className="space-y-8">
                 
                 {/* 1. Pre-App Baseline */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-end text-xs">
-                    <span className="font-bold text-muted-foreground uppercase tracking-widest text-[9px]">Scenario A: Pre-App Style</span>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-end">
+                    <div className="space-y-1">
+                      <span className="block font-bold text-muted-foreground uppercase tracking-widest text-[9px]">Scenario A: Pre-App Baseline</span>
+                      <span className="block text-[10px] text-muted-foreground/60 leading-none italic">Estimated habits before you started tracking</span>
+                    </div>
                     <span className={cn("font-bold font-serif text-sm", preAppSavings3M >= 0 ? "text-foreground" : "text-coral")}>
                       {plan?.currency || "₦"}{preAppSavings3M.toLocaleString()}
                     </span>
                   </div>
-                  <div className="h-3 w-full bg-muted rounded-full overflow-hidden relative">
+                  <div className="h-4 w-full bg-muted rounded-full overflow-hidden relative">
                     <div 
                       className={cn(
                         "h-full rounded-full transition-all duration-1000",
@@ -332,52 +338,81 @@ export default function MirrorPage() {
                 </div>
 
                 {/* 2. Current Reality */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-end text-xs">
-                    <span className="font-bold text-primary uppercase tracking-widest text-[9px]">Scenario B: Current Aware Reality</span>
-                    <span className="font-bold font-serif text-sm text-primary">
-                      {plan?.currency || "₦"}{Math.round(currentSavings3M).toLocaleString()}
-                    </span>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-end">
+                    <div className="space-y-1">
+                      <span className="block font-bold text-primary uppercase tracking-widest text-[9px]">Scenario B: Current Aware Reality</span>
+                      <span className="block text-[10px] text-primary/60 leading-none italic">Extrapolated from your actual logs this week</span>
+                    </div>
+                    <div className="text-right">
+                       <span className="block font-bold font-serif text-base text-primary">
+                        {plan?.currency || "₦"}{Math.round(currentSavings3M).toLocaleString()}
+                      </span>
+                      {currentSavings3M > preAppSavings3M && (
+                        <span className="text-[10px] font-bold text-emerald-400">
+                          +{plan?.currency || "₦"}{Math.round(currentSavings3M - preAppSavings3M).toLocaleString()} vs A
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="h-3 w-full bg-muted rounded-full overflow-hidden relative">
+                  <div className="h-4 w-full bg-muted rounded-full overflow-hidden relative">
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.max(5, Math.min(100, (Math.max(0, currentSavings3M) / Math.max(1, adjustedSavings3M)) * 100))}%` }}
-                      className="h-full bg-primary rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(176,132,71,0.3)]"
+                      className="h-full bg-primary rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(176,132,71,0.3)]"
                     />
                   </div>
                 </div>
 
                 {/* 3. One Small Change */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-end text-xs">
-                    <span className="font-bold text-emerald-400 uppercase tracking-widest text-[9px]">Scenario C: 10% Extra Restraint</span>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-end">
+                    <div className="space-y-1">
+                      <span className="block font-bold text-emerald-400 uppercase tracking-widest text-[9px]">Scenario C: 10% Extra Restraint</span>
+                      <span className="block text-[10px] text-emerald-400/60 leading-none italic">The power of one extra &ldquo;No-Spend&rdquo; decision</span>
+                    </div>
                     <span className="font-bold font-serif text-sm text-emerald-400">
                       {plan?.currency || "₦"}{Math.round(adjustedSavings3M).toLocaleString()}
                     </span>
                   </div>
-                  <div className="h-3 w-full bg-muted rounded-full overflow-hidden relative">
+                  <div className="h-4 w-full bg-muted rounded-full overflow-hidden relative">
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: "100%" }}
-                      className="h-full bg-emerald-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                      className="h-full bg-emerald-500 rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
                     />
                   </div>
                 </div>
 
               </div>
 
+              {/* Annual Impact Highlight */}
+              <div className="grid grid-cols-2 gap-4 pt-4">
+                <div className="p-4 rounded-2xl bg-muted/30 border border-border flex flex-col justify-center gap-1">
+                   <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest">1-Year Savings Forecast</p>
+                   <p className="text-xl font-serif text-primary">
+                    {plan?.currency || "₦"}{Math.round(currentSavings3M * 4).toLocaleString()}
+                   </p>
+                </div>
+                <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 flex flex-col justify-center gap-1">
+                   <p className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest">Annual Awareness Bonus</p>
+                   <p className="text-xl font-serif text-emerald-400">
+                    {plan?.currency || "₦"}{Math.round((currentSavings3M - preAppSavings3M) * 4).toLocaleString()}
+                   </p>
+                </div>
+              </div>
+
               {/* Dynamic Behavioral Summary Banner */}
-              <div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl flex items-center gap-3">
-                <Sparkles className="w-5 h-5 text-primary shrink-0" />
-                <p className="text-xs text-foreground/80 leading-relaxed font-medium">
+              <div className="p-5 bg-primary/5 border border-primary/10 rounded-2xl flex items-center gap-4">
+                <Sparkles className="w-6 h-6 text-primary shrink-0" />
+                <p className="text-xs text-foreground/90 leading-relaxed font-medium">
                   {currentSavings3M > preAppSavings3M ? (
                     <>
-                      By staying aware, you are projected to save an extra <span className="text-emerald-400 font-bold">{plan?.currency || "₦"}{Math.round(currentSavings3M - preAppSavings3M).toLocaleString()}</span> over the next 3 months compared to your pre-app spending estimate!
+                      By staying aware, you are on track to save an extra <span className="text-emerald-400 font-bold">{plan?.currency || "₦"}{Math.round(currentSavings3M - preAppSavings3M).toLocaleString()}</span> every 3 months. In a year, this builds a <span className="text-emerald-400 font-bold">{plan?.currency || "₦"}{Math.round((currentSavings3M - preAppSavings3M) * 4).toLocaleString()}</span> foundation for &ldquo;Future You&rdquo;.
                     </>
                   ) : (
                     <>
-                      Keep logging! Your projections will adjust dynamically as your actual spending habits align with your weekly budget.
+                      Keep logging! Your projections adjust automatically as your reality shifts. Awareness is the first step to unlocking significant future savings.
                     </>
                   )}
                 </p>

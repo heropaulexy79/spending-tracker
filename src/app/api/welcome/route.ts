@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     const mailOptions = {
       from: `"Crafting the Mind" <${process.env.GMAIL_USER}>`,
       to: email,
-      subject: 'Welcome to Crafting the Mind – Your Behavioral Tracking Journey',
+      subject: 'Welcome to Crafting the Mind S&B Tracker – Your Behavioral Tracking Journey',
       html: `
         <div style="font-family: 'DM Sans', sans-serif; max-width: 600px; margin: auto; padding: 40px; background-color: #0A0A0B; color: #ffffff; border-radius: 20px;">
           <h1 style="font-family: 'Playfair Display', serif; color: #B08447; font-size: 28px;">Welcome, ${sanitizedName}.</h1>
