@@ -32,16 +32,8 @@ service cloud.firestore {
       // Delete: Prevent users from deleting their own root document for now
       allow delete: if false;
       
-      // Subcollections
-      match /logs/{logId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      match /urges/{urgeId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      match /reflections/{reflectionId} {
+      // Catch-all for all subcollections (logs, urges, reflections, checkins, etc.)
+      match /{allSubcollections=**} {
         allow read, write: if isOwner(userId);
       }
     }

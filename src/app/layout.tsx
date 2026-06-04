@@ -3,6 +3,7 @@ import { DM_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import { AuthProvider } from "@/context/AuthContext";
+import { TrackingProvider } from "@/context/TrackingContext";
 import NotificationManager from "@/components/NotificationManager";
 import InstallPrompt from "@/components/InstallPrompt";
 import AppShell from "@/components/layout/AppShell";
@@ -56,13 +57,15 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <AnalyticsTracker />
-            <NotificationManager />
-            <InstallPrompt />
-            <OfflineStatus />
-            <AppShell>
-              {children}
-            </AppShell>
+            <TrackingProvider>
+              <AnalyticsTracker />
+              <NotificationManager />
+              <InstallPrompt />
+              <OfflineStatus />
+              <AppShell>
+                {children}
+              </AppShell>
+            </TrackingProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

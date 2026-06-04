@@ -20,12 +20,12 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
   ];
 
   const sections = [
-    { icon: Wallet, name: "Plan", desc: "Set your weekly budget, savings targets, and spender identity. Intent starts here." },
-    { icon: BookOpen, name: "Log", desc: "Record purchases (with a 10s awareness countdown), confirm No-Spend Days, or log savings contributions." },
-    { icon: Zap, name: "Urge", desc: "Track when you feel an impulse but resist or delay it. Build restraint and earn coins." },
-    { icon: Target, name: "Reflect", desc: "Engage in honest, emotional check-ins to evaluate the emotional triggers behind your decisions." },
-    { icon: BarChart3, name: "Stats", desc: "Examine key insights, emotional roots, busiest spending days, and budget performance." },
-    { icon: Calendar, name: "Mirror", desc: "Explore historical records, growth narratives, and weekly/monthly consistency metrics." },
+    { icon: Wallet, name: "Plan", desc: "Define your weekly intentions. Intent starts here." },
+    { icon: BookOpen, name: "Log", desc: "Identify a choice. Record what happened and reflect briefly on the impulse." },
+    { icon: Zap, name: "Urge", desc: "Create a gap. Pause before you spend and earn Awareness Points for your presence." },
+    { icon: Target, name: "Check-in", desc: "Record your daily relationship with money. Are you feeling heavy or fluid today?" },
+    { icon: BarChart3, name: "Stories", desc: "Your week as a narrative. Understand the 'why' behind your spending through behavioral feedback." },
+    { icon: Calendar, name: "Discoveries", desc: "Identify psychological patterns like the 'Stress Trigger' or 'Lunchtime Loop'." },
   ];
 
   const faqs = [
@@ -46,8 +46,8 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
       a: "No. The system uses your device's local timezone. Ticks and daily progress stay locked to your actual local calendar day."
     },
     {
-      q: "What do coins and badges represent?",
-      a: "These are behavioral rewards designed to reinforce discipline. Resisting urges and completing weekly journeys build your scores, keeping you engaged in your growth."
+      q: "What are Awareness Points?",
+      a: "Awareness Points are rewards for the act of observation. Every time you log, pause an urge, or check in, you earn points that build your presence and momentum."
     }
   ];
 
