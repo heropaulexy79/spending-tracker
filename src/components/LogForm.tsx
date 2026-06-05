@@ -32,6 +32,13 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
   const [isSavingsMode, setIsSavingsMode] = useState(false);
   const [isDone, setIsDone] = useState(false);
 
+  // If a no-spend day is logged, force savings mode
+  React.useEffect(() => {
+    if (noSpendDayLogged) {
+      setIsSavingsMode(true);
+    }
+  }, [noSpendDayLogged]);
+
   const handleAmountSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (amount) setStep(2);
@@ -125,15 +132,17 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
                 <div className="grid grid-cols-2 gap-4">
                   <button 
                     type="button"
+                    disabled={noSpendDayLogged}
                     onClick={() => setIsSavingsMode(!isSavingsMode)}
                     className={cn(
                         "py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest transition-all border",
                         isSavingsMode 
                             ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500" 
-                            : "bg-muted border-border text-muted-foreground hover:text-foreground"
+                            : "bg-muted border-border text-muted-foreground hover:text-foreground",
+                        noSpendDayLogged && "opacity-50 cursor-not-allowed"
                     )}
                   >
-                    {isSavingsMode ? "Switch to Spending" : "Log Savings Instead"}
+                    {isSavingsMode ? "Savings Mode Active" : "Log Savings Instead"}
                   </button>
 
                   {!noSpendDayLogged && !spendLoggedToday && (
@@ -155,6 +164,12 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
                     </button>
                   )}
                 </div>
+              )}
+
+              {noSpendDayLogged && !amount && (
+                <p className="text-[10px] text-center text-emerald-500 font-medium animate-pulse">
+                  ✨ No-Spend Day logged! Only savings allowed today.
+                </p>
               )}
             </div>
           </motion.form>
