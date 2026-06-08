@@ -189,16 +189,33 @@ export default function SmartDelayPage() {
                 </div>
                 <div className="space-y-2">
                     <h2 className="text-3xl font-serif">A 24-hour pause.</h2>
-                    <p className="text-sm text-muted-foreground max-w-[200px] mx-auto leading-relaxed">
-                        We&apos;ll check back with you tomorrow. If you still want it then, you buy it with clarity.
+                    <p className="text-sm text-muted-foreground max-w-[250px] mx-auto leading-relaxed">
+                        We&apos;ll check back with you tomorrow. When would you like to revisit this?
                     </p>
                 </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Morning", emoji: "🌅" },
+                  { label: "Afternoon", emoji: "☀️" },
+                  { label: "Evening", emoji: "🌙" }
+                ].map((t) => (
+                  <button
+                    key={t.label}
+                    onClick={handleSetDelay}
+                    className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-border hover:border-primary/30 hover:bg-primary/5 transition-all"
+                  >
+                    <span className="text-xl">{t.emoji}</span>
+                    <span className="text-[8px] font-bold uppercase tracking-widest">{t.label}</span>
+                  </button>
+                ))}
               </div>
 
               <div className="space-y-4">
                 <button 
                     onClick={handleSetDelay}
-                    className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-bold shadow-xl shadow-primary/20 active:scale-[0.98] transition-all"
+                    className="w-full py-5 bg-foreground text-background rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all"
                 >
                     Activate Superpower
                 </button>

@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useTracking } from "@/hooks/useTracking";
 import { motion } from "framer-motion";
-import { Plus, Timer, Loader2, ArrowRight, Sparkles, Target, Zap, TrendingUp, Wallet } from "lucide-react";
+import { Plus, Timer, Loader2, ArrowRight, Sparkles, Target, Zap, TrendingUp, Wallet, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { getLocalDateString, getWeekKey } from "@/lib/dateUtils";
+import UrgeSavingsResolver from "@/components/UrgeSavingsResolver";
 
 export default function Home() {
   const { user } = useAuth();
@@ -73,6 +74,55 @@ export default function Home() {
 
   const currentStreak = getActiveStreak();
 
+  const GROWTH_LEVELS = [
+    "Explorer",
+    "Observer",
+    "Aware",
+    "Intentional",
+    "Mindful",
+    "Focused",
+    "Conscious Spender"
+  ];
+
+  const currentLevel = GROWTH_LEVELS[Math.min(currentStreak, GROWTH_LEVELS.length) - 1] || "Explorer";
+
+  // Behavioral Insight: Time of spending
+  const getSpendingInsight = () => {
+    if (logs.length === 0) return null;
+    
+    const hours = logs
+      .filter(l => !l.isSavings && !l.noSpendDay)
+      .map(l => {
+        if (l.createdAt && typeof l.createdAt === "object" && "seconds" in l.createdAt) {
+          return new Date(l.createdAt.seconds * 1000).getHours();
+        }
+        return new Date(l.date).getHours();
+      });
+
+    if (hours.length === 0) return null;
+
+    const morning = hours.filter(h => h >= 5 && h < 12).length;
+    const afternoon = hours.filter(h => h >= 12 && h < 18).length;
+    const evening = hours.filter(h => h >= 18 || h < 5).length;
+
+    if (evening > morning && evening > afternoon) {
+      return {
+        title: "Evening Reflection",
+        message: "Most of your spending happens between 7PM and 10PM. Is this a time of stress or relaxation?",
+        icon: <Timer className="w-4 h-4 text-primary" />
+      };
+    } else if (morning > afternoon && morning > evening) {
+      return {
+        title: "Morning Intentions",
+        message: "You make your most intentional purchases in the morning. Great start to the day!",
+        icon: <Sparkles className="w-4 h-4 text-primary" />
+      };
+    }
+    return null;
+  };
+
+  const insight = getSpendingInsight();
+
   const handleCheckIn = async () => {
     await addCheckIn(checkInScore);
     setHasJustCheckedIn(true);
@@ -94,8 +144,8 @@ export default function Home() {
         <section className="animate-in slide-in-from-top-4 duration-700">
           <div className="p-8 rounded-[2rem] bg-foreground/5 border border-foreground/5 space-y-6 text-center">
             <div className="space-y-1">
-              <h2 className="text-xl font-serif">How is your relationship with money today?</h2>
-              <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">Slide to record your presence</p>
+              <h2 className="text-xl font-serif">What did your money teach you today?</h2>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">Ready for today&apos;s awareness check-in?</p>
             </div>
             
             <div className="px-4 space-y-4">
@@ -118,7 +168,7 @@ export default function Home() {
               onClick={handleCheckIn}
               className="px-8 py-3 bg-foreground text-background rounded-full text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all"
             >
-              Confirm Feeling
+              Confirm Presence
             </button>
           </div>
         </section>
@@ -134,37 +184,39 @@ export default function Home() {
           <div className="relative z-10 space-y-6">
             <div className="flex items-center justify-center gap-3">
               <div className="px-3 py-1 bg-primary text-primary-foreground rounded-full text-[9px] font-bold uppercase tracking-widest shadow-lg shadow-primary/20">
-                🔥 {currentStreak} Day Streak
+                🔥 {currentStreak} Day Awareness Streak
               </div>
               {urgesResisted > 0 && (
                 <div className="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-[9px] font-bold uppercase tracking-widest">
-                  ✨ {urgesResisted} Urges Resisted
+                   💰 {urgesResisted} Resisted Urges
                 </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-3xl font-serif text-foreground">You&apos;re building presence.</h2>
-              <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
+              <h2 className="text-3xl font-serif text-foreground">Level: {currentLevel}</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed max-max-w-xs mx-auto">
                 {currentStreak > 0 
-                  ? "Every entry is a moment of awareness. Keep your momentum."
-                  : "Start your awareness journey today by logging your first spending."}
+                  ? "Your story is becoming clearer. Every choice is data."
+                  : "One minute of reflection today can change tomorrow's spending."}
               </p>
             </div>
             
             <div className="pt-2 flex flex-col items-center">
               <div className="h-1.5 w-40 bg-muted rounded-full overflow-hidden">
                 <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(100, (currentStreak / 7) * 100)}%` }}
-                  className="h-full bg-primary"
+                   initial={{ width: 0 }}
+                   animate={{ width: `${Math.min(100, (currentStreak / 7) * 100)}%` }}
+                   className="h-full bg-primary"
                 />
               </div>
-              <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-3">{currentStreak}/7 days for next level</p>
+              <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-3">{currentStreak}/7 days to reach next stage</p>
             </div>
           </div>
         </div>
       </section>
+
+      <UrgeSavingsResolver />
 
       {/* Primary Actions: One Screen = One Job */}
       <section className="grid grid-cols-1 gap-4">
@@ -179,8 +231,8 @@ export default function Home() {
                 <Plus className="w-6 h-6" />
               </div>
               <div className="text-left">
-                <p className="text-lg font-serif">Log Spending</p>
-                <p className="text-[10px] opacity-70 font-bold uppercase tracking-widest">Identify a choice</p>
+                <p className="text-lg font-serif">Identify a Choice</p>
+                <p className="text-[10px] opacity-70 font-bold uppercase tracking-widest">Log spending</p>
               </div>
             </div>
             <ArrowRight className="w-5 h-5 opacity-40" />
@@ -198,8 +250,8 @@ export default function Home() {
                 <Timer className="w-6 h-6" />
               </div>
               <div className="text-left">
-                <p className="text-lg font-serif">Pause an Urge</p>
-                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Create a gap</p>
+                <p className="text-lg font-serif">Create a Gap</p>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Pause an urge</p>
               </div>
             </div>
             <ArrowRight className="w-5 h-5 text-primary opacity-40" />
@@ -211,7 +263,7 @@ export default function Home() {
       <section className="space-y-4">
         <div className="flex items-center gap-2 px-1">
           <Target className="w-4 h-4 text-primary" />
-          <h2 className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Current Insights</h2>
+          <h2 className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Awareness Insights</h2>
         </div>
         
         <div className="grid grid-cols-1 gap-4">
@@ -219,21 +271,33 @@ export default function Home() {
             <Link href="/rewards" className="contents">
               <DiscoveryItem 
                 icon={<Sparkles className="w-4 h-4" />} 
-                label="Points" 
+                label="Awareness Coins" 
                 value={rewards.awarenessPoints || 0} 
               />
             </Link>
             <DiscoveryItem 
               icon={<Zap className="w-4 h-4" />} 
-              label="Level" 
-              value={currentStreak >= 7 ? "Zen" : "Beginner"} 
+              label="Growth Stage" 
+              value={currentLevel} 
             />
           </div>
+
+          {insight && (
+            <div className="p-6 glass-card border-primary/20 bg-primary/5 rounded-[2rem] flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                {insight.icon}
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{insight.title}</p>
+                <p className="text-sm font-serif leading-tight">{insight.message}</p>
+              </div>
+            </div>
+          )}
 
           {budgetValue > 0 ? (
             <div className="p-6 glass-card space-y-4 border-primary/10 rounded-[2rem]">
               <div className="flex justify-between items-start">
-                <p className="text-sm font-serif">Weekly Intentions</p>
+                <p className="text-sm font-serif">Intentional Space</p>
                 <p className="text-[10px] font-bold text-primary uppercase tracking-widest">
                   {Math.round((totalSpent / budgetValue) * 100)}% Used
                 </p>
@@ -249,7 +313,7 @@ export default function Home() {
                 />
               </div>
               <p className="text-[9px] text-muted-foreground leading-relaxed italic">
-                &ldquo;You&apos;ve aligned {Math.max(0, 100 - Math.round((totalSpent / budgetValue) * 100))}% of your remaining space.&rdquo;
+                 Your financial story is {Math.max(0, 100 - Math.round((totalSpent / budgetValue) * 100))}% unwritten.
               </p>
             </div>
           ) : (

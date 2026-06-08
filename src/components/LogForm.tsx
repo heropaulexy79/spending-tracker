@@ -16,12 +16,13 @@ const CATEGORIES = [
   { label: "Giving", emoji: "🤲", color: "bg-amber-500/10 text-amber-500" },
 ];
 
-const MOODS = [
-  { label: "Happy", emoji: "😊" },
-  { label: "Normal", emoji: "😐" },
-  { label: "Stressed", emoji: "😔" },
-  { label: "Frustrated", emoji: "😤" },
-  { label: "Tired", emoji: "😴" },
+const MICRO_REFLECTIONS = [
+  { label: "Stress", emoji: "😓", color: "bg-orange-500/10 text-orange-500" },
+  { label: "Celebration", emoji: "🎉", color: "bg-emerald-500/10 text-emerald-500" },
+  { label: "Family", emoji: "👨‍👩‍👧", color: "bg-rose-500/10 text-rose-500" },
+  { label: "Investment", emoji: "📈", color: "bg-blue-500/10 text-blue-500" },
+  { label: "Self-Care", emoji: "❤️", color: "bg-violet-500/10 text-violet-500" },
+  { label: "Other", emoji: "✨", color: "bg-muted text-muted-foreground" },
 ];
 
 export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void }) {
@@ -59,9 +60,8 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
     setStep(3);
   };
 
-  const handleMoodSelect = (mood: string) => {
-    // In a real app, we'd update the log with the mood. 
-    // Here we just acknowledge it and finish.
+  const handleReflectionSelect = (reflection: string) => {
+    // In a real app, we'd update the log with the reflection.
     setIsDone(true);
     setTimeout(() => {
         window.location.href = "/";
@@ -78,7 +78,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
         <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto border border-primary/20">
           <Sparkles className="w-10 h-10 text-primary" />
         </div>
-        <h3 className="text-2xl font-serif text-foreground">Discovery Logged</h3>
+        <h3 className="text-2xl font-serif text-foreground">Entry Recorded</h3>
         <p className="text-muted-foreground text-sm">Your awareness is your superpower.</p>
       </motion.div>
     );
@@ -220,30 +220,34 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
             key="step3"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="space-y-10 py-4 text-center"
+            className="space-y-8 py-4 text-center"
           >
             <div className="space-y-4">
               <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20">
                 <CheckCircle2 className="w-8 h-8 text-emerald-500" />
               </div>
-              <h2 className="text-3xl font-serif">Saved.</h2>
+              <h2 className="text-3xl font-serif">Logged.</h2>
             </div>
 
             <div className="space-y-6">
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">Want deeper insight?</p>
-                <h3 className="text-xl font-serif">How did you feel?</h3>
+                <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Micro Reflection</p>
+                <h3 className="text-xl font-serif text-foreground">What was on your mind?</h3>
               </div>
               
-              <div className="flex justify-center gap-3">
-                {MOODS.map((m) => (
+              <div className="grid grid-cols-3 gap-3">
+                {MICRO_REFLECTIONS.map((m) => (
                   <button
                     key={m.label}
-                    onClick={() => handleMoodSelect(m.label)}
-                    className="w-14 h-14 rounded-2xl bg-muted border border-border flex items-center justify-center text-2xl hover:bg-primary/10 hover:border-primary/30 transition-all"
+                    onClick={() => handleReflectionSelect(m.label)}
+                    className={cn(
+                      "flex flex-col items-center gap-2 p-4 rounded-2xl border border-border transition-all hover:border-primary/30 hover:bg-primary/5",
+                      m.color
+                    )}
                     title={m.label}
                   >
-                    {m.emoji}
+                    <span className="text-xl">{m.emoji}</span>
+                    <span className="text-[8px] font-bold uppercase tracking-widest leading-none">{m.label}</span>
                   </button>
                 ))}
               </div>

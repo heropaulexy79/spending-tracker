@@ -25,6 +25,7 @@ interface TrackingContextType {
   saveProjectionsBaseline: (income: number, estimate: number) => Promise<void>;
   addLog: (log: any) => Promise<void>;
   addUrge: (urge: any) => Promise<void>;
+  resolveUrge: (urgeId: string, action: "Resisted" | "Purchased", shouldSave?: boolean) => Promise<void>;
   addReflection: (reflection: any) => Promise<void>;
   addCheckIn: (score: number) => Promise<void>;
   updateRewards: (pointDelta: number, newBadge?: string) => Promise<void>;
@@ -190,10 +191,12 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
 
   const addUrge = async (urge: any) => {
     if (!user) return;
-    const { type, action, resisted24h, trigger, delayReason, delayRevisit } = urge;
+    const { item, amount, type, action, resisted24h, trigger, delayReason, delayRevisit } = urge;
     const weekKey = getWeekKey();
     const urgeRef = doc(collection(db, "users", user.uid, "urges"));
     await setDoc(urgeRef, { 
+      item: item || "Unspecified Item",
+      amount: Number(amount) || 0,
       type,
       action,
       resisted24h: !!resisted24h,
@@ -207,6 +210,34 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     });
     if (action === "Resisted" || action === "Delayed") {
       await updateRewards(10);
+    }
+  };
+
+  const resolveUrge = async (urgeId: string, action: "Resisted" | "Purchased", shouldSave: boolean = false) => {
+    if (!user) return;
+    const urgeRef = doc(db, "users", user.uid, "urges", urgeId);
+    const urgeSnap = urges.find(u => u.id === urgeId);
+    
+    await updateDoc(urgeRef, { 
+      action,
+      resolvedAt: serverTimestamp(),
+      convertedToSavings: shouldSave
+    });
+
+    if (shouldSave && urgeSnap) {
+      await addLog({
+        item: `Savings from: ${urgeSnap.item}`,
+        amount: urgeSnap.amount,
+        category: "Growth",
+        spendingType: "Savings",
+        isSavings: true,
+        date: getLocalDateString(),
+        createdAt: new Date()
+      });
+    }
+
+    if (action === "Resisted") {
+      await updateRewards(15); // Bonus for following through
     }
   };
 
@@ -305,7 +336,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       plan, rewards, logs, urges, reflections, checkIns, loading,
       noSpendDayLogged, spendLoggedToday, urgeLoggedToday, reflectionLoggedToday, checkedInToday,
       monthlyIncome, preAppMonthlySpendingEstimate, savePlan, saveProjectionsBaseline,
-      addLog, addUrge, addReflection, addCheckIn, updateRewards, getHistoricalData, triggerSystemNotification
+      addLog, addUrge, resolveUrge, addReflection, addCheckIn, updateRewards, getHistoricalData, triggerSystemNotification
     }}>
       {children}
     </TrackingContext.Provider>

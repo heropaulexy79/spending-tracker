@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import { AuthProvider } from "@/context/AuthContext";
@@ -7,15 +6,15 @@ import { TrackingProvider } from "@/context/TrackingContext";
 import InstallPrompt from "@/components/InstallPrompt";
 import AppShell from "@/components/layout/AppShell";
 
-const dmSans = DM_Sans({ 
-  subsets: ["latin"],
+const dmSans = {
   variable: "--font-dm-sans",
-});
+  className: "font-sans",
+};
 
-const playfair = Playfair_Display({ 
-  subsets: ["latin"],
+const playfair = {
   variable: "--font-playfair",
-});
+  className: "font-serif",
+};
 
 import { ThemeProvider } from "@/components/ThemeProvider";
 
