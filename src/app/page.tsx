@@ -124,6 +124,9 @@ export default function Home() {
 
   const insight = getSpendingInsight();
 
+  const isMonday = new Date().getDay() === 1;
+  const needsWeeklyPlan = isMonday && !plan?.budget;
+
   const handleCheckIn = async () => {
     await addCheckIn(checkInScore);
     setHasJustCheckedIn(true);
@@ -131,7 +134,7 @@ export default function Home() {
 
   return (
     <div className="space-y-8 animate-in pb-20">
-      <header className="pt-8">
+      <header className="pt-8 text-center sm:text-left">
         <div className="space-y-1">
           <p className="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-2">Money Awareness Companion</p>
           <h1 className="text-4xl font-serif tracking-tight text-foreground">
@@ -139,6 +142,34 @@ export default function Home() {
           </h1>
         </div>
       </header>
+
+      {/* Monday Planning Call to Action */}
+      {needsWeeklyPlan && (
+        <section className="animate-in slide-in-from-top-4 duration-1000">
+          <Link href="/plan">
+            <div className="p-8 rounded-[2rem] bg-primary text-primary-foreground space-y-4 relative overflow-hidden shadow-2xl shadow-primary/20 group">
+              <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:scale-110 transition-transform">
+                <Target className="w-16 h-16" />
+              </div>
+              <div className="space-y-2 relative z-10">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 opacity-70" />
+                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-70">Monday Intention</p>
+                </div>
+                <h2 className="text-2xl font-serif">Set your week&apos;s story.</h2>
+                <p className="text-xs opacity-80 leading-relaxed max-w-[200px]">
+                  It&apos;s Monday. A fresh start to decide how you want to move with your money.
+                </p>
+              </div>
+              <div className="pt-2">
+                <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">
+                  Define your plan <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+            </div>
+          </Link>
+        </section>
+      )}
 
       {/* Daily Check-in Slider */}
       {!checkedInToday && !hasJustCheckedIn && (
