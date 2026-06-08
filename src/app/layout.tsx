@@ -4,7 +4,6 @@ import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import { AuthProvider } from "@/context/AuthContext";
 import { TrackingProvider } from "@/context/TrackingContext";
-import NotificationManager from "@/components/NotificationManager";
 import InstallPrompt from "@/components/InstallPrompt";
 import AppShell from "@/components/layout/AppShell";
 
@@ -59,7 +58,6 @@ export default function RootLayout({
           <AuthProvider>
             <TrackingProvider>
               <AnalyticsTracker />
-              <NotificationManager />
               <InstallPrompt />
               <OfflineStatus />
               <AppShell>

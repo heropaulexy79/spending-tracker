@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import AuthForm from "@/components/AuthForm";
-import Reminders from "@/components/Reminders";
 import { useAuth } from "@/context/AuthContext";
 import { useTracking } from "@/hooks/useTracking";
 import { motion } from "framer-motion";
@@ -218,11 +216,13 @@ export default function Home() {
         
         <div className="grid grid-cols-1 gap-4">
           <div className="grid grid-cols-2 gap-4">
-            <DiscoveryItem 
-              icon={<Sparkles className="w-4 h-4" />} 
-              label="Points" 
-              value={rewards.awarenessPoints || 0} 
-            />
+            <Link href="/rewards" className="contents">
+              <DiscoveryItem 
+                icon={<Sparkles className="w-4 h-4" />} 
+                label="Points" 
+                value={rewards.awarenessPoints || 0} 
+              />
+            </Link>
             <DiscoveryItem 
               icon={<Zap className="w-4 h-4" />} 
               label="Level" 
@@ -302,7 +302,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Reminders />
     </div>
   );
 }

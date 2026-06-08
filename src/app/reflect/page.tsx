@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Quote, Save, CheckCircle2 } from "lucide-react";
+import { BookOpen, Quote, Save, CheckCircle2, Crown } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
 
 export default function ReflectPage() {
@@ -58,7 +58,29 @@ export default function ReflectPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in pb-12">
+    <div className="relative">
+      {/* Premium Overlay */}
+      <div className="absolute inset-0 z-50 backdrop-blur-[6px] bg-background/20 rounded-[2rem] flex flex-col items-center justify-center p-8 text-center space-y-6">
+        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center border border-primary/20">
+          <Crown className="w-10 h-10 text-primary" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-3xl font-serif text-foreground">Premium Asset</h2>
+          <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
+            The Awareness Journal is a premium feature. Unlock deep behavioral introspection with our expert-tier plans.
+          </p>
+        </div>
+        <div className="flex flex-col gap-3 w-full max-w-[200px]">
+          <button className="w-full py-4 bg-primary text-primary-foreground rounded-full text-[10px] font-bold uppercase tracking-widest shadow-xl shadow-primary/20">
+            View Plans
+          </button>
+          <div className="text-[10px] font-bold text-primary uppercase tracking-widest opacity-50">
+            Coming Soon
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-8 animate-in pb-12 opacity-30 pointer-events-none grayscale">
       <header className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="h-[1px] w-8 bg-primary/40" />
@@ -185,6 +207,7 @@ export default function ReflectPage() {
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }

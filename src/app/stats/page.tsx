@@ -2,124 +2,142 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Zap, Target, BookOpen, Quote, Sparkles, X, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Zap, Target, BookOpen, Quote, Sparkles, X, ChevronRight, Brain } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { getLocalDateString, getWeekKey, getMonthKey } from "@/lib/dateUtils";
 
-export default function WeeklyStoriesPage() {
+export default function StatsPage() {
   const { logs, urges, plan, loading } = useTracking();
+  const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("weekly");
   const [currentSlide, setCurrentSlide] = useState(0);
 
   if (loading) return null;
 
-  // Basic calculation for the "Story"
-  const totalSpend = logs.filter(l => !l.isSavings).reduce((a, b) => a + (Number(b.amount) || 0), 0);
-  const resistedUrges = urges.filter(u => u.action === "Delayed" || u.action === "Resisted").length;
-  const noSpendDays = logs.filter(l => l.noSpendDay).length;
-  const budget = Number(plan?.budget) || 0;
-  const healthRatio = budget > 0 ? (totalSpend / budget) : 0;
+  const todayStr = getLocalDateString();
+  const weekKey = getWeekKey();
+  const monthKey = getMonthKey();
+
+  const filteredLogs = logs.filter(l => {
+    if (period === "daily") return l.date === todayStr;
+    if (period === "weekly") return l.weekKey === weekKey;
+    return l.monthKey === monthKey;
+  });
+
+  const filteredUrges = urges.filter(u => {
+    let uDate: string;
+    if (u.createdAt && typeof u.createdAt === "object" && "seconds" in u.createdAt) {
+      uDate = getLocalDateString(new Date((u.createdAt as any).seconds * 1000));
+    } else {
+      uDate = getLocalDateString(u.createdAt ? new Date(u.createdAt) : new Date());
+    }
+
+    if (period === "daily") return uDate === todayStr;
+    if (period === "weekly") return u.weekKey === weekKey;
+    return u.monthKey === monthKey;
+  });
+
+  const purchases = filteredLogs.filter(l => !l.isSavings && !l.noSpendDay).length;
+  const totalSpent = filteredLogs.filter(l => !l.isSavings).reduce((a, b) => a + (Number(b.amount) || 0), 0);
+  const avoidedPurchases = filteredUrges.filter(u => u.action === "Resisted").length;
+  // Late urges: Delayed but then ended up in logs? 
+  // Let's approximate: Delayed urges in this period.
+  const lateUrges = filteredUrges.filter(u => u.action === "Delayed").length;
+  const estimatedSavings = filteredLogs.filter(l => l.isSavings).reduce((a, b) => a + (Number(b.amount) || 0), 0) + 
+                           filteredUrges.filter(u => u.action === "Resisted").reduce((a, b) => a + (Number(b.amount) || 0), 0);
+
+  // Trigger areas
+  const triggers = filteredUrges.reduce((acc: any, u) => {
+    if (u.type) acc[u.type] = (acc[u.type] || 0) + 1;
+    return acc;
+  }, {});
+  const biggestTrigger = Object.entries(triggers).sort((a: any, b: any) => b[1] - a[1])[0]?.[0] || "None";
+
+  const periodData = {
+    daily: { title: "Daily Pulse", subtitle: "Your awareness today." },
+    weekly: { title: "Weekly Story", subtitle: "A chapter of control." },
+    monthly: { title: "Monthly Vision", subtitle: "Long-term transition." },
+  };
 
   const slides = [
     {
-      type: "intro",
-      title: "Your Week in Review",
-      subtitle: "A story created by your decisions.",
+      type: "overview",
+      title: periodData[period].title,
       content: (
-        <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
-          <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center border border-primary/20">
-            <BookOpen className="w-10 h-10 text-primary" />
-          </div>
+        <div className="flex flex-col items-center justify-center h-full text-center space-y-10">
           <div className="space-y-2">
-             <h2 className="text-4xl font-serif">The Chapter of Control</h2>
-             <p className="text-muted-foreground italic">Every choice was a word. This is the sentence you wrote.</p>
+            <h2 className="text-5xl font-serif">{periodData[period].title}</h2>
+            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-bold">{periodData[period].subtitle}</p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
+            <div className="p-6 glass-card rounded-[2rem] border-primary/5 space-y-1">
+              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Purchases</p>
+              <p className="text-2xl font-serif">{purchases}</p>
+            </div>
+            <div className="p-6 glass-card rounded-[2rem] border-primary/5 space-y-1">
+              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Resisted</p>
+              <p className="text-2xl font-serif text-emerald-500">{avoidedPurchases}</p>
+            </div>
+            <div className="p-6 glass-card rounded-[2rem] border-primary/5 space-y-1">
+              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Spent</p>
+              <p className="text-2xl font-serif">{plan?.currency || "₦"}{totalSpent.toLocaleString()}</p>
+            </div>
+            <div className="p-6 glass-card rounded-[2rem] border-primary/5 space-y-1">
+              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Savings</p>
+              <p className="text-2xl font-serif text-emerald-500">{plan?.currency || "₦"}{estimatedSavings.toLocaleString()}</p>
+            </div>
           </div>
         </div>
       )
     },
     {
-        type: "stat",
-        title: "Intentionality",
-        content: (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
-            <div className="text-6xl font-serif text-primary">{resistedUrges}</div>
-            <div className="space-y-2">
-                <h3 className="text-2xl font-serif">Urges Paused</h3>
-                <p className="text-muted-foreground max-w-xs mx-auto">
-                    You practiced the &quot;Smart Delay&quot; {resistedUrges} times. 
-                    Each pause was a victory for your future self.
-                </p>
+      type: "behavior",
+      title: "Behavioral Insights",
+      content: (
+        <div className="flex flex-col items-center justify-center h-full text-center space-y-10">
+          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center border border-primary/20">
+            <Brain className="w-10 h-10 text-primary" />
+          </div>
+          <div className="space-y-6">
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Late Urges</p>
+              <p className="text-3xl font-serif">{lateUrges}</p>
+              <p className="text-[10px] text-muted-foreground">Pauses that required extra strength.</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Primary Trigger</p>
+              <p className="text-3xl font-serif text-primary">{biggestTrigger}</p>
+              <p className="text-[10px] text-muted-foreground">The area needing most awareness.</p>
             </div>
           </div>
-        )
+        </div>
+      )
     },
     {
-        type: "stat",
-        title: "The Quiet Days",
-        content: (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
-            <div className="flex gap-2">
-                {[...Array(7)].map((_, i) => (
-                    <div 
-                        key={i} 
-                        className={cn(
-                            "w-10 h-10 rounded-xl border flex items-center justify-center font-serif text-xl",
-                            i < noSpendDays ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500" : "bg-muted border-border text-muted-foreground/30"
-                        )}
-                    >
-                        {i < noSpendDays ? "✓" : "•"}
-                    </div>
-                ))}
-            </div>
-            <div className="space-y-2">
-                <h3 className="text-2xl font-serif">{noSpendDays} No-Spend Days</h3>
-                <p className="text-muted-foreground max-w-xs mx-auto">
-                    Silence is often the loud sound of discipline. You had {noSpendDays} beautiful, quiet days.
-                </p>
-            </div>
+      type: "identity",
+      title: "Your Identity",
+      content: (
+        <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
+          <div className="px-8 py-4 bg-primary/10 border border-primary/20 rounded-full">
+            <span className="text-2xl font-serif text-primary">
+              {avoidedPurchases > 5 ? "The Sovereign" : avoidedPurchases > 2 ? "The Resistor" : "The Observer"}
+            </span>
           </div>
-        )
-    },
-    {
-        type: "behavior",
-        title: "Your Identity",
-        content: (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
-            <div className="px-8 py-4 bg-primary/10 border border-primary/20 rounded-full">
-                <span className="text-2xl font-serif text-primary">The Resistor</span>
-            </div>
-            <div className="space-y-4">
-                <blockquote className="text-xl font-serif italic text-foreground leading-relaxed">
-                    &ldquo;My power comes from the space between I want and I buy.&rdquo;
-                </blockquote>
-                <p className="text-muted-foreground text-sm max-w-[250px] mx-auto">
-                    You prioritize long-term peace over short-term thrills. You are becoming a master of your environment.
-                </p>
-            </div>
+          <div className="space-y-4">
+            <Quote className="w-8 h-8 text-primary/20 mx-auto" />
+            <blockquote className="text-xl font-serif italic text-foreground leading-relaxed">
+              &ldquo;My power comes from the space between I want and I buy.&rdquo;
+            </blockquote>
+            <p className="text-muted-foreground text-sm max-w-[250px] mx-auto">
+              {period === "daily" 
+                ? "Today you practiced the pause. Tomorrow you'll master it."
+                : "You are prioritizing long-term peace over short-term thrills."}
+            </p>
           </div>
-        )
-    },
-    {
-        type: "conclusion",
-        title: "Next Week&apos;s Theme",
-        content: (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
-            <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center border border-amber-500/20">
-                <Target className="w-8 h-8 text-amber-500" />
-            </div>
-            <div className="space-y-2">
-                <h3 className="text-2xl font-serif text-amber-500">Deep Focus</h3>
-                <p className="text-muted-foreground max-w-xs mx-auto">
-                    Next week, focus on your &quot;Food&quot; choices. They seem to be your primary response to stress.
-                </p>
-            </div>
-            <Link href="/" className="w-full">
-                <button className="w-full py-5 bg-foreground text-background rounded-2xl font-bold">
-                    Finish Story
-                </button>
-            </Link>
-          </div>
-        )
+        </div>
+      )
     }
   ];
 
@@ -155,9 +173,23 @@ export default function WeeklyStoriesPage() {
         <button onClick={() => window.history.back()} className="p-2 hover:text-foreground">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">
-          {slides[currentSlide].title}
-        </span>
+        <div className="flex gap-2 bg-muted/50 p-1 rounded-full">
+          {(["daily", "weekly", "monthly"] as const).map((p) => (
+            <button
+              key={p}
+              onClick={() => {
+                setPeriod(p);
+                setCurrentSlide(0);
+              }}
+              className={cn(
+                "px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all",
+                period === p ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
         <button onClick={() => window.location.href = "/"} className="p-2 hover:text-foreground">
           <X className="w-5 h-5" />
         </button>

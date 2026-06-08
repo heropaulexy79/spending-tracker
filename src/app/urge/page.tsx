@@ -235,7 +235,7 @@ export default function SmartDelayPage() {
                     </div>
                     <div className="text-right">
                         <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Awareness Points</p>
-                        <p className="text-2xl font-serif text-emerald-500">+20</p>
+                        <p className="text-2xl font-serif text-emerald-500">+10</p>
                     </div>
                 </div>
               </div>

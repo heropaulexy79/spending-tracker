@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 
 import { motion } from "framer-motion";
-import { Compass, CheckCircle } from "lucide-react";
+import { Compass, CheckCircle, Crown, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTracking } from "@/hooks/useTracking";
 import { getWeekKey } from "@/lib/dateUtils";
@@ -264,6 +264,30 @@ export default function PlanPage() {
             </div>
           </div>
         )}
+
+        {/* Coming Soon: Monthly Projections */}
+        <div className="p-8 glass-card space-y-6 border-dashed border-primary/20 relative overflow-hidden group">
+          <div className="absolute top-4 right-4">
+            <span className="px-3 py-1 bg-primary text-primary-foreground rounded-full text-[9px] font-bold uppercase tracking-widest">
+              Premium
+            </span>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Crown className="w-4 h-4 text-primary" />
+              <h3 className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Monthly Projections</h3>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xl font-serif text-foreground opacity-50 italic">“Visualise your future freedom...”</p>
+              <p className="text-xs text-muted-foreground">Detailed trajectory analysis based on your current velocity.</p>
+            </div>
+            <div className="pt-2">
+               <span className="text-[8px] font-bold text-primary uppercase tracking-[0.3em] px-4 py-2 bg-primary/5 rounded-full border border-primary/10">
+                 Coming Soon
+               </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -253,7 +253,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       monthKey: getMonthKey(),
       createdAt: serverTimestamp() 
     });
-    await updateRewards(2);
+    await updateRewards(5);
   };
 
   const todayStr = getLocalDateString();
@@ -296,20 +296,8 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
   };
 
   const triggerSystemNotification = async (title: string, body: string) => {
-    if (typeof window === "undefined" || !("Notification" in window)) return;
-    if (Notification.permission === "granted") {
-      try {
-        const registration = await navigator.serviceWorker.ready;
-        registration.showNotification(title, {
-          body,
-          icon: "/spendingtracker(black_bac_logo).png",
-          badge: "/spendingtracker(black_bac_logo).png",
-          tag: "behavior-reminder",
-        });
-      } catch (err) {
-        new Notification(title, { body });
-      }
-    }
+    // Notifications removed per user request
+    return;
   };
 
   return (
