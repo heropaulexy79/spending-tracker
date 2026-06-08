@@ -9,6 +9,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { getLocalDateString, getWeekKey } from "@/lib/dateUtils";
 import UrgeSavingsResolver from "@/components/UrgeSavingsResolver";
+import AuthForm from "@/components/AuthForm";
 
 export default function Home() {
   const { user } = useAuth();
