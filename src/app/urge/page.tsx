@@ -43,37 +43,7 @@ export default function SmartDelayPage() {
     setStep(4);
   };
 
-  if (urgeLoggedToday && step !== 4) {
-    return (
-      <div className="space-y-8 animate-in pb-20">
-        <header className="pt-8 space-y-2">
-          <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 text-primary" />
-            <p className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Hero Feature</p>
-          </div>
-          <h1 className="text-4xl font-serif tracking-tight text-foreground">Smart Delay</h1>
-          <p className="text-sm text-muted-foreground">Pause. Breathe. Decide with power.</p>
-        </header>
-
-        <div className="max-w-lg mx-auto w-full glass-card border-emerald-500/20 overflow-hidden min-h-[300px] flex flex-col items-center justify-center p-8 text-center space-y-6">
-          <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/20">
-            <ShieldCheck className="w-10 h-10 text-emerald-500" />
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-2xl font-serif">Discipline Achieved.</h2>
-            <p className="text-sm text-muted-foreground max-w-[250px] mx-auto leading-relaxed">
-              You&apos;ve already paused an urge today. Each day is a battle won for your future self. 
-            </p>
-          </div>
-          <Link href="/">
-            <button className="px-8 py-3 bg-foreground text-background rounded-full text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all">
-              Return to Dashboard
-            </button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  /* removed restriction for multiple entries */
 
   return (
     <div className="space-y-8 animate-in pb-20">

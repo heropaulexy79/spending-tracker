@@ -43,6 +43,10 @@ export default function StatsPage() {
   const avoidedPurchases = filteredUrges.filter(u => u.action === "Resisted").length;
   // Late urges: Delayed but then ended up in logs? 
   // Let's approximate: Delayed urges in this period.
+  const unsuccessfulUrges = filteredUrges.filter(u => u.action === "Purchased");
+  const unsuccessfulResistance = unsuccessfulUrges.length;
+  const amountLost = unsuccessfulUrges.reduce((a, b) => a + (Number(b.amount) || 0), 0);
+
   const lateUrges = filteredUrges.filter(u => u.action === "Delayed").length;
   const estimatedSavings = filteredLogs.filter(l => l.isSavings).reduce((a, b) => a + (Number(b.amount) || 0), 0) + 
                            filteredUrges.filter(u => u.action === "Resisted").reduce((a, b) => a + (Number(b.amount) || 0), 0);
@@ -100,18 +104,25 @@ export default function StatsPage() {
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center border border-primary/20">
             <Brain className="w-10 h-10 text-primary" />
           </div>
-          <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-8 w-full max-w-md">
             <div className="space-y-1">
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Late Urges</p>
               <p className="text-3xl font-serif">{lateUrges}</p>
-              <p className="text-[10px] text-muted-foreground">Pauses that required extra strength.</p>
             </div>
             <div className="space-y-1">
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Primary Trigger</p>
               <p className="text-3xl font-serif text-primary">{biggestTrigger}</p>
-              <p className="text-[10px] text-muted-foreground">The area needing most awareness.</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-coral-300 uppercase tracking-widest">Failed Resist</p>
+              <p className="text-3xl font-serif text-coral-300">{unsuccessfulResistance}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-coral-300 uppercase tracking-widest">Amount Lost</p>
+              <p className="text-3xl font-serif text-coral-300">{plan?.currency || "₦"}{amountLost.toLocaleString()}</p>
             </div>
           </div>
+          <p className="text-[10px] text-muted-foreground max-w-[200px]">Awareness is knowing where your power slipped.</p>
         </div>
       )
     },
@@ -198,7 +209,7 @@ export default function StatsPage() {
       {/* Main Content */}
       <div className="flex-1 relative overflow-hidden flex flex-col items-center justify-center p-8">
         <div 
-          className="absolute inset-0 z-0 flex md:hidden"
+          className="absolute inset-0 z-0 flex"
           onClick={(e) => {
             const x = e.clientX;
             if (x < window.innerWidth / 3) prevSlide();
@@ -212,31 +223,31 @@ export default function StatsPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="w-full h-full relative z-10"
+            className="w-full h-full relative z-10 pointer-events-none"
           >
             {slides[currentSlide].content}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Footer Nav for better desktop UX */}
-      <div className="p-8 hidden md:flex justify-between items-center bg-muted/20 border-t border-border mt-auto rounded-b-[3rem]">
+      {/* Footer Nav - now visible on all devices with explicit buttons */}
+      <div className="p-8 flex justify-between items-center bg-muted/20 border-t border-border mt-auto sm:rounded-b-[3rem] relative z-20">
         <button 
           onClick={prevSlide}
           disabled={currentSlide === 0}
-          className="flex items-center gap-2 text-sm font-bold opacity-50 hover:opacity-100 disabled:opacity-10"
+          className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-70 hover:opacity-100 disabled:opacity-10 transition-all bg-background px-4 py-2 rounded-full border border-border"
         >
-          <ArrowLeft className="w-4 h-4" /> Previous
+          <ArrowLeft className="w-3 h-3" /> Back
         </button>
-        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-            Slide {currentSlide + 1} / {slides.length}
+        <div className="text-[8px] font-bold uppercase tracking-widest text-muted-foreground">
+            {currentSlide + 1} / {slides.length}
         </div>
         <button 
           onClick={nextSlide}
           disabled={currentSlide === slides.length - 1}
-          className="flex items-center gap-2 text-sm font-bold opacity-50 hover:opacity-100 disabled:opacity-10"
+          className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-70 hover:opacity-100 disabled:opacity-10 transition-all bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg shadow-primary/20"
         >
-          Next <ArrowRight className="w-4 h-4" />
+          Next <ArrowRight className="w-3 h-3" />
         </button>
       </div>
     </div>

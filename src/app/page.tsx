@@ -176,8 +176,8 @@ export default function Home() {
         <section className="animate-in slide-in-from-top-4 duration-700">
           <div className="p-8 rounded-[2rem] bg-foreground/5 border border-foreground/5 space-y-6 text-center">
             <div className="space-y-1">
-              <h2 className="text-xl font-serif">What did your money teach you today?</h2>
-              <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">Ready for today&apos;s awareness check-in?</p>
+              <h2 className="text-xl font-serif">How is your relationship with money today?</h2>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">Slide to record your presence</p>
             </div>
             
             <div className="px-4 space-y-4">
@@ -190,9 +190,11 @@ export default function Home() {
                 className="w-full h-1.5 bg-muted rounded-full appearance-none cursor-pointer accent-primary"
               />
               <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                <span>Heavy</span>
-                <span className="text-primary font-black text-xs">{checkInScore}% Light</span>
-                <span>Fluid</span>
+                <span>Spent Heavily</span>
+                <span className="text-primary font-black text-xs">
+                  {checkInScore < 40 ? "Heavily" : checkInScore < 70 ? "Averagely" : "Lightly"}
+                </span>
+                <span>Spent Light</span>
               </div>
             </div>
 
@@ -200,7 +202,7 @@ export default function Home() {
               onClick={handleCheckIn}
               className="px-8 py-3 bg-foreground text-background rounded-full text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all"
             >
-              Confirm Presence
+              Confirm Feeling
             </button>
           </div>
         </section>

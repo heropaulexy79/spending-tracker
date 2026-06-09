@@ -25,7 +25,7 @@ interface TrackingContextType {
   saveProjectionsBaseline: (income: number, estimate: number) => Promise<void>;
   addLog: (log: any) => Promise<void>;
   addUrge: (urge: any) => Promise<void>;
-  resolveUrge: (urgeId: string, action: "Resisted" | "Purchased", shouldSave?: boolean) => Promise<void>;
+  resolveUrge: (urgeId: string, action: "Resisted" | "Purchased", shouldSave?: boolean, followUpData?: any) => Promise<void>;
   addReflection: (reflection: any) => Promise<void>;
   addCheckIn: (score: number) => Promise<void>;
   updateRewards: (pointDelta: number, newBadge?: string) => Promise<void>;
@@ -208,12 +208,9 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       monthKey: getMonthKey(),
       createdAt: serverTimestamp() 
     });
-    if (action === "Resisted" || action === "Delayed") {
-      await updateRewards(10);
-    }
   };
 
-  const resolveUrge = async (urgeId: string, action: "Resisted" | "Purchased", shouldSave: boolean = false) => {
+  const resolveUrge = async (urgeId: string, action: "Resisted" | "Purchased", shouldSave: boolean = false, followUpData?: any) => {
     if (!user) return;
     const urgeRef = doc(db, "users", user.uid, "urges", urgeId);
     const urgeSnap = urges.find(u => u.id === urgeId);
@@ -221,7 +218,8 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     await updateDoc(urgeRef, { 
       action,
       resolvedAt: serverTimestamp(),
-      convertedToSavings: shouldSave
+      convertedToSavings: shouldSave,
+      ...followUpData
     });
 
     if (shouldSave && urgeSnap) {
