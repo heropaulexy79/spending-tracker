@@ -39,8 +39,9 @@ export default function AuthForm() {
       "auth/weak-password": "Your password is too short. Please use at least 6 characters.",
       "auth/too-many-requests": "Too many attempts. Please wait a moment and try again.",
       "auth/network-request-failed": "No internet connection. Please check your network.",
+      "auth/unauthorized-domain": "This domain is not authorized in Firebase. Please check your Firebase Console.",
     };
-    return map[code] || "Something went wrong. Please try again.";
+    return map[code] || `Error: ${code}. Please try again.`;
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -56,8 +57,10 @@ export default function AuthForm() {
 
     try {
       await sendPasswordResetEmail(auth, formData.email);
-      setMessage("Password reset link sent! Check your inbox.");
+      setMessage("Check your email! We've sent a link to reset your password.");
+      setError(""); // Clear any previous errors
     } catch (err: any) {
+      console.error("Password Reset Error:", err);
       setError(getFriendlyErrorMessage(err.code));
     } finally {
       setLoading(false);
@@ -106,7 +109,7 @@ export default function AuthForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isResetMode) {
-      handleResetPassword(e);
+      await handleResetPassword(e);
       return;
     }
 
