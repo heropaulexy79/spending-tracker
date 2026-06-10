@@ -5,7 +5,7 @@ import LogForm from "@/components/LogForm";
 import WeeklyProgress from "@/components/WeeklyProgress";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
+import { AlertTriangle } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
 import { formatDate, getWeekKey } from "@/lib/dateUtils";
 
@@ -15,6 +15,10 @@ export default function LogPage() {
 
   const currentWeekKey = getWeekKey();
   const weeklyLogs = logs.filter(l => l.weekKey === currentWeekKey);
+  const weeklySpendLogs = weeklyLogs.filter(l => !l.isSavings && !l.noSpendDay);
+  const totalSpent = weeklySpendLogs.reduce((acc, l) => acc + (Number(l.amount) || 0), 0);
+  const budgetValue = Number(plan?.budget) || 0;
+  const isBudgetExceeded = budgetValue > 0 && totalSpent >= budgetValue;
 
   const today = new Date();
   const dateString = today.toLocaleDateString("en-US", { 
@@ -63,6 +67,24 @@ export default function LogPage() {
             <h2 className="text-2xl font-serif text-foreground">Log History</h2>
             <div className="h-[1px] flex-1 bg-border" />
           </div>
+
+          {/* Budget exceeded notice in history for traceability */}
+          {isBudgetExceeded && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-start gap-3 p-5 bg-red-500/10 border border-red-500/20 rounded-[1.5rem]"
+            >
+              <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="text-xs font-bold text-red-400 uppercase tracking-widest">Weekly Budget Exceeded</p>
+                <p className="text-[10px] text-muted-foreground leading-relaxed">
+                  You spent {plan?.currency || "₦"}{totalSpent.toLocaleString()} against a {plan?.currency || "₦"}{budgetValue.toLocaleString()} budget.
+                  Spending is locked until next week. Savings can still be logged.
+                </p>
+              </div>
+            </motion.div>
+          )}
           <div className="space-y-4 pb-8">
             {weeklyLogs.map((log, i) => {
               const formattedDate = formatDate(log.createdAt || log.date);
@@ -110,6 +132,12 @@ export default function LogPage() {
                               {tag}
                             </span>
                           ))}
+                          {log.isOverBudget && (
+                            <span className="px-3 py-1 bg-red-500/10 rounded-full text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-500/20 flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3" />
+                              Over Budget
+                            </span>
+                          )}
                         </>
                       ) : (
                         <>

@@ -2,9 +2,19 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { doc, setDoc, updateDoc, collection, query, where, onSnapshot, serverTimestamp, increment, arrayUnion } from "firebase/firestore";
+import { doc, setDoc, updateDoc, collection, query, where, onSnapshot, serverTimestamp, increment, arrayUnion, limit, orderBy } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
 import { getWeekKey, getMonthKey, getLocalDateString } from "@/lib/dateUtils";
+
+interface AppNotification {
+  id: string;
+  title: string;
+  body: string;
+  type: "coin_earned" | "urge_activated" | "urge_followup" | "weekly_summary" | "general";
+  read: boolean;
+  createdAt: any;
+  data?: any;
+}
 
 interface TrackingContextType {
   plan: any;
@@ -13,6 +23,8 @@ interface TrackingContextType {
   urges: any[];
   reflections: any[];
   checkIns: any[];
+  notifications: AppNotification[];
+  unreadCount: number;
   monthlyIncome: number;
   preAppMonthlySpendingEstimate: number;
   loading: boolean;
@@ -25,10 +37,12 @@ interface TrackingContextType {
   saveProjectionsBaseline: (income: number, estimate: number) => Promise<void>;
   addLog: (log: any) => Promise<void>;
   addUrge: (urge: any) => Promise<void>;
-  resolveUrge: (urgeId: string, action: "Resisted" | "Purchased", shouldSave?: boolean, followUpData?: any) => Promise<void>;
+  resolveUrge: (urgeId: string, action: "Resisted" | "Purchased", shouldSave?: boolean, saveAmount?: number, followUpData?: any) => Promise<void>;
   addReflection: (reflection: any) => Promise<void>;
   addCheckIn: (score: number) => Promise<void>;
   updateRewards: (pointDelta: number, newBadge?: string) => Promise<void>;
+  addNotification: (title: string, body: string, type: AppNotification["type"], data?: any) => Promise<void>;
+  markAllRead: () => Promise<void>;
   getHistoricalData: (type: 'week' | 'month', key: string) => Promise<{ logs: any[], urges: any[] }>;
   triggerSystemNotification: (title: string, body: string) => Promise<void>;
 }
@@ -43,6 +57,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
   const [urges, setUrges] = useState<any[]>([]);
   const [reflections, setReflections] = useState<any[]>([]);
   const [checkIns, setCheckIns] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [monthlyIncome, setMonthlyIncome] = useState<number>(0);
   const [preAppMonthlySpendingEstimate, setPreAppMonthlySpendingEstimate] = useState<number>(0);
   const [loading, setLoading] = useState(true);
@@ -50,13 +65,13 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!user) {
       setLoading(false);
-      // Reset state on logout
       setPlan(null);
       setRewards({ awarenessPoints: 0, badges: [] });
       setLogs([]);
       setUrges([]);
       setReflections([]);
       setCheckIns([]);
+      setNotifications([]);
       return;
     }
 
@@ -69,6 +84,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     let unsubUrges = () => {};
     let unsubReflections = () => {};
     let unsubCheckIns = () => {};
+    let unsubNotifications = () => {};
 
     try {
       unsubUser = onSnapshot(userRef, (doc) => {
@@ -104,14 +120,10 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       }, (err) => console.error("Logs Context Error:", err));
 
       const urgesRef = collection(db, "users", user.uid, "urges");
-      const qUrges = query(urgesRef, where("weekKey", "==", weekKey));
+      // Fetch more than just current week for the history page
+      const qUrges = query(urgesRef, orderBy("createdAt", "desc"), limit(100));
       unsubUrges = onSnapshot(qUrges, (snap) => {
         const u = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        u.sort((a: any, b: any) => {
-          const timeA = a.createdAt?.seconds || 0;
-          const timeB = b.createdAt?.seconds || 0;
-          return timeB - timeA;
-        });
         setUrges(u);
       }, (err) => console.error("Urges Context Error:", err));
       
@@ -128,6 +140,15 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
         const c = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setCheckIns(c);
       }, (err) => console.error("Check-ins Context Error:", err));
+
+      // Subscribe to notifications (last 30)
+      const notificationsRef = collection(db, "users", user.uid, "notifications");
+      const qNotifications = query(notificationsRef, orderBy("createdAt", "desc"), limit(30));
+      unsubNotifications = onSnapshot(qNotifications, (snap) => {
+        const n = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppNotification));
+        setNotifications(n);
+      }, (err) => console.error("Notifications Context Error:", err));
+
     } catch (err) {
       console.error("Setup Context Listeners Error:", err);
       setLoading(false);
@@ -139,8 +160,32 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       unsubUrges();
       unsubReflections();
       unsubCheckIns();
+      unsubNotifications();
     };
   }, [user]);
+
+  const addNotification = async (title: string, body: string, type: AppNotification["type"], data?: any) => {
+    if (!user) return;
+    const notifRef = doc(collection(db, "users", user.uid, "notifications"));
+    await setDoc(notifRef, {
+      title,
+      body,
+      type,
+      read: false,
+      data: data || null,
+      createdAt: serverTimestamp(),
+      uid: user.uid,
+    });
+  };
+
+  const markAllRead = async () => {
+    if (!user) return;
+    const unread = notifications.filter(n => !n.read);
+    await Promise.all(unread.map(n => {
+      const ref = doc(db, "users", user.uid, "notifications", n.id);
+      return updateDoc(ref, { read: true });
+    }));
+  };
 
   const savePlan = async (newPlan: any) => {
     if (!user) return;
@@ -186,7 +231,13 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       monthKey: getMonthKey(),
       createdAt: serverTimestamp() 
     });
-    await updateRewards(5);
+    // 2 coins per log entry
+    await updateRewards(2);
+    await addNotification(
+      "🪙 +2 Coins Earned",
+      isSavings ? `Savings logged – your future self is proud.` : `Choice logged: ${String(item).substring(0, 40)}`,
+      "coin_earned"
+    );
   };
 
   const addUrge = async (urge: any) => {
@@ -203,14 +254,22 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       trigger: trigger || null,
       delayReason: delayReason || null,
       delayRevisit: delayRevisit || null,
+      convertedToSavings: null,
       uid: user.uid,
       weekKey, 
       monthKey: getMonthKey(),
       createdAt: serverTimestamp() 
     });
+    // Notify about urge being tracked
+    await addNotification(
+      "⏱ Urge Paused",
+      `You paused on: ${item || "an item"}. Check back in 24h to close the loop.`,
+      "urge_activated",
+      { item, amount }
+    );
   };
 
-  const resolveUrge = async (urgeId: string, action: "Resisted" | "Purchased", shouldSave: boolean = false, followUpData?: any) => {
+  const resolveUrge = async (urgeId: string, action: "Resisted" | "Purchased", shouldSave: boolean = false, saveAmount?: number, followUpData?: any) => {
     if (!user) return;
     const urgeRef = doc(db, "users", user.uid, "urges", urgeId);
     const urgeSnap = urges.find(u => u.id === urgeId);
@@ -219,23 +278,39 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       action,
       resolvedAt: serverTimestamp(),
       convertedToSavings: shouldSave,
+      savedAmount: shouldSave ? (saveAmount || urgeSnap?.amount || 0) : null,
       ...followUpData
     });
 
     if (shouldSave && urgeSnap) {
+      const amountToSave = saveAmount || urgeSnap.amount;
       await addLog({
-        item: `Savings from: ${urgeSnap.item}`,
-        amount: urgeSnap.amount,
+        item: `Awareness Savings: ${urgeSnap.item}`,
+        amount: amountToSave,
         category: "Growth",
         spendingType: "Savings",
         isSavings: true,
         date: getLocalDateString(),
         createdAt: new Date()
       });
+      // +1 coin for redirecting money to savings after urge resistance
+      await updateRewards(1);
+      await addNotification(
+        "🌱 +1 Coin – Awareness Saving",
+        `${plan?.currency || "₦"}${Number(amountToSave).toLocaleString()} redirected from "${urgeSnap.item}" to your Growth Goal.`,
+        "coin_earned",
+        { item: urgeSnap.item, amount: amountToSave }
+      );
     }
 
     if (action === "Resisted") {
-      await updateRewards(15); // Bonus for following through
+      // 2 coins for resisting an urge
+      await updateRewards(2);
+      await addNotification(
+        "🏆 +2 Coins – Urge Resisted!",
+        `You resisted buying "${urgeSnap?.item || "an item"}". That's real awareness.`,
+        "coin_earned"
+      );
     }
   };
 
@@ -268,6 +343,11 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       createdAt: serverTimestamp() 
     });
     await updateRewards(5);
+    await addNotification(
+      "🪙 +5 Coins – Deep Reflection",
+      "Your reflection was logged. That self-awareness is priceless.",
+      "coin_earned"
+    );
   };
 
   const addCheckIn = async (score: number) => {
@@ -283,6 +363,11 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       createdAt: serverTimestamp() 
     });
     await updateRewards(5);
+    await addNotification(
+      "🪙 +5 Coins – Daily Check-in",
+      "You checked in today. Consistency builds awareness.",
+      "coin_earned"
+    );
   };
 
   const todayStr = getLocalDateString();
@@ -309,6 +394,8 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
   });
   const checkedInToday = checkIns.some(c => c.date === todayStr);
 
+  const unreadCount = notifications.filter(n => !n.read).length;
+
   const getHistoricalData = async (type: 'week' | 'month', key: string) => {
     if (!user) return { logs: [], urges: [] };
     const logsRef = collection(db, "users", user.uid, "logs");
@@ -325,16 +412,29 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
   };
 
   const triggerSystemNotification = async (title: string, body: string) => {
-    // Notifications removed per user request
-    return;
+    if (typeof window === "undefined") return;
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "granted") {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        registration.showNotification(title, {
+          body,
+          icon: "/icons/icon-192x192.png",
+          badge: "/icons/icon-192x192.png",
+        });
+      } catch (err) {
+        console.warn("System notification failed:", err);
+      }
+    }
   };
 
   return (
     <TrackingContext.Provider value={{ 
-      plan, rewards, logs, urges, reflections, checkIns, loading,
+      plan, rewards, logs, urges, reflections, checkIns, notifications, unreadCount, loading,
       noSpendDayLogged, spendLoggedToday, urgeLoggedToday, reflectionLoggedToday, checkedInToday,
       monthlyIncome, preAppMonthlySpendingEstimate, savePlan, saveProjectionsBaseline,
-      addLog, addUrge, resolveUrge, addReflection, addCheckIn, updateRewards, getHistoricalData, triggerSystemNotification
+      addLog, addUrge, resolveUrge, addReflection, addCheckIn, updateRewards,
+      addNotification, markAllRead, getHistoricalData, triggerSystemNotification
     }}>
       {children}
     </TrackingContext.Provider>

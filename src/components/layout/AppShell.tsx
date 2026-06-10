@@ -10,8 +10,11 @@ import ThemeToggle from "../ThemeToggle";
 import CurrencySwitcher from "../CurrencySwitcher";
 import HelpModal from "../HelpModal";
 import UserProfileMenu from "../UserProfileMenu";
+import NotificationCenter from "../NotificationCenter";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import { doc, setDoc } from "firebase/firestore";
+import { db, messaging } from "@/lib/firebase";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -34,6 +37,36 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         });
     }
   }, []);
+
+  // Request push notification permission and save FCM token
+  useEffect(() => {
+    if (!user) return;
+    const requestPushPermission = async () => {
+      try {
+        if (typeof window === "undefined" || !("Notification" in window)) return;
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") return;
+
+        const messagingInstance = await messaging();
+        if (!messagingInstance) return;
+
+        const { getToken } = await import("firebase/messaging");
+        // VAPID key from Firebase Console → Project Settings → Cloud Messaging
+        const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+        if (!vapidKey) return;
+
+        const token = await getToken(messagingInstance, { vapidKey });
+        if (token) {
+          const userRef = doc(db, "users", user.uid);
+          await setDoc(userRef, { fcmToken: token }, { merge: true });
+          console.log("FCM token saved.");
+        }
+      } catch (err) {
+        console.warn("Push notification setup failed:", err);
+      }
+    };
+    requestPushPermission();
+  }, [user]);
 
   useEffect(() => {
     const globalSeen = localStorage.getItem(`hasSeenGuide_global`);
@@ -91,6 +124,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           )}
         </div>
         <div className="flex-1 flex justify-end gap-2 items-center">
+          {user && (
+            <NotificationCenter />
+          )}
           {user && (
             <button
               onClick={() => setShowHelpModal(true)}

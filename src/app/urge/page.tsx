@@ -246,7 +246,7 @@ export default function SmartDelayPage() {
       </section>
 
       {/* History Shortcut */}
-      <Link href="/stats" className="flex items-center justify-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-primary transition-colors">
+      <Link href="/urge/history" className="flex items-center justify-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-primary transition-colors">
         <History className="w-4 h-4" /> View Delayed Urges
       </Link>
     </div>

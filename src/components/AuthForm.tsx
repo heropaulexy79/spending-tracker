@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -11,10 +11,32 @@ import {
   signInWithPopup,
   getAdditionalUserInfo
 } from "firebase/auth";
+import { doc, setDoc, updateDoc, increment, collection, serverTimestamp } from "firebase/firestore";
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, User, ArrowRight, Loader2, Key, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const grantWelcomeCoins = async (uid: string) => {
+  try {
+    const userRef = doc(db, "users", uid);
+    await updateDoc(userRef, { "rewards.awarenessPoints": increment(3) }).catch(() =>
+      setDoc(userRef, { "rewards.awarenessPoints": 3 }, { merge: true })
+    );
+    const notifRef = doc(collection(db, "users", uid, "notifications"));
+    await setDoc(notifRef, {
+      title: "🎉 Welcome! +3 Coins",
+      body: "Welcome to Crafting the Mind. Your awareness journey starts now.",
+      type: "coin_earned",
+      read: false,
+      data: null,
+      createdAt: serverTimestamp(),
+      uid,
+    });
+  } catch (e) {
+    console.error("Welcome coin grant failed:", e);
+  }
+};
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
@@ -138,6 +160,9 @@ export default function AuthForm() {
         } catch (e) {
           console.error("Failed to send welcome email:", e);
         }
+
+        // Grant 3 welcome coins (one-time)
+        await grantWelcomeCoins(cred.user.uid);
       }
     } catch (err: any) {
       setError(getFriendlyErrorMessage(err.code));

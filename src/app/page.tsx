@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useTracking } from "@/hooks/useTracking";
-import { motion } from "framer-motion";
-import { Plus, Timer, Loader2, ArrowRight, Sparkles, Target, Zap, TrendingUp, Wallet, ShieldCheck } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Timer, Loader2, ArrowRight, Sparkles, Target, Zap, TrendingUp, Wallet, ShieldCheck, X, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { getLocalDateString, getWeekKey } from "@/lib/dateUtils";
@@ -25,6 +25,7 @@ export default function Home() {
 
   const [checkInScore, setCheckInScore] = useState(50);
   const [hasJustCheckedIn, setHasJustCheckedIn] = useState(false);
+  const [showGrowthModal, setShowGrowthModal] = useState(false);
 
   if (!user) {
     return (
@@ -309,11 +310,14 @@ export default function Home() {
                 value={rewards.awarenessPoints || 0} 
               />
             </Link>
-            <DiscoveryItem 
-              icon={<Zap className="w-4 h-4" />} 
-              label="Growth Stage" 
-              value={currentLevel} 
-            />
+            <button onClick={() => setShowGrowthModal(true)} className="contents text-left">
+              <DiscoveryItem 
+                icon={<Zap className="w-4 h-4" />} 
+                label="Growth Stage" 
+                value={currentLevel}
+                clickable
+              />
+            </button>
           </div>
 
           {insight && (
@@ -381,14 +385,14 @@ export default function Home() {
               >
                 <div className="space-y-1">
                   <p className="font-bold text-foreground text-sm uppercase tracking-tight">
-                    {log.isSavings ? "💰 Saved" : log.category || "Choice"}
+                    {log.noSpendDay ? "🌿 No-Spend Day" : log.isSavings ? "💰 Saved" : log.category || "Choice"}
                   </p>
                   <p className="text-[9px] text-muted-foreground font-bold tracking-widest uppercase">
-                    {log.item || "Spending Event"}
+                    {log.noSpendDay ? "Quiet Discipline" : sanitizeItem(log)}
                   </p>
                 </div>
                 <p className="font-serif text-lg">
-                  {plan?.currency || "₦"}{Number(log.amount).toLocaleString()}
+                  {log.noSpendDay ? "—" : `${plan?.currency || "₦"}${Number(log.amount).toLocaleString()}`}
                 </p>
               </motion.div>
             ))
@@ -400,20 +404,155 @@ export default function Home() {
         </div>
       </section>
 
+      {showGrowthModal && (
+        <GrowthStageModal
+          currentStreak={currentStreak}
+          currentLevel={currentLevel}
+          onClose={() => setShowGrowthModal(false)}
+        />
+      )}
     </div>
   );
 }
 
-function DiscoveryItem({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | number }) {
+// Sanitize log item display – prevents showing "undefined" or corrupted strings
+function sanitizeItem(log: any): string {
+  const raw = log.item;
+  if (!raw || typeof raw !== "string" || raw.toLowerCase().includes("undefined")) {
+    if (log.isSavings) return "Awareness Saving";
+    return log.category || "Spending Event";
+  }
+  return raw;
+}
+
+function DiscoveryItem({ icon, label, value, clickable }: { icon: React.ReactNode, label: string, value: string | number, clickable?: boolean }) {
   return (
-    <div className="p-6 glass-card border-primary/5 flex flex-col items-center gap-3 transition-all hover:bg-primary/5 rounded-[2rem] text-center">
+    <div className={cn(
+      "p-6 glass-card border-primary/5 flex flex-col items-center gap-3 transition-all rounded-[2rem] text-center w-full",
+      clickable && "hover:bg-primary/10 hover:border-primary/20 active:scale-95 cursor-pointer border border-transparent"
+    )}>
       <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
         {icon}
       </div>
       <div>
         <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest mb-1">{label}</p>
         <p className="text-xl font-serif text-foreground">{value}</p>
+        {clickable && <p className="text-[8px] text-primary/60 uppercase tracking-widest font-bold mt-1">Tap to explore</p>}
       </div>
     </div>
+  );
+}
+
+const ALL_GROWTH_LEVELS = [
+  { name: "Explorer",         days: 0,  desc: "You just started. Every log is a step.",                       emoji: "🔍" },
+  { name: "Observer",         days: 1,  desc: "You're noticing patterns. Awareness is growing.",             emoji: "👁" },
+  { name: "Aware",            days: 2,  desc: "You see your triggers. That's rare.",                         emoji: "🌱" },
+  { name: "Intentional",      days: 3,  desc: "Your choices are becoming conscious. Real progress.",         emoji: "🎯" },
+  { name: "Mindful",          days: 4,  desc: "You pause before spending. That pause is powerful.",          emoji: "🧘" },
+  { name: "Focused",          days: 5,  desc: "You're building something. Your habits are shifting.",        emoji: "⚡" },
+  { name: "Conscious Spender",days: 6,  desc: "You're operating with full financial self-awareness.",        emoji: "🏆" },
+];
+
+function GrowthStageModal({ currentStreak, currentLevel, onClose }: { currentStreak: number, currentLevel: string, onClose: () => void }) {
+  const currentIndex = ALL_GROWTH_LEVELS.findIndex(l => l.name === currentLevel);
+  const daysToNext = currentIndex < ALL_GROWTH_LEVELS.length - 1
+    ? ALL_GROWTH_LEVELS[currentIndex + 1].days - currentStreak
+    : 0;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 60 }}
+          className="w-full max-w-lg bg-background border border-border rounded-[2rem] overflow-hidden shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-border">
+            <div>
+              <p className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Your Journey</p>
+              <h2 className="text-2xl font-serif">Growth Stages</h2>
+            </div>
+            <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Current status banner */}
+          <div className="mx-6 mt-4 p-4 bg-primary/10 border border-primary/20 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[9px] font-bold text-primary uppercase tracking-widest">You are here</p>
+                <p className="text-lg font-serif">{currentLevel}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Streak</p>
+                <p className="text-lg font-serif text-primary">🔥 {currentStreak} days</p>
+              </div>
+            </div>
+            {daysToNext > 0 && (
+              <p className="text-[10px] text-muted-foreground mt-2">
+                {daysToNext} more day{daysToNext !== 1 ? "s" : ""} of consistency to reach <strong>{ALL_GROWTH_LEVELS[currentIndex + 1]?.name}</strong>
+              </p>
+            )}
+          </div>
+
+          {/* Level list */}
+          <div className="p-6 space-y-3 max-h-[50vh] overflow-y-auto">
+            {ALL_GROWTH_LEVELS.map((level, idx) => {
+              const isCurrentLevel = level.name === currentLevel;
+              const isPast = idx < currentIndex;
+              const isFuture = idx > currentIndex;
+              return (
+                <div
+                  key={level.name}
+                  className={cn(
+                    "flex items-start gap-4 p-4 rounded-2xl border transition-all",
+                    isCurrentLevel && "bg-primary/10 border-primary/30",
+                    isPast && "opacity-60 border-emerald-500/20 bg-emerald-500/5",
+                    isFuture && "opacity-40 border-border bg-muted/30"
+                  )}
+                >
+                  <div className={cn(
+                    "w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0",
+                    isCurrentLevel ? "bg-primary/20" : isPast ? "bg-emerald-500/20" : "bg-muted"
+                  )}>
+                    {isPast ? "✅" : level.emoji}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className={cn(
+                        "text-sm font-bold",
+                        isCurrentLevel ? "text-primary" : isPast ? "text-emerald-500" : "text-muted-foreground"
+                      )}>{level.name}</p>
+                      {isCurrentLevel && (
+                        <span className="px-2 py-0.5 bg-primary text-primary-foreground text-[8px] font-black uppercase tracking-widest rounded-full">You</span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">{level.desc}</p>
+                    <p className="text-[9px] text-muted-foreground/50 font-bold uppercase tracking-widest mt-1">Day {level.days}+</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Footer note */}
+          <div className="px-6 pb-6">
+            <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
+              Stages unlock through daily consistency — logging, check-ins, and resisting urges all build your streak.
+            </p>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
