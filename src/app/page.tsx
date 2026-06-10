@@ -135,10 +135,10 @@ export default function Home() {
 
   return (
     <div className="space-y-8 animate-in pb-20">
-      <header className="pt-8 text-center sm:text-left">
+      <header className="pt-8 text-left">
         <div className="space-y-1">
           <p className="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-2">Money Awareness Companion</p>
-          <h1 className="text-4xl font-serif tracking-tight text-foreground">
+          <h1 className="text-4xl font-serif tracking-tighter text-foreground sm:text-5xl">
             Hi, {user.displayName?.split(" ")[0] || "there"}
           </h1>
         </div>
@@ -190,18 +190,22 @@ export default function Home() {
                 onChange={(e) => setCheckInScore(Number(e.target.value))}
                 className="w-full h-1.5 bg-muted rounded-full appearance-none cursor-pointer accent-primary"
               />
-              <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                <span>Spent Heavily</span>
+              <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
+                <span>HEAVY</span>
                 <span className="text-primary font-black text-xs">
-                  {checkInScore < 40 ? "Heavily" : checkInScore < 70 ? "Averagely" : "Lightly"}
+                  {checkInScore}% LIGHT
                 </span>
-                <span>Spent Light</span>
+                <span>FLUID</span>
               </div>
             </div>
 
             <button 
-              onClick={handleCheckIn}
-              className="px-8 py-3 bg-foreground text-background rounded-full text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCheckIn();
+              }}
+              className="px-10 py-4 bg-foreground text-background rounded-full text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all active:scale-95 cursor-pointer relative z-50 shadow-xl"
             >
               Confirm Feeling
             </button>
