@@ -77,7 +77,7 @@ export default function NotificationCenter() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.18 }}
-            className="absolute right-0 mt-3 w-80 bg-background rounded-[1.5rem] shadow-2xl z-50 border border-border overflow-hidden"
+            className="absolute right-0 mt-3 w-80 bg-background rounded-[1.5rem] shadow-2xl z-[60] border border-border overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-border">

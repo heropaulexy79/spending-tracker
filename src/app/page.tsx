@@ -174,7 +174,7 @@ export default function Home() {
 
       {/* Daily Check-in Slider */}
       {!checkedInToday && !hasJustCheckedIn && (
-        <section className="animate-in slide-in-from-top-4 duration-700">
+        <section className="animate-in slide-in-from-top-4 duration-700 relative z-10">
           <div className="p-8 rounded-[2rem] bg-foreground/5 border border-foreground/5 space-y-6 text-center">
             <div className="space-y-1">
               <h2 className="text-xl font-serif">How is your relationship with money today?</h2>
@@ -199,16 +199,15 @@ export default function Home() {
               </div>
             </div>
 
-            <button 
+            <motion.button 
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleCheckIn();
-              }}
-              className="px-10 py-4 bg-foreground text-background rounded-full text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all active:scale-95 cursor-pointer relative z-50 shadow-xl"
+              whileTap={{ scale: 0.92 }}
+              whileHover={{ scale: 1.03 }}
+              onClick={handleCheckIn}
+              className="w-full px-10 py-5 bg-foreground text-background rounded-2xl text-sm font-bold uppercase tracking-widest shadow-2xl"
             >
-              Confirm Feeling
-            </button>
+              Confirm Feeling ✓
+            </motion.button>
           </div>
         </section>
       )}
@@ -355,7 +354,7 @@ export default function Home() {
                 />
               </div>
               <p className="text-[9px] text-muted-foreground leading-relaxed italic">
-                 Your financial story is {Math.max(0, 100 - Math.round((totalSpent / budgetValue) * 100))}% unwritten.
+                 Your financial story is {Math.min(100, Math.round((totalSpent / budgetValue) * 100))}% written and {Math.max(0, 100 - Math.round((totalSpent / budgetValue) * 100))}% unwritten. Keep writing.
               </p>
             </div>
           ) : (

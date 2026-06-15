@@ -161,19 +161,23 @@ export default function UrgeSavingsResolver() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <button
+                <div className="flex flex-col gap-3 pt-2">
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
                     onClick={handleResisted}
-                    className="px-6 py-4 bg-emerald-500 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                    className="w-full py-5 bg-emerald-500 text-white rounded-2xl text-sm font-bold uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                   >
                     <Check className="w-4 h-4" /> I Resisted!
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
                     onClick={handlePurchased}
-                    className="px-6 py-4 bg-background border border-border text-foreground rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-muted transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-background border border-border text-foreground rounded-2xl text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
                   >
                     <X className="w-4 h-4" /> I Bought It
-                  </button>
+                  </motion.button>
                 </div>
               </motion.div>
             )}
@@ -215,19 +219,23 @@ export default function UrgeSavingsResolver() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
+                <div className="flex flex-col gap-3">
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
                     onClick={() => handleSaveConfirm(true)}
-                    className="px-6 py-4 bg-emerald-500 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                    className="w-full py-5 bg-emerald-500 text-white rounded-2xl text-sm font-bold uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                   >
                     <Check className="w-4 h-4" /> Yes, Save It
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
                     onClick={handleMaybeLater}
-                    className="px-6 py-4 bg-background border border-border text-foreground rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-muted transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-background border border-border text-foreground rounded-2xl text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
                   >
                     Maybe Later
-                  </button>
+                  </motion.button>
                 </div>
                 <p className="text-[9px] text-muted-foreground text-center">
                   You still earn <strong>+2 coins</strong> for resisting, even if you skip saving.

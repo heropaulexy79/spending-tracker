@@ -107,39 +107,49 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <header className="max-w-lg mx-auto px-6 pt-12 pb-2 flex items-center justify-between">
-        <div className="flex-1" />
-        <div className="text-center space-y-1 flex-[2] flex flex-col items-center">
-          {mounted ? (
-            <Image 
-              src={resolvedTheme === "dark" ? "/spendingtracker(black_bac_logo).png" : "/Spendingtracker(white_bac_logo).png"}
-              alt="Crafting the Mind"
-              width={180}
-              height={40}
-              className="h-auto w-auto max-h-12"
-              priority
-            />
-          ) : (
-            <div className="h-12 w-40" /> // Placeholder for hydration
-          )}
+      <header className="max-w-lg mx-auto px-4 pt-10 pb-2">
+        {/* Row 1: Logo + Notification */}
+        <div className="flex items-center justify-between mb-1">
+          <div className="w-8" /> {/* spacer */}
+          <div className="flex flex-col items-center">
+            {mounted ? (
+              <Image
+                src={resolvedTheme === "dark" ? "/spendingtracker(black_bac_logo).png" : "/Spendingtracker(white_bac_logo).png"}
+                alt="Crafting the Mind"
+                width={160}
+                height={36}
+                className="h-auto w-auto max-h-10"
+                priority
+              />
+            ) : (
+              <div className="h-10 w-36" />
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            {user && <NotificationCenter />}
+          </div>
         </div>
-        <div className="flex-1 flex justify-end gap-2 items-center">
-          {user && (
-            <NotificationCenter />
-          )}
-          {user && (
+
+        {/* Row 2: Utility icons */}
+        {user && (
+          <div className="flex items-center justify-end gap-1">
             <button
               onClick={() => setShowHelpModal(true)}
-              className="p-3 rounded-2xl glass-card hover:bg-muted transition-all active:scale-95 text-muted-foreground hover:text-foreground"
+              className="p-2 rounded-xl glass-card hover:bg-muted transition-all active:scale-95 text-muted-foreground hover:text-foreground"
               aria-label="Open guidance and FAQ"
             >
-              <HelpCircle className="w-5 h-5" />
+              <HelpCircle className="w-4 h-4" />
             </button>
-          )}
-          {user && <CurrencySwitcher />}
-          <ThemeToggle />
-          {user && <UserProfileMenu />}
-        </div>
+            <CurrencySwitcher />
+            <ThemeToggle />
+            <UserProfileMenu />
+          </div>
+        )}
+        {!user && (
+          <div className="flex items-center justify-end gap-1">
+            <ThemeToggle />
+          </div>
+        )}
       </header>
       <main className="max-w-lg mx-auto px-4 py-8">
         {children}
