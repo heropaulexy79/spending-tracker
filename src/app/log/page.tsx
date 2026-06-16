@@ -8,10 +8,12 @@ import { cn } from "@/lib/utils";
 import { AlertTriangle } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
 import { formatDate, getWeekKey } from "@/lib/dateUtils";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function LogPage() {
   const { logs, addLog, plan, loading } = useTracking();
-  const [showSuccess, setShowSuccess] = useState(false);
+  const router = useRouter();
 
   const currentWeekKey = getWeekKey();
   const weeklyLogs = logs.filter(l => l.weekKey === currentWeekKey);
@@ -30,9 +32,30 @@ export default function LogPage() {
 
   const handleLogSubmit = async (data: any) => {
     await addLog(data);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+    toast.success("Reality Logged Successfully!", { icon: "✅" });
   };
+
+  if (!loading && !plan?.budget) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-6 animate-in fade-in">
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+           <AlertTriangle className="w-8 h-8 text-primary" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-serif">Plan Required</h2>
+           <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+            You must define your weekly intent before logging.
+           </p>
+        </div>
+        <button 
+          onClick={() => router.push('/plan')}
+          className="px-8 py-4 bg-primary text-primary-foreground font-bold uppercase tracking-widest text-[10px] rounded-full shadow-lg shadow-primary/20"
+        >
+          Define your plan
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in pb-12">
@@ -50,16 +73,6 @@ export default function LogPage() {
       <WeeklyProgress logs={weeklyLogs} />
 
       <LogForm onSubmit={handleLogSubmit} />
-
-      {showSuccess && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-2xl text-center font-medium"
-        >
-          Reality Logged Successfully!
-        </motion.div>
-      )}
 
       {weeklyLogs.length > 0 && (
         <section className="space-y-6">

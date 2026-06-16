@@ -148,7 +148,7 @@ export default function PlanPage() {
               Goals Recorded
             </>
           ) : (
-            "Track Today's Spending"
+            "Track Weekly Spending"
           )}
         </button>
       </div>

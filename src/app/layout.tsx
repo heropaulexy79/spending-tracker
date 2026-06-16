@@ -40,6 +40,8 @@ export const viewport: Viewport = {
 import OfflineStatus from "@/components/OfflineStatus";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 
+import { Toaster } from 'react-hot-toast';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -59,6 +61,7 @@ export default function RootLayout({
               <AnalyticsTracker />
               <InstallPrompt />
               <OfflineStatus />
+              <Toaster position="top-center" />
               <AppShell>
                 {children}
               </AppShell>

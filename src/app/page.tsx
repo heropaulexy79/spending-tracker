@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { getLocalDateString, getWeekKey } from "@/lib/dateUtils";
 import UrgeSavingsResolver from "@/components/UrgeSavingsResolver";
 import AuthForm from "@/components/AuthForm";
+import WeeklyWelcomeModal from "@/components/WeeklyWelcomeModal";
+import toast from "react-hot-toast";
 
 export default function Home() {
   const { user } = useAuth();
@@ -25,6 +27,7 @@ export default function Home() {
 
   const [checkInScore, setCheckInScore] = useState(50);
   const [hasJustCheckedIn, setHasJustCheckedIn] = useState(false);
+  const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [showGrowthModal, setShowGrowthModal] = useState(false);
 
   if (!user) {
@@ -53,11 +56,22 @@ export default function Home() {
   
   // Streak Calculation
   const getActiveStreak = () => {
-    if (!logs || logs.length === 0) return 0;
+    if (!logs || logs.length === 0) return { streak: 0, daysSinceLastLog: 0 };
     const activeDays = new Set(logs.map(l => l.date));
     let streak = 0;
-    const today = new Date();
+    let daysSinceLastLog = 0;
     
+    for (let i = 0; i < 365; i++) {
+       const d = new Date();
+       d.setDate(new Date().getDate() - i);
+       if (activeDays.has(getLocalDateString(d))) {
+          daysSinceLastLog = i;
+          break;
+       }
+    }
+
+    const today = new Date();
+    let currentGap = 0;
     for (let i = 0; i < 365; i++) {
       const d = new Date();
       d.setDate(today.getDate() - i);
@@ -65,16 +79,19 @@ export default function Home() {
       
       if (activeDays.has(dStr)) {
         streak++;
-      } else if (i === 0) {
-        continue; // Haven't logged today yet? Keep the streak for now
+        currentGap = 0;
       } else {
-        break;
+        if (i === 0) continue; // Haven't logged today yet? Keep the streak for now
+        currentGap++;
+        if (currentGap > 4) {
+          break;
+        }
       }
     }
-    return streak;
+    return { streak, daysSinceLastLog };
   };
 
-  const currentStreak = getActiveStreak();
+  const { streak: currentStreak, daysSinceLastLog } = getActiveStreak();
 
   const GROWTH_LEVELS = [
     "Explorer",
@@ -126,11 +143,18 @@ export default function Home() {
   const insight = getSpendingInsight();
 
   const isMonday = new Date().getDay() === 1;
-  const needsWeeklyPlan = isMonday && !plan?.budget;
+  const needsWeeklyPlan = !plan?.budget; // Removed isMonday check so it shows up until set
 
   const handleCheckIn = async () => {
-    await addCheckIn(checkInScore);
-    setHasJustCheckedIn(true);
+    if (isCheckingIn) return;
+    setIsCheckingIn(true);
+    try {
+      await addCheckIn(checkInScore);
+      setHasJustCheckedIn(true);
+      toast.success("Check-In Completed!", { icon: "🌱" });
+    } finally {
+      setIsCheckingIn(false);
+    }
   };
 
   return (
@@ -143,8 +167,9 @@ export default function Home() {
           </h1>
         </div>
       </header>
+      <WeeklyWelcomeModal previousStreak={currentStreak} />
 
-      {/* Monday Planning Call to Action */}
+      {/* Planning Call to Action (Budget Guard) */}
       {needsWeeklyPlan && (
         <section className="animate-in slide-in-from-top-4 duration-1000">
           <Link href="/plan">
@@ -204,9 +229,10 @@ export default function Home() {
               whileTap={{ scale: 0.92 }}
               whileHover={{ scale: 1.03 }}
               onClick={handleCheckIn}
-              className="w-full px-10 py-5 bg-foreground text-background rounded-2xl text-sm font-bold uppercase tracking-widest shadow-2xl"
+              disabled={isCheckingIn}
+              className="w-full px-10 py-5 bg-foreground text-background rounded-2xl text-sm font-bold uppercase tracking-widest shadow-2xl disabled:opacity-50"
             >
-              Confirm Feeling ✓
+              {isCheckingIn ? "Recording..." : "Confirm Feeling ✓"}
             </motion.button>
           </div>
         </section>
@@ -255,6 +281,28 @@ export default function Home() {
       </section>
 
       <UrgeSavingsResolver />
+
+      {/* Streak Warnings */}
+      {daysSinceLastLog === 2 && currentStreak > 0 && (
+        <section className="animate-in slide-in-from-top-2 duration-500">
+          <div className="p-4 bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-2xl flex items-center justify-center gap-2 mb-4 shadow-lg">
+            <span>⚠️</span>
+            <p className="text-xs font-bold uppercase tracking-widest text-center">
+              2 Days inactive warning: Don't lose your streak! 
+            </p>
+          </div>
+        </section>
+      )}
+      {daysSinceLastLog >= 3 && currentStreak > 0 && (
+        <section className="animate-in slide-in-from-top-2 duration-500">
+          <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl flex items-center justify-center gap-2 mb-4 shadow-lg shadow-red-500/10">
+            <span>🚨</span>
+            <p className="text-xs font-bold uppercase tracking-widest text-center">
+              Streak is about to end! Log an activity today to save it!
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* Primary Actions: One Screen = One Job */}
       <section className="grid grid-cols-1 gap-4">

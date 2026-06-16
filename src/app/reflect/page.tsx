@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Quote, Save, CheckCircle2, Crown } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
+import toast from "react-hot-toast";
 
 export default function ReflectPage() {
   const { addReflection, noSpendDayLogged, reflectionLoggedToday, loading } = useTracking();
@@ -21,20 +22,23 @@ export default function ReflectPage() {
     if (!reflection.why || isSubmitting || reflectionLoggedToday) return;
     
     setIsSubmitting(true);
-    await addReflection(reflection);
-    setShowSuccess(true);
-    setIsSubmitting(false);
-    
-    setTimeout(() => {
-      setShowSuccess(false);
-      setReflection({
-        why: "",
-        beforeFeel: "",
-        afterFeel: "",
-        aligned: "Yes",
-        nextTime: "",
-      });
-    }, 3000);
+    try {
+      await addReflection(reflection);
+      toast.success("Reflection Recorded!", { icon: "📝" });
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setReflection({
+          why: "",
+          beforeFeel: "",
+          afterFeel: "",
+          aligned: "Yes",
+          nextTime: "",
+        });
+      }, 3000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (loading) return null;

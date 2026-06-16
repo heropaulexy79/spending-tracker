@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, X, Check, Timer, CheckCircle2, Coins } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
 import { cn } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 export default function UrgeSavingsResolver() {
   const { urges, resolveUrge, loading, plan } = useTracking();
@@ -17,6 +18,7 @@ export default function UrgeSavingsResolver() {
   const [feeling, setFeeling] = useState("");
   const [timing, setTiming] = useState("");
   const [set7DayCheck, setSet7DayCheck] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -67,13 +69,20 @@ export default function UrgeSavingsResolver() {
   };
 
   const handleSaveConfirm = async (doSave: boolean) => {
-    const amount = doSave ? (Number(saveAmount) || activeUrge.amount) : 0;
-    await resolveUrge(activeUrge.id, "Resisted", doSave, amount);
-    setStep("success");
-    setTimeout(() => {
-      setActiveUrge(null);
-      setStep("initial");
-    }, 3500);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const amount = doSave ? (Number(saveAmount) || activeUrge.amount) : 0;
+      await resolveUrge(activeUrge.id, "Resisted", doSave, amount);
+      toast.success("Urge Resolved Successfully!", { icon: "🏆" });
+      setStep("success");
+      setTimeout(() => {
+        setActiveUrge(null);
+        setStep("initial");
+      }, 3500);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleMaybeLater = async () => {
@@ -103,18 +112,25 @@ export default function UrgeSavingsResolver() {
   };
 
   const handleFinishPurchasedReflection = async () => {
-    const followUpData = {
-      purchaseTrigger: trigger,
-      purchaseFeeling: feeling,
-      purchaseTiming: timing,
-      sevenDayReEval: set7DayCheck,
-    };
-    await resolveUrge(activeUrge.id, "Purchased", false, 0, followUpData);
-    setStep("success");
-    setTimeout(() => {
-      setActiveUrge(null);
-      setStep("initial");
-    }, 3000);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const followUpData = {
+        purchaseTrigger: trigger,
+        purchaseFeeling: feeling,
+        purchaseTiming: timing,
+        sevenDayReEval: set7DayCheck,
+      };
+      await resolveUrge(activeUrge.id, "Purchased", false, 0, followUpData);
+      toast.success("Reflection Logged", { icon: "📝" });
+      setStep("success");
+      setTimeout(() => {
+        setActiveUrge(null);
+        setStep("initial");
+      }, 3000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -224,15 +240,17 @@ export default function UrgeSavingsResolver() {
                     whileTap={{ scale: 0.95 }}
                     whileHover={{ scale: 1.02 }}
                     onClick={() => handleSaveConfirm(true)}
-                    className="w-full py-5 bg-emerald-500 text-white rounded-2xl text-sm font-bold uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                    disabled={isSubmitting}
+                    className="w-full py-5 bg-emerald-500 text-white rounded-2xl text-sm font-bold uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    <Check className="w-4 h-4" /> Yes, Save It
+                    <Check className="w-4 h-4" /> {isSubmitting ? "Saving..." : "Yes, Save It"}
                   </motion.button>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     whileHover={{ scale: 1.02 }}
                     onClick={handleMaybeLater}
-                    className="w-full py-4 bg-background border border-border text-foreground rounded-2xl text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                    disabled={isSubmitting}
+                    className="w-full py-4 bg-background border border-border text-foreground rounded-2xl text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     Maybe Later
                   </motion.button>
@@ -315,9 +333,10 @@ export default function UrgeSavingsResolver() {
 
                   <button
                     onClick={handleFinishPurchasedReflection}
-                    className="w-full py-4 bg-foreground text-background rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center gap-2"
+                    disabled={isSubmitting}
+                    className="w-full py-4 bg-foreground text-background rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    Finish Reflection
+                    {isSubmitting ? "Finishing..." : "Finish Reflection"}
                   </button>
                 </div>
               </motion.div>

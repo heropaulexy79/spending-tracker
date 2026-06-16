@@ -6,6 +6,7 @@ import { Timer, ShieldCheck, ArrowRight, Zap, Sparkles, X, History } from "lucid
 import { cn } from "@/lib/utils";
 import { useTracking } from "@/hooks/useTracking";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 const REASONS = [
   { label: "Need", description: "Essential for my life/well-being" },
@@ -20,6 +21,7 @@ export default function SmartDelayPage() {
   const [item, setItem] = useState("");
   const [cost, setCost] = useState("");
   const [reason, setReason] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInitialSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,15 +34,21 @@ export default function SmartDelayPage() {
   };
 
   const handleSetDelay = async () => {
-    // In a real app, this would trigger a notification later
-    await addUrge({
-      item,
-      amount: cost,
-      type: reason,
-      action: "Delayed",
-      createdAt: new Date(),
-    });
-    setStep(4);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await addUrge({
+        item,
+        amount: cost,
+        type: reason,
+        action: "Delayed",
+        createdAt: new Date(),
+      });
+      toast.success("Urge Paused Successfully!", { icon: "⏸️" });
+      setStep(4);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   /* removed restriction for multiple entries */
@@ -185,9 +193,10 @@ export default function SmartDelayPage() {
               <div className="space-y-4">
                 <button 
                     onClick={handleSetDelay}
-                    className="w-full py-5 bg-foreground text-background rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all"
+                    disabled={isSubmitting}
+                    className="w-full py-5 bg-foreground text-background rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
                 >
-                    Activate Superpower
+                    {isSubmitting ? "Activating..." : "Activate Superpower"}
                 </button>
                 <button 
                     onClick={() => setStep(2)}
