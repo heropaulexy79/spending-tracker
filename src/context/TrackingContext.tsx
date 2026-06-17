@@ -10,7 +10,8 @@ interface AppNotification {
   id: string;
   title: string;
   body: string;
-  type: "coin_earned" | "urge_activated" | "urge_followup" | "weekly_summary" | "general";
+  type: "coin_earned" | "urge_activated" | "urge_followup" | "weekly_summary" | "general"
+    | "spend_logged" | "no_spend_day" | "check_in" | "reflection" | "urge_resisted" | "urge_purchased" | "savings_logged";
   read: boolean;
   createdAt: any;
   data?: any;
@@ -233,11 +234,25 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     });
     // 2 coins per log entry
     await updateRewards(2);
-    await addNotification(
-      "🪙 +2 Coins Earned",
-      isSavings ? `Savings logged – your future self is proud.` : `Choice logged: ${String(item).substring(0, 40)}`,
-      "coin_earned"
-    );
+    if (noSpendDay) {
+      await addNotification(
+        "🌿 No-Spend Day Logged",
+        "You chose not to spend today. That discipline is building your future.",
+        "no_spend_day"
+      );
+    } else if (isSavings) {
+      await addNotification(
+        "💰 Savings Logged (+2 coins)",
+        `${String(item).substring(0, 40)} – your future self is proud.`,
+        "savings_logged"
+      );
+    } else {
+      await addNotification(
+        "📝 Spending Logged (+2 coins)",
+        `Choice logged: ${String(item).substring(0, 40)}`,
+        "spend_logged"
+      );
+    }
   };
 
   const addUrge = async (urge: any) => {
@@ -296,9 +311,9 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       // +1 coin for redirecting money to savings after urge resistance
       await updateRewards(1);
       await addNotification(
-        "🌱 +1 Coin – Awareness Saving",
+        "🌱 Awareness Saving (+1 coin)",
         `${plan?.currency || "₦"}${Number(amountToSave).toLocaleString()} redirected from "${urgeSnap.item}" to your Growth Goal.`,
-        "coin_earned",
+        "savings_logged",
         { item: urgeSnap.item, amount: amountToSave }
       );
     }
@@ -307,9 +322,15 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       // 2 coins for resisting an urge
       await updateRewards(2);
       await addNotification(
-        "🏆 +2 Coins – Urge Resisted!",
+        "🏆 Urge Resisted! (+2 coins)",
         `You resisted buying "${urgeSnap?.item || "an item"}". That's real awareness.`,
-        "coin_earned"
+        "urge_resisted"
+      );
+    } else if (action === "Purchased") {
+      await addNotification(
+        "📋 Purchase Reflected",
+        `You reflected on buying "${urgeSnap?.item || "an item"}". Every choice is data.`,
+        "urge_purchased"
       );
     }
   };
@@ -344,9 +365,9 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     });
     await updateRewards(5);
     await addNotification(
-      "🪙 +5 Coins – Deep Reflection",
+      "🧠 Reflection Logged (+5 coins)",
       "Your reflection was logged. That self-awareness is priceless.",
-      "coin_earned"
+      "reflection"
     );
   };
 
@@ -364,9 +385,9 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     });
     await updateRewards(5);
     await addNotification(
-      "🪙 +5 Coins – Daily Check-in",
+      "🌱 Daily Check-in (+5 coins)",
       "You checked in today. Consistency builds awareness.",
-      "coin_earned"
+      "check_in"
     );
   };
 

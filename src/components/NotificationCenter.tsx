@@ -1,17 +1,24 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Bell, X, Coins, Timer, TrendingUp, Info, CheckCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTracking } from "@/hooks/useTracking";
 import { cn } from "@/lib/utils";
 
-const TYPE_CONFIG = {
-  coin_earned: { icon: <Coins className="w-4 h-4" />, color: "text-amber-500", bg: "bg-amber-500/10" },
-  urge_activated: { icon: <Timer className="w-4 h-4" />, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  urge_followup: { icon: <TrendingUp className="w-4 h-4" />, color: "text-primary", bg: "bg-primary/10" },
-  weekly_summary: { icon: <TrendingUp className="w-4 h-4" />, color: "text-primary", bg: "bg-primary/10" },
-  general: { icon: <Info className="w-4 h-4" />, color: "text-muted-foreground", bg: "bg-muted" },
+const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
+  coin_earned:     { icon: <Coins className="w-4 h-4" />,       color: "text-amber-500",        bg: "bg-amber-500/10" },
+  urge_activated:  { icon: <Timer className="w-4 h-4" />,       color: "text-emerald-500",    bg: "bg-emerald-500/10" },
+  urge_followup:   { icon: <TrendingUp className="w-4 h-4" />,  color: "text-primary",         bg: "bg-primary/10" },
+  weekly_summary:  { icon: <TrendingUp className="w-4 h-4" />,  color: "text-primary",         bg: "bg-primary/10" },
+  general:         { icon: <Info className="w-4 h-4" />,        color: "text-muted-foreground", bg: "bg-muted" },
+  spend_logged:    { icon: <span className="text-sm">📝</span>,    color: "text-foreground",      bg: "bg-muted" },
+  no_spend_day:    { icon: <span className="text-sm">🌿</span>,    color: "text-emerald-500",    bg: "bg-emerald-500/10" },
+  check_in:        { icon: <span className="text-sm">🌱</span>,    color: "text-green-500",      bg: "bg-green-500/10" },
+  reflection:      { icon: <span className="text-sm">🧠</span>,    color: "text-violet-500",     bg: "bg-violet-500/10" },
+  urge_resisted:   { icon: <span className="text-sm">🏆</span>,    color: "text-amber-500",      bg: "bg-amber-500/10" },
+  urge_purchased:  { icon: <span className="text-sm">📋</span>,    color: "text-blue-500",       bg: "bg-blue-500/10" },
+  savings_logged:  { icon: <span className="text-sm">💰</span>,    color: "text-emerald-600",    bg: "bg-emerald-600/10" },
 };
 
 function timeAgo(createdAt: any): string {

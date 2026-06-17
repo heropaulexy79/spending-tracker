@@ -16,6 +16,8 @@ export default function UrgeSavingsResolver() {
   const [activeUrge, setActiveUrge] = useState<any>(null);
   const [step, setStep] = useState<"initial" | "save_prompt" | "purchased_feedback" | "success">("initial");
   const [saveAmount, setSaveAmount] = useState("");
+  // Track urge IDs handled this session to prevent race-condition re-pop
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
 
   // Feedback state
   const [trigger, setTrigger] = useState("");
@@ -31,6 +33,8 @@ export default function UrgeSavingsResolver() {
     const now = new Date().getTime();
     const delayedUrge = urges.find(u => {
       if (u.action !== "Delayed") return false;
+      // Already handled this session (local guard against race condition)
+      if (dismissedIds.has(u.id)) return false;
       if (u.convertedToSavings !== null && u.convertedToSavings !== undefined) return false;
 
       let createdAt: number;
@@ -56,12 +60,16 @@ export default function UrgeSavingsResolver() {
     });
 
     if (delayedUrge) {
-      setActiveUrge(delayedUrge);
+      // Only switch activeUrge if not currently showing success for this urge
+      setActiveUrge((prev: any) => {
+        if (prev?.id === delayedUrge.id) return prev; // keep the current active one stable
+        return delayedUrge;
+      });
       setSaveAmount(String(delayedUrge.amount || ""));
     } else {
       setActiveUrge(null);
     }
-  }, [urges, loading]);
+  }, [urges, loading, dismissedIds]);
 
   if (!activeUrge) return null;
 
@@ -77,6 +85,8 @@ export default function UrgeSavingsResolver() {
     setIsSubmitting(true);
     try {
       const amount = doSave ? (Number(saveAmount) || activeUrge.amount) : 0;
+      // Mark as dismissed immediately so the useEffect won't re-pop it
+      setDismissedIds(prev => new Set([...prev, activeUrge.id]));
       await resolveUrge(activeUrge.id, "Resisted", doSave, amount);
       toast.success("Urge Resolved Successfully!", { icon: "🏆" });
       setStep("success");
@@ -91,16 +101,17 @@ export default function UrgeSavingsResolver() {
 
   const handleMaybeLater = async () => {
     if (!user || !activeUrge) return;
+    // Mark as dismissed immediately (local guard)
+    setDismissedIds(prev => new Set([...prev, activeUrge.id]));
+    setActiveUrge(null);
+    setStep("initial");
     try {
-      // Persist a dismissal timestamp so the 24h guard in useEffect keeps it hidden
+      // Persist a dismissal timestamp so the 24h guard keeps it hidden after refresh
       const urgeRef = doc(db, "users", user.uid, "urges", activeUrge.id);
       await updateDoc(urgeRef, { followUpDismissedAt: serverTimestamp() });
     } catch (err) {
       console.warn("Could not persist dismissal:", err);
     }
-    // Hide locally immediately — Firestore listener will keep it hidden
-    setActiveUrge(null);
-    setStep("initial");
   };
 
   const handlePurchased = async () => {
@@ -120,6 +131,8 @@ export default function UrgeSavingsResolver() {
         purchaseTiming: timing,
         sevenDayReEval: set7DayCheck,
       };
+      // Mark as dismissed immediately (local guard)
+      setDismissedIds(prev => new Set([...prev, activeUrge.id]));
       await resolveUrge(activeUrge.id, "Purchased", false, 0, followUpData);
       toast.success("Reflection Logged", { icon: "📝" });
       setStep("success");
