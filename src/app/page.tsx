@@ -26,7 +26,6 @@ export default function Home() {
   } = useTracking();
 
   const [checkInScore, setCheckInScore] = useState(50);
-  const [hasJustCheckedIn, setHasJustCheckedIn] = useState(false);
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [showGrowthModal, setShowGrowthModal] = useState(false);
 
@@ -150,7 +149,6 @@ export default function Home() {
     setIsCheckingIn(true);
     try {
       await addCheckIn(checkInScore);
-      setHasJustCheckedIn(true);
       toast.success("Check-In Completed!", { icon: "🌱" });
     } finally {
       setIsCheckingIn(false);
@@ -198,7 +196,7 @@ export default function Home() {
       )}
 
       {/* Daily Check-in Slider */}
-      {!checkedInToday && !hasJustCheckedIn && (
+      {!checkedInToday && (
         <section className="animate-in slide-in-from-top-4 duration-700 relative z-10">
           <div className="p-8 rounded-[2rem] bg-foreground/5 border border-foreground/5 space-y-6 text-center">
             <div className="space-y-1">
@@ -274,7 +272,15 @@ export default function Home() {
                    className="h-full bg-primary"
                 />
               </div>
-              <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-3">{currentStreak}/7 days to reach next stage</p>
+              <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-3">
+                {(() => {
+                  const currentIdx = GROWTH_LEVELS.indexOf(currentLevel);
+                  if (currentIdx >= GROWTH_LEVELS.length - 1) return "Max stage reached 🏆";
+                  // Each next level requires one more streak day than the current index
+                  const remaining = Math.max(0, (currentIdx + 1) - currentStreak);
+                  return `${remaining} day${remaining !== 1 ? "s" : ""} to reach next stage`;
+                })()}
+              </p>
             </div>
           </div>
         </div>

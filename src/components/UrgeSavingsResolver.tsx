@@ -4,11 +4,15 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, X, Check, Timer, CheckCircle2, Coins } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
+import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { db } from "@/lib/firebase";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 
 export default function UrgeSavingsResolver() {
   const { urges, resolveUrge, loading, plan } = useTracking();
+  const { user } = useAuth();
   const [activeUrge, setActiveUrge] = useState<any>(null);
   const [step, setStep] = useState<"initial" | "save_prompt" | "purchased_feedback" | "success">("initial");
   const [saveAmount, setSaveAmount] = useState("");
@@ -86,20 +90,15 @@ export default function UrgeSavingsResolver() {
   };
 
   const handleMaybeLater = async () => {
-    // Dismiss for 24 hours — write dismissedAt to Firestore via resolveUrge followUpData
-    const { doc, updateDoc, serverTimestamp } = await import("firebase/firestore");
-    const { db } = await import("@/lib/firebase");
-    const { user } = { user: null }; // Will handle via direct context
+    if (!user || !activeUrge) return;
     try {
-      const { useAuth } = await import("@/context/AuthContext");
-    } catch {}
-    // We update the urge doc directly
-    const { db: firedb } = await import("@/lib/firebase");
-    const { doc: firestoreDoc, updateDoc: firestoreUpdate } = await import("firebase/firestore");
-    // Find the urge ref through our resolveUrge stub with a special flag:
-    // Instead, we mark it by calling resolveUrge with a custom followUpData  
-    // that sets followUpDismissedAt — but we skip the coin/savings logic.
-    // We'll just call the action with "Delayed" state kept but a dismiss timestamp.
+      // Persist a dismissal timestamp so the 24h guard in useEffect keeps it hidden
+      const urgeRef = doc(db, "users", user.uid, "urges", activeUrge.id);
+      await updateDoc(urgeRef, { followUpDismissedAt: serverTimestamp() });
+    } catch (err) {
+      console.warn("Could not persist dismissal:", err);
+    }
+    // Hide locally immediately — Firestore listener will keep it hidden
     setActiveUrge(null);
     setStep("initial");
   };
