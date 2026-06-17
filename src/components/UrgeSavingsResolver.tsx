@@ -17,19 +17,23 @@ export default function UrgeSavingsResolver() {
   const [step, setStep] = useState<"initial" | "save_prompt" | "purchased_feedback" | "success">("initial");
   const [saveAmount, setSaveAmount] = useState("");
   // Track urge IDs handled this session to prevent race-condition re-pop
-  const [dismissedIds, setDismissedIds] = useState<Set<string>>(() => {
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+
+  // Safe client-side hydration for localStorage
+  useEffect(() => {
     if (typeof window !== "undefined") {
       try {
         const saved = localStorage.getItem("tracker_dismissed_urges");
-        if (saved) return new Set(JSON.parse(saved));
+        if (saved) {
+          setDismissedIds(new Set(JSON.parse(saved)));
+        }
       } catch (e) {}
     }
-    return new Set();
-  });
+  }, []);
 
-  // Sync dismissedIds to localStorage so it survives refresh/login
+  // Sync dismissedIds to localStorage when it changes
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && dismissedIds.size > 0) {
       localStorage.setItem("tracker_dismissed_urges", JSON.stringify(Array.from(dismissedIds)));
     }
   }, [dismissedIds]);
