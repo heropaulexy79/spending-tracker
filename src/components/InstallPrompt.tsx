@@ -35,7 +35,7 @@ export default function InstallPrompt() {
     window.addEventListener("beforeinstallprompt", handler);
 
     // 4. Show prompt for mobile/Safari after a short delay if it doesn't support automatic prompt
-    if (/iphone|ipad|ipod|android/.test(userAgent)) {
+    if (/iphone|ipad|ipod/.test(userAgent)) {
       const timer = setTimeout(() => setShowPrompt(true), 3000);
       return () => clearTimeout(timer);
     }
