@@ -11,7 +11,7 @@ interface AppNotification {
   title: string;
   body: string;
   type: "coin_earned" | "urge_activated" | "urge_followup" | "weekly_summary" | "general"
-    | "spend_logged" | "no_spend_day" | "check_in" | "reflection" | "urge_resisted" | "urge_purchased" | "savings_logged" | "emotional_checkin";
+    | "spend_logged" | "no_spend_day" | "check_in" | "reflection" | "urge_resisted" | "urge_purchased" | "savings_logged" | "emotional_checkin" | "exploration";
   read: boolean;
   createdAt: any;
   data?: any;
@@ -199,6 +199,51 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, loading, notifications, checkIns]);
 
+  // Handle auto-generating exploration notifications
+  useEffect(() => {
+    if (!user || loading || notifications.length === 0) return;
+    
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0(Sun), 1(Mon), 2(Tue), 3(Wed), 4(Thu), 5(Fri), 6(Sat)
+    
+    // We trigger exploration on Sunday(0), Wednesday(3), Friday(5)
+    if (dayOfWeek === 0 || dayOfWeek === 3 || dayOfWeek === 5) {
+      const todayStr = getLocalDateString(today);
+      
+      const hasPendingExploration = notifications.some(n => 
+        n.type === "exploration" && 
+        n.createdAt && 
+        getLocalDateString(n.createdAt.seconds ? new Date(n.createdAt.seconds * 1000) : new Date(n.createdAt)) === todayStr
+      );
+      
+      if (!hasPendingExploration) {
+        let title = "Discover More";
+        let body = "Have you explored all the features today?";
+        let path = "/";
+        
+        switch (dayOfWeek) {
+          case 0:
+            title = "Weekly Review";
+            body = "Tap here to check your Stats and see how you did this week.";
+            path = "/stats";
+            break;
+          case 3:
+            title = "Mid-week Check";
+            body = "Are you earning rewards? Tap here to view your Badges.";
+            path = "/rewards";
+            break;
+          case 5:
+            title = "Weekend Prep";
+            body = "Review your past urges before the weekend. Tap to view your History.";
+            path = "/history";
+            break;
+        }
+
+        addNotification(title, body, "exploration", { path });
+      }
+    }
+  }, [user, loading, notifications]);
+
   const addNotification = async (title: string, body: string, type: AppNotification["type"], data?: any) => {
     if (!user) return;
     const notifRef = doc(collection(db, "users", user.uid, "notifications"));
@@ -215,7 +260,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
 
   const markAllRead = async () => {
     if (!user) return;
-    const unread = notifications.filter(n => !n.read && n.type !== "emotional_checkin"); // don't auto-read emotional checkin
+    const unread = notifications.filter(n => !n.read);
     await Promise.all(unread.map(n => {
       const ref = doc(db, "users", user.uid, "notifications", n.id);
       return updateDoc(ref, { read: true });

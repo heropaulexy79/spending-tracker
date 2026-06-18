@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Bell, X, Coins, Timer, TrendingUp, Info, CheckCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTracking } from "@/hooks/useTracking";
@@ -20,6 +21,7 @@ const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: st
   urge_purchased:  { icon: <span className="text-sm">📋</span>,    color: "text-blue-500",       bg: "bg-blue-500/10" },
   savings_logged:  { icon: <span className="text-sm">💰</span>,    color: "text-emerald-600",    bg: "bg-emerald-600/10" },
   emotional_checkin:{ icon: <span className="text-sm">❤️</span>,    color: "text-rose-500",       bg: "bg-rose-500/10" },
+  exploration:     { icon: <span className="text-sm">🧭</span>,    color: "text-indigo-500",     bg: "bg-indigo-500/10" },
 };
 
 const EMOTIONS = [
@@ -48,6 +50,7 @@ export default function NotificationCenter() {
   const { notifications, unreadCount, markAllRead, markAsRead, addCheckIn } = useTracking();
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Close on outside click
   useEffect(() => {
@@ -138,12 +141,21 @@ export default function NotificationCenter() {
                 <div className="divide-y divide-border">
                   {notifications.map((n) => {
                     const cfg = TYPE_CONFIG[n.type] || TYPE_CONFIG.general;
+                    const isNavigable = n.type === "exploration" && n.data?.path;
                     return (
                       <div
                         key={n.id}
+                        onClick={() => {
+                          if (isNavigable) {
+                            if (!n.read) markAsRead(n.id);
+                            router.push(n.data.path);
+                            setOpen(false);
+                          }
+                        }}
                         className={cn(
                           "flex items-start gap-3 px-5 py-4 transition-colors",
-                          !n.read ? "bg-primary/5" : "hover:bg-muted/50"
+                          !n.read ? "bg-primary/5" : "hover:bg-muted/50",
+                          isNavigable ? "cursor-pointer" : ""
                         )}
                       >
                         <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5", cfg.bg, cfg.color)}>

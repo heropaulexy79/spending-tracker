@@ -18,6 +18,8 @@ export default function UrgeSavingsResolver() {
   const [saveAmount, setSaveAmount] = useState("");
   // Track urge IDs handled this session to prevent race-condition re-pop
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+  // Prevent popping up multiple different urges in sequence
+  const [hasResolvedThisSession, setHasResolvedThisSession] = useState(false);
 
   // Safe client-side hydration for localStorage
   useEffect(() => {
@@ -49,6 +51,8 @@ export default function UrgeSavingsResolver() {
     if (loading) return;
 
     // Find first "Delayed" urge older than 24h that hasn't been resolved or dismissed
+    if (hasResolvedThisSession) return;
+    
     const now = new Date().getTime();
     const delayedUrge = urges.find(u => {
       if (u.action !== "Delayed") return false;
@@ -110,9 +114,13 @@ export default function UrgeSavingsResolver() {
       toast.success("Urge Resolved Successfully!", { icon: "🏆" });
       setStep("success");
       setTimeout(() => {
+        setHasResolvedThisSession(true);
         setActiveUrge(null);
         setStep("initial");
       }, 3500);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Something went wrong.");
     } finally {
       setIsSubmitting(false);
     }
@@ -122,6 +130,7 @@ export default function UrgeSavingsResolver() {
     if (!user || !activeUrge) return;
     // Mark as dismissed immediately (local guard)
     setDismissedIds(prev => new Set([...prev, activeUrge.id]));
+    setHasResolvedThisSession(true);
     setActiveUrge(null);
     setStep("initial");
     try {
@@ -142,9 +151,13 @@ export default function UrgeSavingsResolver() {
       toast.success("Urge Resolved Successfully!", { icon: "🏆" });
       setStep("success");
       setTimeout(() => {
+        setHasResolvedThisSession(true);
         setActiveUrge(null);
         setStep("initial");
       }, 3500);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to skip save");
     } finally {
       setIsSubmitting(false);
     }
@@ -173,9 +186,13 @@ export default function UrgeSavingsResolver() {
       toast.success("Reflection Logged", { icon: "📝" });
       setStep("success");
       setTimeout(() => {
+        setHasResolvedThisSession(true);
         setActiveUrge(null);
         setStep("initial");
       }, 3000);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to log reflection");
     } finally {
       setIsSubmitting(false);
     }
