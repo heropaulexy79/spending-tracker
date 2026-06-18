@@ -133,6 +133,23 @@ export default function UrgeSavingsResolver() {
     }
   };
 
+  const handleSkipSave = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      setDismissedIds(prev => new Set([...prev, activeUrge.id]));
+      await resolveUrge(activeUrge.id, "Resisted", false, 0);
+      toast.success("Urge Resolved Successfully!", { icon: "🏆" });
+      setStep("success");
+      setTimeout(() => {
+        setActiveUrge(null);
+        setStep("initial");
+      }, 3500);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handlePurchased = async () => {
     if (step === "initial" || step === "save_prompt") {
       setStep("purchased_feedback");
@@ -179,7 +196,7 @@ export default function UrgeSavingsResolver() {
 
           {/* Close button */}
           <button
-            onClick={() => setActiveUrge(null)}
+            onClick={handleMaybeLater}
             className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground transition-colors z-10"
           >
             <X className="w-4 h-4" />
@@ -279,7 +296,7 @@ export default function UrgeSavingsResolver() {
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     whileHover={{ scale: 1.02 }}
-                    onClick={handleMaybeLater}
+                    onClick={handleSkipSave}
                     disabled={isSubmitting}
                     className="w-full py-4 bg-background border border-border text-foreground rounded-2xl text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50"
                   >

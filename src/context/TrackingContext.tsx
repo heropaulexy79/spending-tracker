@@ -166,9 +166,12 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     };
   }, [user]);
 
+  const triggerFiredRef = React.useRef(false);
+
   // Handle auto-generating the emotional check-in
   useEffect(() => {
     if (!user || loading || notifications.length === 0 && checkIns.length === 0) return;
+    if (triggerFiredRef.current) return;
     
     const today = new Date();
     const dayOfWeek = today.getDay(); // 0(Sun), 1(Mon), 2(Tue), 3(Wed), 4(Thu), 5(Fri), 6(Sat)
@@ -186,6 +189,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       const hasCheckedInToday = checkIns.some(c => c.date === todayStr && c.emotion);
       
       if (!hasPendingCheckinNotif && !hasCheckedInToday) {
+        triggerFiredRef.current = true;
         addNotification(
           "How are you feeling?",
           "Tap to log your emotional state.",
