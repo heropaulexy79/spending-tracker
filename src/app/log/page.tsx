@@ -133,7 +133,7 @@ export default function LogPage() {
                       {log.category ? (
                         <>
                           <span className="px-3 py-1 bg-muted rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-border">
-                            {log.category}
+                            {log.trigger || log.category}
                           </span>
                           {log.subCategory && log.subCategory !== "None" && (
                             <span className="px-3 py-1 bg-muted/50 rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-border">

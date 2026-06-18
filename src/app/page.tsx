@@ -46,10 +46,14 @@ export default function Home() {
     );
   }
 
-  // Stats calculation
   const currentWeekKey = getWeekKey();
   const weeklyLogs = logs.filter(l => l.weekKey === currentWeekKey);
   const urgesResisted = urges.filter(u => u.action === "Resisted").length;
+
+  const todayStr = getLocalDateString(new Date());
+  const spendingEntriesToday = logs.filter(l => l.date === todayStr && !l.noSpendDay && !l.isSavings).length;
+  const delayedUrges = urges.filter(u => !u.action).length;
+
   const budgetValue = Number(plan?.budget) || 0;
   const totalSpent = weeklyLogs.filter(l => !l.isSavings).reduce((acc, log) => acc + (Number(log.amount) || 0), 0);
   
@@ -244,13 +248,23 @@ export default function Home() {
           </div>
           
           <div className="relative z-10 space-y-6">
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-2 max-w-[280px] mx-auto">
               <div className="px-3 py-1 bg-primary text-primary-foreground rounded-full text-[9px] font-bold uppercase tracking-widest shadow-lg shadow-primary/20">
                 🔥 {currentStreak} Day Awareness Streak
               </div>
               {urgesResisted > 0 && (
                 <div className="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-[9px] font-bold uppercase tracking-widest">
                    💰 {urgesResisted} Resisted Urges
+                </div>
+              )}
+              {spendingEntriesToday > 0 && (
+                <div className="px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full text-[9px] font-bold uppercase tracking-widest">
+                   💳 {spendingEntriesToday} Spending {spendingEntriesToday === 1 ? "Entry" : "Entries"} Today
+                </div>
+              )}
+              {delayedUrges > 0 && (
+                <div className="px-3 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded-full text-[9px] font-bold uppercase tracking-widest">
+                   ⏱ {delayedUrges} Delayed {delayedUrges === 1 ? "Urge" : "Urges"}
                 </div>
               )}
             </div>
@@ -442,7 +456,7 @@ export default function Home() {
               >
                 <div className="space-y-1">
                   <p className="font-bold text-foreground text-sm uppercase tracking-tight">
-                    {log.noSpendDay ? "🌿 No-Spend Day" : log.isSavings ? "💰 Saved" : log.category || "Choice"}
+                    {log.noSpendDay ? "🌿 No-Spend Day" : log.isSavings ? "💰 Saved" : (log.trigger || log.category || "Choice")}
                   </p>
                   <p className="text-[9px] text-muted-foreground font-bold tracking-widest uppercase">
                     {log.noSpendDay ? "Quiet Discipline" : sanitizeItem(log)}

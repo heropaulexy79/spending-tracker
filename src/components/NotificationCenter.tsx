@@ -19,7 +19,16 @@ const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: st
   urge_resisted:   { icon: <span className="text-sm">🏆</span>,    color: "text-amber-500",      bg: "bg-amber-500/10" },
   urge_purchased:  { icon: <span className="text-sm">📋</span>,    color: "text-blue-500",       bg: "bg-blue-500/10" },
   savings_logged:  { icon: <span className="text-sm">💰</span>,    color: "text-emerald-600",    bg: "bg-emerald-600/10" },
+  emotional_checkin:{ icon: <span className="text-sm">❤️</span>,    color: "text-rose-500",       bg: "bg-rose-500/10" },
 };
+
+const EMOTIONS = [
+  { label: "Happy", emoji: "😊", score: 5 },
+  { label: "Normal", emoji: "😐", score: 3 },
+  { label: "Stressed", emoji: "😔", score: 2 },
+  { label: "Frustrated", emoji: "😤", score: 1 },
+  { label: "Tired", emoji: "😴", score: 1 }
+];
 
 function timeAgo(createdAt: any): string {
   if (!createdAt) return "";
@@ -36,7 +45,7 @@ function timeAgo(createdAt: any): string {
 }
 
 export default function NotificationCenter() {
-  const { notifications, unreadCount, markAllRead } = useTracking();
+  const { notifications, unreadCount, markAllRead, markAsRead, addCheckIn } = useTracking();
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -150,6 +159,27 @@ export default function NotificationCenter() {
                           <p className="text-[9px] text-muted-foreground/50 font-bold uppercase tracking-wider pt-0.5">
                             {timeAgo(n.createdAt)}
                           </p>
+                          
+                          {n.type === "emotional_checkin" && !n.read && (
+                            <div className="pt-3 pb-1">
+                              <div className="grid grid-cols-5 gap-1">
+                                {EMOTIONS.map(e => (
+                                  <button
+                                    key={e.label}
+                                    onClick={async (ev) => {
+                                      ev.stopPropagation();
+                                      await addCheckIn(e.score, e.label);
+                                      await markAsRead(n.id);
+                                    }}
+                                    className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-muted/80 transition-all active:scale-95"
+                                  >
+                                    <span className="text-lg">{e.emoji}</span>
+                                    <span className="text-[8px] font-bold mt-1 text-muted-foreground">{e.label}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                         {!n.read && (
                           <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 shrink-0" />

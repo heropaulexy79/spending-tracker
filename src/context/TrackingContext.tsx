@@ -11,7 +11,7 @@ interface AppNotification {
   title: string;
   body: string;
   type: "coin_earned" | "urge_activated" | "urge_followup" | "weekly_summary" | "general"
-    | "spend_logged" | "no_spend_day" | "check_in" | "reflection" | "urge_resisted" | "urge_purchased" | "savings_logged";
+    | "spend_logged" | "no_spend_day" | "check_in" | "reflection" | "urge_resisted" | "urge_purchased" | "savings_logged" | "emotional_checkin";
   read: boolean;
   createdAt: any;
   data?: any;
@@ -40,10 +40,11 @@ interface TrackingContextType {
   addUrge: (urge: any) => Promise<void>;
   resolveUrge: (urgeId: string, action: "Resisted" | "Purchased", shouldSave?: boolean, saveAmount?: number, followUpData?: any) => Promise<void>;
   addReflection: (reflection: any) => Promise<void>;
-  addCheckIn: (score: number) => Promise<void>;
+  addCheckIn: (score: number, emotion?: string) => Promise<void>;
   updateRewards: (pointDelta: number, newBadge?: string) => Promise<void>;
   addNotification: (title: string, body: string, type: AppNotification["type"], data?: any) => Promise<void>;
   markAllRead: () => Promise<void>;
+  markAsRead: (id: string) => Promise<void>;
   getHistoricalData: (type: 'week' | 'month', key: string) => Promise<{ logs: any[], urges: any[] }>;
   triggerSystemNotification: (title: string, body: string) => Promise<void>;
 }
@@ -136,7 +137,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       }, (err) => console.error("Reflections Context Error:", err));
 
       const checkInsRef = collection(db, "users", user.uid, "checkins");
-      const qCheckIns = query(checkInsRef, where("weekKey", "==", weekKey));
+      const qCheckIns = query(checkInsRef, orderBy("createdAt", "desc"), limit(30));
       unsubCheckIns = onSnapshot(qCheckIns, (snap) => {
         const c = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setCheckIns(c);
@@ -165,6 +166,35 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     };
   }, [user]);
 
+  // Handle auto-generating the emotional check-in
+  useEffect(() => {
+    if (!user || loading || notifications.length === 0 && checkIns.length === 0) return;
+    
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0(Sun), 1(Mon), 2(Tue), 3(Wed), 4(Thu), 5(Fri), 6(Sat)
+    if (dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 6) {
+      const todayStr = getLocalDateString(today);
+      
+      // Check if we already have an emotional checkin notification today
+      const hasPendingCheckinNotif = notifications.some(n => 
+        n.type === "emotional_checkin" && 
+        n.createdAt && 
+        getLocalDateString(n.createdAt.seconds ? new Date(n.createdAt.seconds * 1000) : new Date(n.createdAt)) === todayStr
+      );
+      
+      // Check if user already checked in with an emotion today
+      const hasCheckedInToday = checkIns.some(c => c.date === todayStr && c.emotion);
+      
+      if (!hasPendingCheckinNotif && !hasCheckedInToday) {
+        addNotification(
+          "How are you feeling?",
+          "Tap to log your emotional state.",
+          "emotional_checkin"
+        );
+      }
+    }
+  }, [user, loading, notifications, checkIns]);
+
   const addNotification = async (title: string, body: string, type: AppNotification["type"], data?: any) => {
     if (!user) return;
     const notifRef = doc(collection(db, "users", user.uid, "notifications"));
@@ -181,11 +211,17 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
 
   const markAllRead = async () => {
     if (!user) return;
-    const unread = notifications.filter(n => !n.read);
+    const unread = notifications.filter(n => !n.read && n.type !== "emotional_checkin"); // don't auto-read emotional checkin
     await Promise.all(unread.map(n => {
       const ref = doc(db, "users", user.uid, "notifications", n.id);
       return updateDoc(ref, { read: true });
     }));
+  };
+
+  const markAsRead = async (id: string) => {
+    if (!user) return;
+    const ref = doc(db, "users", user.uid, "notifications", id);
+    await updateDoc(ref, { read: true });
   };
 
   const savePlan = async (newPlan: any) => {
@@ -371,12 +407,13 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const addCheckIn = async (score: number) => {
+  const addCheckIn = async (score: number, emotion?: string) => {
     if (!user) return;
     const weekKey = getWeekKey();
     const checkInRef = doc(collection(db, "users", user.uid, "checkins"));
     await setDoc(checkInRef, { 
       score: Number(score) || 0,
+      emotion: emotion || null,
       date: getLocalDateString(),
       uid: user.uid,
       weekKey, 
@@ -455,7 +492,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
       noSpendDayLogged, spendLoggedToday, urgeLoggedToday, reflectionLoggedToday, checkedInToday,
       monthlyIncome, preAppMonthlySpendingEstimate, savePlan, saveProjectionsBaseline,
       addLog, addUrge, resolveUrge, addReflection, addCheckIn, updateRewards,
-      addNotification, markAllRead, getHistoricalData, triggerSystemNotification
+      addNotification, markAllRead, markAsRead, getHistoricalData, triggerSystemNotification
     }}>
       {children}
     </TrackingContext.Provider>

@@ -33,6 +33,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
   const [isSavingsMode, setIsSavingsMode] = useState(false);
   const [isDone, setIsDone] = useState(false);
   const [isNoSpendDay, setIsNoSpendDay] = useState(false);
+  const [pendingLogData, setPendingLogData] = useState<any>(null);
 
   // Budget calculations
   const weekKey = getWeekKey();
@@ -69,7 +70,8 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
       date: getLocalDateString(),
       createdAt: new Date(),
     };
-    onSubmit(dataToSubmit);
+    
+    setPendingLogData(dataToSubmit);
 
     // Fire budget-exceeded notification if this log pushes them over
     if (!isSavingsMode && budgetValue > 0 && (totalSpent + enteredAmount) > budgetValue) {
@@ -86,8 +88,19 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
   };
 
   const handleReflectionSelect = (reflection: string) => {
+    if (pendingLogData) {
+      onSubmit({ ...pendingLogData, trigger: reflection });
+    }
     setIsDone(true);
     setTimeout(() => { window.location.href = "/"; }, 1500);
+  };
+
+  const handleMaybeLater = () => {
+    if (pendingLogData) {
+      onSubmit(pendingLogData);
+    }
+    setIsDone(true);
+    setTimeout(() => { window.location.href = "/"; }, 1000);
   };
 
   if (isDone) {
@@ -363,7 +376,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
                 </div>
 
                 <button
-                  onClick={() => { setIsDone(true); setTimeout(() => window.location.href = "/", 1000); }}
+                  onClick={handleMaybeLater}
                   className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Maybe Later
