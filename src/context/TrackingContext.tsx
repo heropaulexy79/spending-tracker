@@ -247,12 +247,21 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
   const addNotification = async (title: string, body: string, type: AppNotification["type"], data?: any) => {
     if (!user) return;
     const notifRef = doc(collection(db, "users", user.uid, "notifications"));
+
+    let cleanData = data || null;
+    if (cleanData && typeof cleanData === 'object') {
+      cleanData = { ...cleanData };
+      Object.keys(cleanData).forEach(key => {
+        if (cleanData[key] === undefined) delete cleanData[key];
+      });
+    }
+
     await setDoc(notifRef, {
       title,
       body,
       type,
       read: false,
-      data: data || null,
+      data: cleanData,
       createdAt: serverTimestamp(),
       uid: user.uid,
     });
@@ -374,12 +383,17 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
     const urgeRef = doc(db, "users", user.uid, "urges", urgeId);
     const urgeSnap = urges.find(u => u.id === urgeId);
     
+    let cleanFollowUp = followUpData ? { ...followUpData } : {};
+    Object.keys(cleanFollowUp).forEach(key => {
+      if (cleanFollowUp[key] === undefined) delete cleanFollowUp[key];
+    });
+
     await updateDoc(urgeRef, { 
       action,
       resolvedAt: serverTimestamp(),
       convertedToSavings: shouldSave,
       savedAmount: shouldSave ? (saveAmount || urgeSnap?.amount || 0) : null,
-      ...followUpData
+      ...cleanFollowUp
     });
 
     if (shouldSave && urgeSnap) {
