@@ -19,15 +19,13 @@ export default function UrgeSavingsResolver() {
   // Track urge IDs handled this session to prevent race-condition re-pop
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   // Prevent popping up multiple different urges in sequence
-  const [hasResolvedThisSession, setHasResolvedThisSession] = useState(false);
-
-  useEffect(() => {
+  // Use lazy initializer to avoid race condition on mount during client-side hydration
+  const [hasResolvedThisSession, setHasResolvedThisSession] = useState(() => {
     if (typeof window !== "undefined") {
-      if (sessionStorage.getItem("tracker_urge_resolved_session")) {
-        setHasResolvedThisSession(true);
-      }
+      return !!sessionStorage.getItem("tracker_urge_resolved_session");
     }
-  }, []);
+    return false;
+  });
 
   const markSessionResolved = () => {
     setHasResolvedThisSession(true);
@@ -74,6 +72,10 @@ export default function UrgeSavingsResolver() {
       // Already handled this session (local guard against race condition)
       if (dismissedIds.has(u.id)) return false;
       if (u.convertedToSavings !== null && u.convertedToSavings !== undefined) return false;
+      
+      // Filter out legacy corrupted urges that have no item or value
+      if (!u.amount || u.amount === 0) return false;
+      if (!u.item || u.item === "Unspecified Item" || u.item === "an item") return false;
 
       let createdAt: number;
       if (u.createdAt && typeof u.createdAt === "object" && "seconds" in u.createdAt) {
