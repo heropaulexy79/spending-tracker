@@ -21,6 +21,21 @@ export default function UrgeSavingsResolver() {
   // Prevent popping up multiple different urges in sequence
   const [hasResolvedThisSession, setHasResolvedThisSession] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (sessionStorage.getItem("tracker_urge_resolved_session")) {
+        setHasResolvedThisSession(true);
+      }
+    }
+  }, []);
+
+  const markSessionResolved = () => {
+    setHasResolvedThisSession(true);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("tracker_urge_resolved_session", "true");
+    }
+  };
+
   // Safe client-side hydration for localStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -114,7 +129,7 @@ export default function UrgeSavingsResolver() {
       toast.success("Urge Resolved Successfully!", { icon: "🏆" });
       setStep("success");
       setTimeout(() => {
-        setHasResolvedThisSession(true);
+        markSessionResolved();
         setActiveUrge(null);
         setStep("initial");
       }, 3500);
@@ -130,7 +145,7 @@ export default function UrgeSavingsResolver() {
     if (!user || !activeUrge) return;
     // Mark as dismissed immediately (local guard)
     setDismissedIds(prev => new Set([...prev, activeUrge.id]));
-    setHasResolvedThisSession(true);
+    markSessionResolved();
     setActiveUrge(null);
     setStep("initial");
     try {
@@ -151,7 +166,7 @@ export default function UrgeSavingsResolver() {
       toast.success("Urge Resolved Successfully!", { icon: "🏆" });
       setStep("success");
       setTimeout(() => {
-        setHasResolvedThisSession(true);
+        markSessionResolved();
         setActiveUrge(null);
         setStep("initial");
       }, 3500);
@@ -186,7 +201,7 @@ export default function UrgeSavingsResolver() {
       toast.success("Reflection Logged", { icon: "📝" });
       setStep("success");
       setTimeout(() => {
-        setHasResolvedThisSession(true);
+        markSessionResolved();
         setActiveUrge(null);
         setStep("initial");
       }, 3000);
@@ -237,8 +252,8 @@ export default function UrgeSavingsResolver() {
                   <h2 className="text-2xl font-serif text-foreground">You paused. 🎉</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     24 hours ago, you paused on buying{" "}
-                    <span className="font-bold text-foreground">{activeUrge.item}</span>{" "}
-                    ({currency}{Number(activeUrge.amount).toLocaleString()}). Did you resist or did you buy?
+                    <span className="font-bold text-foreground">{activeUrge.item || "an item"}</span>{" "}
+                    ({currency}{activeUrge.amount ? Number(activeUrge.amount).toLocaleString() : "0"}). Did you resist or did you buy?
                   </p>
                 </div>
 
@@ -296,7 +311,7 @@ export default function UrgeSavingsResolver() {
                     />
                   </div>
                   <p className="text-[10px] text-muted-foreground/60 text-center italic">
-                    Original urge amount: {currency}{Number(activeUrge.amount).toLocaleString()}. Enter any amount.
+                    Original urge amount: {currency}{activeUrge.amount ? Number(activeUrge.amount).toLocaleString() : "0"}. Enter any amount.
                   </p>
                 </div>
 
