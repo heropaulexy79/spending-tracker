@@ -11,13 +11,21 @@ export default function InstallPrompt() {
 
   useEffect(() => {
     // 1. Detect if already installed (standalone mode)
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches 
-      || (window.navigator as any).standalone 
-      || document.referrer.includes("android-app://");
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone ||
+      document.referrer.includes("android-app://");
 
     if (isStandalone) return;
 
-    // 2. Detect Platform
+    // 2. Check localStorage — respect permanent install or active snooze
+    const snoozedUntil = localStorage.getItem("pwa_install_snoozed_until");
+    const installed = localStorage.getItem("pwa_installed");
+
+    if (installed) return;
+    if (snoozedUntil && Date.now() < Number(snoozedUntil)) return;
+
+    // 3. Detect platform
     const userAgent = window.navigator.userAgent.toLowerCase();
     if (/iphone|ipad|ipod/.test(userAgent)) {
       setPlatform("ios");
@@ -25,16 +33,16 @@ export default function InstallPrompt() {
       setPlatform("android");
     }
 
-    // 3. Handle Android/Chrome Install Prompt
+    // 4. Android/Chrome — capture the beforeinstallprompt event
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowPrompt(true);
+      setTimeout(() => setShowPrompt(true), 3000);
     };
 
     window.addEventListener("beforeinstallprompt", handler);
 
-    // 4. Show prompt for mobile/Safari after a short delay if it doesn't support automatic prompt
+    // 5. iOS — no native event, show manual instructions after delay
     if (/iphone|ipad|ipod/.test(userAgent)) {
       const timer = setTimeout(() => setShowPrompt(true), 3000);
       return () => clearTimeout(timer);
@@ -43,17 +51,30 @@ export default function InstallPrompt() {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
+  const handleDismiss = () => {
+    // Snooze for 3 days — will show again after that
+    const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+    localStorage.setItem("pwa_install_snoozed_until", String(Date.now() + threeDaysMs));
+    setShowPrompt(false);
+  };
+
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
-      alert("Installation is not directly supported by this browser. You can install it using your browser's menu (e.g., tap the three dots ⋮ and select 'Add to Home screen' or 'Install app').");
+      alert(
+        "Installation is not directly supported by this browser. Tap the three dots ⋮ and select 'Add to Home screen' or 'Install app'."
+      );
       return;
     }
     try {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === "accepted") {
+        localStorage.setItem("pwa_installed", "true");
+        localStorage.removeItem("pwa_install_snoozed_until");
         setDeferredPrompt(null);
         setShowPrompt(false);
+      } else {
+        handleDismiss(); // Declined native prompt — snooze it
       }
     } catch (err) {
       console.error("Install prompt error:", err);
@@ -72,9 +93,9 @@ export default function InstallPrompt() {
           <div className="glass-card p-6 shadow-2xl relative overflow-hidden border-primary/20">
             {/* Background Glow */}
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 blur-3xl rounded-full" />
-            
-            <button 
-              onClick={() => setShowPrompt(false)}
+
+            <button
+              onClick={handleDismiss}
               className="absolute top-4 right-4 p-1 text-muted-foreground hover:text-foreground"
             >
               <X className="w-4 h-4" />
@@ -84,11 +105,13 @@ export default function InstallPrompt() {
               <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0">
                 <Download className="w-6 h-6 text-primary" />
               </div>
-              
+
               <div className="space-y-1">
-                <h3 className="text-xl font-serif text-foreground tracking-tight leading-tight">Crafting the Mind Spending and Behavioral Tracking</h3>
+                <h3 className="text-xl font-serif text-foreground tracking-tight leading-tight">
+                  Crafting the Mind Spending and Behavioral Tracking
+                </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  {platform === "ios" 
+                  {platform === "ios"
                     ? "Tap the share icon and select 'Add to Home Screen' for a premium experience."
                     : "Add to your home screen for quick access and behavioral reminders."}
                 </p>
@@ -109,7 +132,7 @@ export default function InstallPrompt() {
                 </button>
               )}
               <button
-                onClick={() => setShowPrompt(false)}
+                onClick={handleDismiss}
                 className="px-6 py-3 bg-muted text-foreground rounded-xl text-sm font-bold hover:bg-muted/80 transition-all"
               >
                 Maybe Later
