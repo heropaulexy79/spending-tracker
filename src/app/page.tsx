@@ -145,8 +145,20 @@ export default function Home() {
 
   const insight = getSpendingInsight();
 
-  const isMonday = new Date().getDay() === 1;
-  const needsWeeklyPlan = !plan?.budget; // Removed isMonday check so it shows up until set
+  const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const DAY_MESSAGES = [
+    "A fresh start to set your intentions for the week ahead.",         // Sunday
+    "A fresh start to decide how you want to move with your money.",    // Monday
+    "A great time to refine your spending intentions for the week.",    // Tuesday
+    "Mid-week check — set your plan and stay on track.",               // Wednesday
+    "Past the midpoint — a perfect moment to define your week's story.", // Thursday
+    "The week is almost done — set your intentions before the weekend.", // Friday
+    "Use the weekend wisely. Define how you'll move with money next week." // Saturday
+  ];
+  const todayDayIndex = new Date().getDay();
+  const todayDayName = DAY_NAMES[todayDayIndex];
+  const todayDayMessage = DAY_MESSAGES[todayDayIndex];
+  const needsWeeklyPlan = !plan?.budget;
 
   const handleCheckIn = async () => {
     if (isCheckingIn) return;
@@ -182,11 +194,11 @@ export default function Home() {
               <div className="space-y-2 relative z-10">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 opacity-70" />
-                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-70">Monday Intention</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-70">{todayDayName} Intention</p>
                 </div>
                 <h2 className="text-2xl font-serif">Set your week&apos;s story.</h2>
                 <p className="text-xs opacity-80 leading-relaxed max-w-[200px]">
-                  It&apos;s Monday. A fresh start to decide how you want to move with your money.
+                  {todayDayMessage}
                 </p>
               </div>
               <div className="pt-2">
