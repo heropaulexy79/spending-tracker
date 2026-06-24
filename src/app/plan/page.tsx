@@ -8,20 +8,15 @@ import { cn } from "@/lib/utils";
 import { useTracking } from "@/hooks/useTracking";
 import { getWeekKey } from "@/lib/dateUtils";
 
-
-const spenderTypes = ["Controlled", "Balanced", "Intentional", "Strict", "Not sure yet"];
-
 export default function PlanPage() {
   const { plan, logs, savePlan, loading } = useTracking();
   const [formData, setFormData] = useState({
     budget: "",
     essentials: "",
     savings: "",
-    spenderType: "Balanced",
   });
 
   const [isGoalsSaved, setIsGoalsSaved] = useState(false);
-  const [isIdentitySaved, setIsIdentitySaved] = useState(false);
 
   useEffect(() => {
     if (plan) {
@@ -29,7 +24,6 @@ export default function PlanPage() {
         budget: plan.budget || "",
         essentials: plan.essentials || "",
         savings: plan.savings || "",
-        spenderType: plan.spenderType || "Balanced",
       });
     }
   }, [plan]);
@@ -39,21 +33,9 @@ export default function PlanPage() {
       budget: formData.budget,
       savings: formData.savings,
       essentials: formData.essentials,
-      spenderType: formData.spenderType,
     });
     setIsGoalsSaved(true);
     setTimeout(() => setIsGoalsSaved(false), 3000);
-  };
-
-  const handleSaveIdentity = async () => {
-    await savePlan({
-      budget: formData.budget,
-      savings: formData.savings,
-      essentials: formData.essentials,
-      spenderType: formData.spenderType,
-    });
-    setIsIdentitySaved(true);
-    setTimeout(() => setIsIdentitySaved(false), 3000);
   };
 
   const currentWeekKey = getWeekKey();
@@ -149,44 +131,6 @@ export default function PlanPage() {
             </>
           ) : (
             "Track Weekly Spending"
-          )}
-        </button>
-      </div>
-
-      {/* CARD 2: Spender Identity */}
-      <div className="glass-card p-8 space-y-6">
-        <div className="space-y-5">
-          <h3 className="text-xl font-serif text-foreground">Spender Identity</h3>
-          <div className="grid grid-cols-1 gap-2">
-            {spenderTypes.map((type) => (
-              <button
-                key={type}
-                onClick={() => setFormData({ ...formData, spenderType: type })}
-                className={cn(
-                  "w-full py-5 px-6 rounded-2xl text-left border transition-all flex items-center justify-between group",
-                  formData.spenderType === type
-                    ? "bg-primary/20 border-primary/50 text-primary"
-                    : "bg-muted border-border text-muted-foreground hover:border-border/60 hover:text-foreground"
-                )}
-              >
-                <span className="text-sm font-bold uppercase tracking-widest">{type}</span>
-                {formData.spenderType === type && <CheckCircle className="w-5 h-5" />}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <button
-          onClick={handleSaveIdentity}
-          className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-bold hover:shadow-[0_0_20px_rgba(176,132,71,0.2)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4"
-        >
-          {isIdentitySaved ? (
-            <>
-              <CheckCircle className="w-5 h-5 text-emerald-400" />
-              Identity Set
-            </>
-          ) : (
-            "Set My Intention"
           )}
         </button>
       </div>

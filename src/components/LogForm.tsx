@@ -7,16 +7,95 @@ import { cn } from "@/lib/utils";
 import { useTracking } from "@/hooks/useTracking";
 import { getLocalDateString, getWeekKey } from "@/lib/dateUtils";
 
-const CATEGORIES = [
-  { label: "Food", emoji: "🍱", color: "bg-orange-500/10 text-orange-500" },
-  { label: "Transport", emoji: "🚌", color: "bg-blue-500/10 text-blue-500" },
-  { label: "Home", emoji: "🏠", color: "bg-emerald-500/10 text-emerald-500" },
-  { label: "Growth", emoji: "📚", color: "bg-violet-500/10 text-violet-500" },
-  { label: "Family", emoji: "❤️", color: "bg-rose-500/10 text-rose-500" },
-  { label: "Giving", emoji: "🤲", color: "bg-amber-500/10 text-amber-500" },
-];
+type CategoryData = {
+  emoji: string;
+  color: string;
+  subQuestion: string;
+  subCategories: string[];
+  triggerQuestion: string;
+  triggers: string[];
+};
 
-const MICRO_REFLECTIONS = [
+const CATEGORY_FLOW: Record<string, CategoryData> = {
+  "Food": {
+    emoji: "🍱", color: "bg-orange-500/10 text-orange-500",
+    subQuestion: "What was this spending for?",
+    subCategories: ["Lunch at work/school", "Food delivery", "Eating out", "Snacks & drinks", "Groceries/Foodstuff", "others"],
+    triggerQuestion: "What influenced this spending?",
+    triggers: ["Hunger", "Convenience", "Stress", "Social outing", "Rewarding myself", "No food at home", "Craving", "others"]
+  },
+  "Transport": {
+    emoji: "🚌", color: "bg-blue-500/10 text-blue-500",
+    subQuestion: "What was this spending for?",
+    subCategories: ["Bus", "Bolt/Uber", "Fuel purchase", "Bike/Keke", "Travel", "others"],
+    triggerQuestion: "What influenced this spending?",
+    triggers: ["Running late", "Comfort", "Work/School", "Safety", "Weather", "Emergency movement", "Distance", "others"]
+  },
+  "Bills & Living": {
+    emoji: "🧾", color: "bg-sky-500/10 text-sky-500",
+    subQuestion: "What was this spending for?",
+    subCategories: ["Data/Airtime", "Subscriptions", "Electricity", "Rent", "Generator fuel", "Others"],
+    triggerQuestion: "How would you describe this spending?",
+    triggers: ["Monthly routine", "Planned expense", "Family responsibility", "Unexpected bill", "Essential need", "others"]
+  },
+  "Growth": {
+    emoji: "📚", color: "bg-violet-500/10 text-violet-500",
+    subQuestion: "What was this spending for?",
+    subCategories: ["Books", "Online course", "Data for learning", "Mentorship/coaching", "Professional certification", "others"],
+    triggerQuestion: "What motivated this spending?",
+    triggers: ["Learning", "Career growth", "Business growth", "Personal development", "Curiosity", "others"]
+  },
+  "Family": {
+    emoji: "❤️", color: "bg-rose-500/10 text-rose-500",
+    subQuestion: "What was this spending for?",
+    subCategories: ["Sending money home", "Family support", "School fees", "Medical support", "Family celebration", "others"],
+    triggerQuestion: "What influenced this support?",
+    triggers: ["Responsibility", "Family request", "Emergency", "Celebration", "Love and care", "Obligation", "Special occasion", "others"]
+  },
+  "HOME": {
+    emoji: "🏠", color: "bg-emerald-500/10 text-emerald-500",
+    subQuestion: "What was this spending for?",
+    subCategories: ["Electricity", "Rent", "Generator Fuel", "Household Supplies", "Home Repairs/Maintenance", "others"],
+    triggerQuestion: "What influenced this spending?",
+    triggers: ["Essential household need", "Monthly routine", "Family responsibility", "Planned expense", "Unexpected issue", "Emergency", "others"]
+  },
+  "Giving": {
+    emoji: "🤲", color: "bg-amber-500/10 text-amber-500",
+    subQuestion: "What was this spending for?",
+    subCategories: ["Offering", "Tithe", "Charity donation", "Community contribution", "Support for someone in need", "others"],
+    triggerQuestion: "What inspired this giving?",
+    triggers: ["Gratitude", "Faith", "Compassion", "Community support", "Special cause", "others"]
+  },
+  "LIFESTYLE": {
+    emoji: "🥂", color: "bg-pink-500/10 text-pink-500",
+    subQuestion: "What was this spending for?",
+    subCategories: ["Aso-ebi", "Hair/barbing", "Fashion", "Entertainment", "Outing with friends", "Others"],
+    triggerQuestion: "What best describes this spending?",
+    triggers: ["Social pressure", "Looking good", "Celebration", "Enjoyment", "Peer influence", "Self-confidence", "others"]
+  },
+  "IMPULSE": {
+    emoji: "⚡", color: "bg-purple-500/10 text-purple-500",
+    subQuestion: "What was this spending for?",
+    subCategories: ["Online shopping", "Random purchase", "Flash sale", "Social media influence", "\"I just wanted it\"", "others"],
+    triggerQuestion: "What influenced this purchase?",
+    triggers: ["Boredom", "Stress", "Emotional spending", "FOMO", "Peer pressure", "Rewarding myself", "Temptation"]
+  },
+  "BUSINESS": {
+    emoji: "💼", color: "bg-indigo-500/10 text-indigo-500",
+    subQuestion: "What was this spending for?",
+    subCategories: ["Inventory/Stock", "Marketing & Advertising", "Logistics & Delivery", "Business Tools & Software", "Client/Project Expenses"],
+    triggerQuestion: "What was the goal of this spending?",
+    triggers: ["Business growth", "Serving a client", "Daily operations", "Maintaining quality", "New opportunity", "Long-term investment"]
+  }
+};
+
+const CATEGORIES = Object.keys(CATEGORY_FLOW).map(key => ({
+  label: key,
+  emoji: CATEGORY_FLOW[key].emoji,
+  color: CATEGORY_FLOW[key].color
+}));
+
+const DEFAULT_REFLECTIONS = [
   { label: "Stress", emoji: "😓", color: "bg-orange-500/10 text-orange-500" },
   { label: "Celebration", emoji: "🎉", color: "bg-emerald-500/10 text-emerald-500" },
   { label: "Family", emoji: "👨‍👩‍👧", color: "bg-rose-500/10 text-rose-500" },
@@ -27,7 +106,7 @@ const MICRO_REFLECTIONS = [
 
 export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void }) {
   const { plan, logs, noSpendDayLogged, spendLoggedToday, addNotification } = useTracking();
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [amount, setAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isSavingsMode, setIsSavingsMode] = useState(false);
@@ -84,7 +163,16 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
       );
     }
 
-    setStep(3);
+    if (isSavingsMode) {
+      setStep(4);
+    } else {
+      setStep(3);
+    }
+  };
+
+  const handleSubCategorySelect = (subCategory: string) => {
+    setPendingLogData((prev: any) => ({ ...prev, subCategory }));
+    setStep(4);
   };
 
   const handleReflectionSelect = (reflection: string) => {
@@ -248,7 +336,7 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
                           createdAt: new Date(),
                         });
                         setIsNoSpendDay(true);
-                        setStep(3);
+                        setStep(4);
                       }}
                       className="py-4 bg-primary/5 text-primary border border-primary/20 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary/10 transition-all"
                     >
@@ -314,9 +402,45 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
           </motion.div>
         )}
 
-        {step === 3 && (
+        {step === 3 && selectedCategory && CATEGORY_FLOW[selectedCategory] && (
           <motion.div
             key="step3"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-8"
+          >
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Step 3 of 3</p>
+              <h2 className="text-3xl font-serif">{CATEGORY_FLOW[selectedCategory].subQuestion}</h2>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              {CATEGORY_FLOW[selectedCategory].subCategories.map((sub) => (
+                <motion.button
+                  key={sub}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleSubCategorySelect(sub)}
+                  className="px-5 py-3 rounded-2xl border border-border bg-muted/30 hover:bg-primary/10 hover:border-primary/30 transition-all text-sm font-medium"
+                >
+                  {sub}
+                </motion.button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setStep(2)}
+              className="w-full py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Go Back
+            </button>
+          </motion.div>
+        )}
+
+        {step === 4 && (
+          <motion.div
+            key="step4"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="space-y-8 py-4 text-center"
@@ -355,22 +479,31 @@ export default function LogForm({ onSubmit }: { onSubmit: (data: any) => void })
               <div className="space-y-6">
                 <div className="space-y-2">
                   <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Micro Reflection</p>
-                  <h3 className="text-xl font-serif text-foreground">What was on your mind?</h3>
+                  <h3 className="text-xl font-serif text-foreground">
+                    {isSavingsMode ? "What was on your mind?" : (CATEGORY_FLOW[selectedCategory]?.triggerQuestion || "What was on your mind?")}
+                  </h3>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  {MICRO_REFLECTIONS.map((m) => (
+                <div className="flex flex-wrap justify-center gap-2">
+                  {(isSavingsMode || !CATEGORY_FLOW[selectedCategory]
+                    ? DEFAULT_REFLECTIONS.map(m => ({ label: m.label, emoji: m.emoji, color: m.color }))
+                    : CATEGORY_FLOW[selectedCategory].triggers.map(t => ({ label: t, emoji: "", color: "text-foreground bg-muted/20" }))
+                  ).map((m, idx) => (
                     <button
-                      key={m.label}
+                      key={m.label + idx}
                       onClick={() => handleReflectionSelect(m.label)}
                       className={cn(
-                        "flex flex-col items-center gap-2 p-4 rounded-2xl border border-border transition-all hover:border-primary/30 hover:bg-primary/5",
-                        m.color
+                        "flex items-center gap-2 rounded-2xl border border-border transition-all hover:border-primary/30 hover:bg-primary/5",
+                        m.color,
+                        m.emoji ? "flex-col p-4 min-w-[80px]" : "px-4 py-3"
                       )}
                       title={m.label}
                     >
-                      <span className="text-xl">{m.emoji}</span>
-                      <span className="text-[8px] font-bold uppercase tracking-widest leading-none">{m.label}</span>
+                      {m.emoji && <span className="text-xl">{m.emoji}</span>}
+                      <span className={cn(
+                        "font-bold uppercase tracking-widest text-center",
+                        m.emoji ? "text-[8px] leading-none" : "text-[10px]"
+                      )}>{m.label}</span>
                     </button>
                   ))}
                 </div>

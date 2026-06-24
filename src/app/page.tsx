@@ -282,7 +282,7 @@ export default function Home() {
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-3xl font-serif text-foreground">Level: {currentLevel}</h2>
+              <h2 className="text-3xl font-serif text-foreground">Your Identity: {currentLevel}</h2>
               <p className="text-sm text-muted-foreground leading-relaxed max-max-w-xs mx-auto">
                 {currentStreak > 0 
                   ? "Your story is becoming clearer. Every choice is data."
@@ -468,10 +468,10 @@ export default function Home() {
               >
                 <div className="space-y-1">
                   <p className="font-bold text-foreground text-sm uppercase tracking-tight">
-                    {log.noSpendDay ? "🌿 No-Spend Day" : log.isSavings ? "💰 Saved" : (log.trigger || log.category || "Choice")}
+                    {log.noSpendDay ? "🌿 No-Spend Day" : log.isSavings ? "💰 Saved" : (log.category || "Choice")}
                   </p>
                   <p className="text-[9px] text-muted-foreground font-bold tracking-widest uppercase">
-                    {log.noSpendDay ? "Quiet Discipline" : sanitizeItem(log)}
+                    {log.noSpendDay ? "Quiet Discipline" : (log.trigger || sanitizeItem(log))}
                   </p>
                 </div>
                 <p className="font-serif text-lg">
