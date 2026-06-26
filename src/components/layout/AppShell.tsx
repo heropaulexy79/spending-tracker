@@ -11,6 +11,7 @@ import CurrencySwitcher from "../CurrencySwitcher";
 import HelpModal from "../HelpModal";
 import UserProfileMenu from "../UserProfileMenu";
 import NotificationCenter from "../NotificationCenter";
+import DemoUpgradeModal from "../DemoUpgradeModal";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { doc, setDoc } from "firebase/firestore";
@@ -23,6 +24,28 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [isDemoExpired, setIsDemoExpired] = useState(false);
+  const [demoDaysRemaining, setDemoDaysRemaining] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (user && user.isAnonymous && user.metadata.creationTime) {
+      const creationDate = new Date(user.metadata.creationTime);
+      const now = new Date();
+      const diffTime = Math.abs(now.getTime() - creationDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays > 7) {
+        setIsDemoExpired(true);
+        setShowUpgradeModal(true);
+      } else {
+        setDemoDaysRemaining(7 - diffDays + 1);
+      }
+    } else {
+      setIsDemoExpired(false);
+      setDemoDaysRemaining(null);
+    }
+  }, [user]);
 
   useEffect(() => {
     setMounted(true);
@@ -105,6 +128,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return null;
   }
 
+  // 3. If demo expired, block app access
+  if (isDemoExpired) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <DemoUpgradeModal isOpen={true} onClose={() => {}} isExpired={true} />
+      </div>
+    );
+  }
+
   return (
     <>
       <header className="max-w-lg mx-auto px-4 pt-10 pb-2">
@@ -152,10 +184,29 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         )}
       </header>
       <main className="max-w-lg mx-auto px-4 py-8">
+        {user?.isAnonymous && !isDemoExpired && (
+          <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Demo Account</p>
+              <p className="text-xs text-muted-foreground">{demoDaysRemaining} days remaining</p>
+            </div>
+            <button 
+              onClick={() => setShowUpgradeModal(true)}
+              className="px-4 py-2 bg-primary text-primary-foreground text-xs font-bold rounded-xl active:scale-95 transition-all"
+            >
+              Save Progress
+            </button>
+          </div>
+        )}
         {children}
       </main>
       {user && <BottomNav />}
       <HelpModal isOpen={showHelpModal} onClose={() => setShowHelpModal(false)} />
+      <DemoUpgradeModal 
+        isOpen={showUpgradeModal} 
+        onClose={() => setShowUpgradeModal(false)} 
+        isExpired={isDemoExpired}
+      />
     </>
   );
 }

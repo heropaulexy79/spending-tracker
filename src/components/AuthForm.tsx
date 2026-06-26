@@ -339,12 +339,32 @@ export default function AuthForm() {
             Back to Login
           </button>
         ) : (
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
-          >
-            {isLogin ? "New here? Create an account" : "Already have an account? Sign in"}
-          </button>
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={async () => {
+                setLoading(true);
+                setError("");
+                try {
+                  const { signInAnonymously } = await import("firebase/auth");
+                  await signInAnonymously(auth);
+                } catch (err: any) {
+                  setError(getFriendlyErrorMessage(err.code));
+                  setLoading(false);
+                }
+              }}
+              disabled={loading}
+              className="text-sm text-primary hover:text-primary/80 transition-colors font-bold"
+            >
+              Try a 7-Day Demo
+            </button>
+            <button
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
+            >
+              {isLogin ? "New here? Create an account" : "Already have an account? Sign in"}
+            </button>
+          </div>
         )}
       </div>
 
