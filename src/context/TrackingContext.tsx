@@ -235,7 +235,7 @@ export function TrackingProvider({ children }: { children: React.ReactNode }) {
           case 5:
             title = "Weekend Prep";
             body = "Review your past urges before the weekend. Tap to view your History.";
-            path = "/history";
+            path = "/mirror";
             break;
         }
 
