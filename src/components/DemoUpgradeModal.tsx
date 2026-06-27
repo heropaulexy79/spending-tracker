@@ -71,20 +71,7 @@ export default function DemoUpgradeModal({ isOpen, onClose, isExpired = false }:
       const result = await linkWithCredential(user, credential);
       await updateProfile(result.user, { displayName: formData.name });
       
-      // Trigger Welcome Email (Now Secure)
-      try {
-        const idToken = await result.user.getIdToken();
-        await fetch("/api/welcome", {
-          method: "POST",
-          body: JSON.stringify({ email: formData.email, name: formData.name }),
-          headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${idToken}`
-          },
-        });
-      } catch (e) {
-        console.error("Failed to send welcome email:", e);
-      }
+      // Email removed based on user request
 
       await grantWelcomeCoins(result.user.uid);
       
